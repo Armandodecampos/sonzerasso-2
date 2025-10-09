@@ -3,369 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Login</title>
-    <!-- Carrega o Tailwind CSS para estilização rápida e responsiva -->
+    <title>Music App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Importa a fonte Inter para uma aparência moderna */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-        
         body {
             font-family: 'Inter', sans-serif;
             @apply bg-gray-100;
         }
-
-        /* Remove o destaque azul ao tocar em botões em dispositivos móveis */
         button {
             -webkit-tap-highlight-color: transparent;
         }
     </style>
 </head>
 <body>
-    <!-- Container principal que centraliza o conteúdo na tela -->
-    <div id="main-container" class="flex items-center justify-center min-h-screen p-4">
-        
-        <div id="app" class="w-full max-w-md">
-            <!-- Tela Inicial: Botão para acessar os perfis -->
-            <div id="initial-login-view" class="text-center">
-                 <button id="show-profiles-button" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-2xl rounded-md shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out">
-                    Acessar
-                </button>
+    <div id="app-container" class="flex items-center justify-center min-h-screen p-4">
+
+        <!-- Formulário de Login com Email e Senha -->
+        <div id="login-view" class="w-full max-w-sm space-y-6">
+            <h2 class="text-3xl font-bold text-center text-gray-800">Login</h2>
+
+            <!-- Campo do Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" autocomplete="email" required
+                       class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
             </div>
 
-            <!-- Tela de Seleção de Usuário (inicialmente escondida) -->
-            <div id="user-list-container" class="hidden fixed inset-0 bg-gray-100 flex flex-col items-center justify-center gap-8 p-4">
-                <div id="user-cards-wrapper" class="flex flex-col items-center gap-8 w-full max-w-sm">
-                    <!-- Cards de usuário serão injetados aqui via JavaScript -->
+            <!-- Campo da Senha -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                <input type="password" id="password" autocomplete="current-password" required
+                       class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
+            </div>
+
+            <!-- Botão de Entrar -->
+            <button id="login-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg">
+                Entrar
+            </button>
+            <p id="error-message" class="text-red-500 text-center"></p>
+        </div>
+
+        <!-- Conteúdo Principal do Aplicativo (inicialmente escondido) -->
+        <div id="main-app-view" class="hidden w-full max-w-6xl mx-auto my-8 p-4">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">Music Player</h1>
+                    <button id="logout-button" class="px-5 py-2 bg-red-600 text-white font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">Logout</button>
                 </div>
-                <button id="back-to-initial-button" class="absolute top-6 left-6 px-4 py-2 bg-white text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-200 focus:outline-none transition-all flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Voltar
-                </button>
-            </div>
 
-            <!-- Formulário de Login com Senha (inicialmente escondido) -->
-            <div id="login-form-container" class="hidden fixed inset-0 bg-gray-100 flex flex-col items-center justify-center p-4">
-                <div class="w-full max-w-xs space-y-4">
-                    <!-- Exibe o nome do usuário selecionado -->
-                    <div class="flex flex-col items-center mb-2">
-                        <p id="selected-user-name" class="text-xl font-bold text-gray-800"></p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Coluna da Esquerda: Playlists do Usuário -->
+                    <div class="md:col-span-1">
+                        <h2 class="text-2xl font-semibold mb-4">Minhas Pastas</h2>
+                        <div id="playlists-container" class="space-y-3 mb-4">
+                            <!-- As playlists do usuário serão inseridas aqui -->
+                            <p class="text-gray-500">Nenhuma pasta criada ainda.</p>
+                        </div>
+                        <button id="create-playlist-button" class="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Criar Nova Pasta
+                        </button>
                     </div>
 
-                    <!-- Campo da Senha -->
-                    <div class="w-full">
-                        <label for="password" class="block text-lg font-medium text-gray-700 text-center mb-2">Senha</label>
-                        <input type="password" id="password" autocomplete="current-password" class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-center text-lg">
+                    <!-- Coluna da Direita: Explorar Músicas -->
+                    <div class="md:col-span-2">
+                        <h2 class="text-2xl font-semibold mb-4">Explorar Músicas</h2>
+                        <ul id="explore-music-list" class="h-96 overflow-y-auto border rounded-lg p-2 bg-gray-50">
+                            <!-- A lista de músicas estática será inserida aqui -->
+                        </ul>
                     </div>
-
-                    <!-- Botão de Entrar -->
-                    <button id="login-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg">
-                        Entrar
-                    </button>
-
-                    <!-- Botão para redefinir senha -->
-                    <button id="reset-password-button" class="!mt-2 w-full text-sm text-gray-600 hover:text-indigo-600 hover:underline focus:outline-none transition-colors duration-200">
-                        Esqueci minha senha
-                    </button>
                 </div>
-
-                <!-- Botão Voltar para a lista de usuários -->
-                <button id="back-button" class="absolute top-6 left-6 px-4 py-2 bg-white text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-200 focus:outline-none transition-all flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Voltar
-                </button>
-            </div>
-
-            <!-- Formulário para Definir Nova Senha (após recuperação) -->
-            <div id="new-password-container" class="hidden space-y-6 bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
-                <h2 class="text-center font-semibold text-gray-700 text-xl">Defina sua nova senha</h2>
-                <div class="relative">
-                    <label for="new-password" class="block text-sm font-medium text-gray-700">Nova Senha</label>
-                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div class="relative">
-                    <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirme a Senha</label>
-                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <button id="update-password-button" class="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-                    Confirmar
-                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Modal para confirmação de redefinição de senha -->
-    <div id="reset-password-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
-            <h3 class="text-xl font-bold text-gray-800">Verifique seu Email</h3>
-            <p class="text-gray-700">Um link para redefinição de senha foi enviado para <span id="reset-email-display" class="font-semibold text-indigo-600"></span>. Siga as instruções para criar uma nova senha.</p>
-            <button id="close-modal-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">OK</button>
-        </div>
-    </div>
-
-    <!-- Modal de Mensagem de Espera (limite de taxa de emails) -->
-    <div id="wait-message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
-            <h3 class="text-xl font-bold text-gray-800">Aguarde</h3>
-            <p class="text-gray-700">É necessário aguardar para enviar outro e-mail. Por favor, aguarde <span id="wait-time" class="font-semibold text-indigo-600"></span> segundos.</p>
-            <button id="close-wait-modal" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">OK</button>
-        </div>
     </div>
 
     <script type="module">
-        // Importa o cliente do Supabase
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
         // --- CONFIGURAÇÃO DO SUPABASE ---
-        // É crucial substituir os valores abaixo pelas suas chaves do projeto Supabase.
-        const SUPABASE_URL = 'https://jtwybbvfbcwitbumsxno.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3liYnZmYmN3aXRidW1zeG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMTc4NTUsImV4cCI6MjA3MzY5Mzg1NX0.Q9ro0O3dSSGEPMukNHz-wqoHBUMdEVPKKPoCVH_1epQ';
+        const SUPABASE_URL = 'https://xukxlgorxpusgiyiesjy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1a3hsZ29yeHB1c2dpeWllc2p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjA4NTUsImV4cCI6MjA3NTU5Njg1NX0.CQvHZc2f_xrNkhDJ6keQRP-txT7fXddRUkBdvHC8lUA';
 
-        // Cria o cliente Supabase, configurado para não manter a sessão no navegador
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                persistSession: false
+                persistSession: true // Manter a sessão do usuário
             }
         });
 
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
-        const mainContainer = document.getElementById('main-container');
-        const initialLoginView = document.getElementById('initial-login-view');
-        const showProfilesButton = document.getElementById('show-profiles-button');
-        const userListContainer = document.getElementById('user-list-container');
-        const userCardsWrapper = document.getElementById('user-cards-wrapper');
-        const backToInitialButton = document.getElementById('back-to-initial-button');
-        const loginFormContainer = document.getElementById('login-form-container');
-        const selectedUserName = document.getElementById('selected-user-name');
+        const loginView = document.getElementById('login-view');
+        const mainAppView = document.getElementById('main-app-view');
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const loginButton = document.getElementById('login-button');
-        const resetPasswordButton = document.getElementById('reset-password-button');
-        const backButton = document.getElementById('back-button');
-        const resetPasswordModal = document.getElementById('reset-password-modal');
-        const resetEmailDisplay = document.getElementById('reset-email-display');
-        const closeModalButton = document.getElementById('close-modal-button');
-        const newPasswordContainer = document.getElementById('new-password-container');
-        const newPasswordInput = document.getElementById('new-password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        const updatePasswordButton = document.getElementById('update-password-button');
-        const waitMessageModal = document.getElementById('wait-message-modal');
-        const waitTimeSpan = document.getElementById('wait-time');
-        const closeWaitModalButton = document.getElementById('close-wait-modal');
+        const logoutButton = document.getElementById('logout-button');
+        const errorMessage = document.getElementById('error-message');
+        const exploreMusicList = document.getElementById('explore-music-list');
+        const playlistsContainer = document.getElementById('playlists-container');
+        const createPlaylistButton = document.getElementById('create-playlist-button');
 
-        // --- VARIÁVEIS DE ESTADO ---
-        let selectedEmail = '';
+
+        // --- DADOS ---
+        const musicData = `
+            <li data-src="https://www.archive.org/download/rocknacional80/14 Bis - Linda Juventude.mp3" data-peso="1" data-imagem="https://dl.dropbox.com/scl/fi/dzepffs8a3on6ca6qzdqv/Brazuca-Rock.webp?rlkey=di5hen69s51er8332qok7pqwk&st=sn3sqqzr&dl=0"><span class="artista">14 Bis</span><span class="album"></span><span class="musica">Linda Juventude</span><span class="identificador" style="display:none">rocknacional80</span></li>
+            <li data-src="https://www.archive.org/download/rocknacional80/14 Bis - Mesmo de Brincadeira.mp3" data-peso="1" data-imagem="https://dl.dropbox.com/scl/fi/dzepffs8a3on6ca6qzdqv/Brazuca-Rock.webp?rlkey=di5hen69s51er8332qok7pqwk&st=sn3sqqzr&dl=0"><span class="artista">14 Bis</span><span class="album"></span><span class="musica">Mesmo de Brincadeira</span><span class="identificador" style="display:none">rocknacional80</span></li>
+            <li data-src="https://www.archive.org/download/rocknacional80/14 Bis - Nova manhã.mp3" data-peso="1" data-imagem="https://dl.dropbox.com/scl/fi/dzepffs8a3on6ca6qzdqv/Brazuca-Rock.webp?rlkey=di5hen69s51er8332qok7pqwk&st=sn3sqqzr&dl=0"><span class="artista">14 Bis</span><span class="album"></span><span class="musica">Nova Manhã</span><span class="identificador" style="display:none">rocknacional80</span></li>
+        `;
 
         // --- FUNÇÕES DE UI ---
-
-        /**
-         * Alterna a visibilidade das diferentes telas do sistema de login.
-         * @param {('initial'|'user-list'|'login'|'new-password')} view - O nome da tela a ser exibida.
-         */
-        function toggleUI(view) {
-            // Esconde todas as telas primeiro
-            initialLoginView.classList.add('hidden');
-            userListContainer.classList.add('hidden');
-            loginFormContainer.classList.add('hidden');
-            newPasswordContainer.classList.add('hidden');
-            
-            // Mostra a tela correta
-            if (view === 'user-list') {
-                userListContainer.classList.remove('hidden');
-                userListContainer.classList.add('flex');
-            } else if (view === 'login') {
-                loginFormContainer.classList.remove('hidden');
-                loginFormContainer.classList.add('flex');
-            } else if (view === 'new-password') {
-                newPasswordContainer.classList.remove('hidden');
-            } else { // A vista padrão é a inicial
-                initialLoginView.classList.remove('hidden');
+        function toggleViews(isLoggedIn) {
+            if (isLoggedIn) {
+                loginView.classList.add('hidden');
+                mainAppView.classList.remove('hidden');
+                // Ajuste para não forçar a centralização, permitindo que o layout flua
+                mainAppView.classList.remove('items-center', 'justify-center');
+            } else {
+                loginView.classList.remove('hidden');
+                mainAppView.classList.add('hidden');
             }
         }
 
-        /**
-         * Exibe o modal de espera com uma contagem regressiva.
-         * @param {number} seconds - O tempo em segundos para a contagem.
-         */
-        function showWaitModal(seconds) {
-            let timeLeft = seconds;
-            waitTimeSpan.textContent = timeLeft;
-            waitMessageModal.classList.remove('hidden');
-            waitMessageModal.classList.add('flex');
-
-            const timer = setInterval(() => {
-                timeLeft--;
-                waitTimeSpan.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    waitMessageModal.classList.add('hidden');
-                    waitMessageModal.classList.remove('flex');
-                }
-            }, 1000);
+        function renderExploreMusic() {
+            exploreMusicList.innerHTML = musicData;
+            // Adicionar botão de adicionar a cada música
+            exploreMusicList.querySelectorAll('li').forEach(item => {
+                const addButton = document.createElement('button');
+                addButton.textContent = '+';
+                addButton.className = 'ml-4 px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs';
+                addButton.onclick = () => addSongToPlaylist(item);
+                item.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'hover:bg-gray-200', 'rounded-md');
+                item.appendChild(addButton);
+            });
         }
 
-        // --- FUNÇÕES DE DADOS (SUPABASE) ---
+        async function fetchAndRenderPlaylists() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
 
-        /**
-         * Busca os perfis de usuário no Supabase e os exibe na tela de seleção.
-         */
-        async function fetchUsers() {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('username, profile_name');
+            const { data: playlists, error } = await supabase
+                .from('playlists')
+                .select('*')
+                .eq('user_id', user.id);
 
             if (error) {
-                console.error('Erro ao buscar usuários:', error);
-                userCardsWrapper.innerHTML = `<p class="text-center text-red-500">Erro ao carregar perfis.</p>`;
-            } else if (data.length === 0) {
-                 userCardsWrapper.innerHTML = '<p class="text-center text-gray-500">Nenhum usuário encontrado.</p>';
-            } else {
-                // Ordena os usuários em ordem alfabética pelo nome do perfil
-                data.sort((a, b) => {
-                    const nameA = (a.profile_name || a.username).toLowerCase();
-                    const nameB = (b.profile_name || b.username).toLowerCase();
-                    return nameA.localeCompare(nameB);
-                });
+                console.error('Erro ao buscar playlists:', error);
+                return;
+            }
 
-                userCardsWrapper.innerHTML = '';
-                data.forEach(user => {
-                    const userCard = document.createElement('button');
-                    userCard.className = 'w-full px-8 py-4 bg-white hover:bg-gray-200 text-indigo-600 font-bold text-2xl rounded-md shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out';
-                    userCard.dataset.email = user.username;
-                    userCard.textContent = user.profile_name || user.username;
-                    userCardsWrapper.appendChild(userCard);
+            playlistsContainer.innerHTML = '';
+            if (playlists.length === 0) {
+                playlistsContainer.innerHTML = '<p class="text-gray-500">Nenhuma pasta criada ainda.</p>';
+            } else {
+                playlists.forEach(playlist => {
+                    const playlistElement = document.createElement('div');
+                    playlistElement.className = 'p-3 bg-gray-100 rounded-md cursor-pointer hover:bg-gray-200';
+                    playlistElement.textContent = playlist.name;
+                    playlistElement.onclick = () => viewPlaylist(playlist);
+                    playlistsContainer.appendChild(playlistElement);
                 });
             }
         }
         
-        // --- EVENT LISTENERS (OUVINTES DE EVENTOS) ---
+        async function addSongToPlaylist(songItem) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert("Você precisa estar logado para adicionar músicas.");
+                return;
+            }
 
-        showProfilesButton.addEventListener('click', () => {
-            toggleUI('user-list');
-        });
+            // Primeiro, vamos buscar as playlists do usuário para ele poder escolher
+            const { data: playlists, error: playlistsError } = await supabase
+                .from('playlists')
+                .select('id, name')
+                .eq('user_id', user.id);
 
-        userListContainer.addEventListener('click', (e) => {
-            const userCard = e.target.closest('button[data-email]');
-            if (userCard) {
-                selectedEmail = userCard.dataset.email;
-                selectedUserName.textContent = userCard.textContent;
-                toggleUI('login');
-                passwordInput.focus();
+            if (playlistsError || playlists.length === 0) {
+                alert("Crie uma pasta primeiro para poder adicionar músicas!");
+                return;
+            }
+
+            const playlistNames = playlists.map(p => `${p.id}:${p.name}`).join('\n');
+            const chosenPlaylistId = prompt(`Digite o ID da pasta para adicionar a música:\n${playlists.map(p => `${p.id}: ${p.name}`).join('\n')}`);
+
+            if (!chosenPlaylistId) return;
+
+            const playlist = playlists.find(p => p.id.toString() === chosenPlaylistId);
+            if (!playlist) {
+                alert("ID da pasta inválido.");
+                return;
+            }
+
+            const songData = {
+                playlist_id: playlist.id,
+                src: songItem.dataset.src,
+                artist: songItem.querySelector('.artista').textContent,
+                music: songItem.querySelector('.musica').textContent,
+                image: songItem.dataset.imagem
+            };
+
+            const { error } = await supabase.from('playlist_songs').insert(songData);
+
+            if (error) {
+                alert('Erro ao adicionar música à pasta.');
+                console.error('Erro ao adicionar música:', error);
+            } else {
+                alert(`Música "${songData.music}" adicionada à pasta "${playlist.name}"!`);
+            }
+        }
+
+        function viewPlaylist(playlist) {
+            // Futuramente: mostrar as músicas da playlist selecionada
+            alert(`Visualizando a pasta: ${playlist.name}`);
+        }
+
+        // --- EVENT LISTENERS ---
+        createPlaylistButton.addEventListener('click', async () => {
+            const name = prompt("Digite o nome da nova pasta:");
+            if (name) {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { error } = await supabase.from('playlists').insert({ name, user_id: user.id });
+                    if (error) {
+                        alert('Erro ao criar a pasta.');
+                        console.error("Erro ao criar playlist:", error);
+                    } else {
+                        await fetchAndRenderPlaylists();
+                    }
+                }
             }
         });
 
         loginButton.addEventListener('click', async () => {
-            const email = selectedEmail;
+            const email = emailInput.value;
             const password = passwordInput.value;
+            errorMessage.textContent = ''; // Limpa a mensagem de erro
+
+            if (!email || !password) {
+                errorMessage.textContent = 'Por favor, insira o email e a senha.';
+                return;
+            }
+
             const { error } = await supabase.auth.signInWithPassword({ email, password });
 
             if (error) {
-                alert('Senha incorreta. Tente novamente.');
                 console.error('Erro no login:', error.message);
-                passwordInput.value = '';
-                passwordInput.focus();
+                errorMessage.textContent = 'Email ou senha inválidos.';
             }
         });
 
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); 
-                loginButton.click();
-            }
-        });
-
-        resetPasswordButton.addEventListener('click', async () => {
-            const email = selectedEmail;
-            const redirectToUrl = `${window.location.origin}${window.location.pathname}`;
-
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: redirectToUrl
-            });
-
-            if (error) {
-                console.error('Erro ao redefinir senha:', error);
-                if (error.status === 429) { // Trata o erro de "Too Many Requests"
-                    const waitTimeMatch = error.message.match(/after (\d+) seconds/);
-                    const waitTime = waitTimeMatch ? parseInt(waitTimeMatch[1]) : 60;
-                    showWaitModal(waitTime);
-                }
-            } else {
-                resetEmailDisplay.textContent = email;
-                resetPasswordModal.classList.remove('hidden');
-                resetPasswordModal.classList.add('flex');
-            }
-        });
-
-        backButton.addEventListener('click', () => {
-            toggleUI('user-list');
-            passwordInput.value = '';
-        });
-
-        backToInitialButton.addEventListener('click', () => {
-            toggleUI('initial');
-        });
-
-        updatePasswordButton.addEventListener('click', async () => {
-            const newPassword = newPasswordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-
-            if (newPassword.length < 6) {
-                alert('A senha deve ter no mínimo 6 caracteres.');
-                return;
-            }
-            if (newPassword !== confirmPassword) {
-                alert('As senhas não coincidem.');
-                return;
-            }
-
-            const { error } = await supabase.auth.updateUser({ password: newPassword });
-
-            if (error) {
-                alert('Ocorreu um erro ao atualizar a senha. O link de recuperação pode ter expirado.');
-                console.error('Erro ao atualizar senha:', error);
-            } else {
-                alert('Senha atualizada com sucesso!');
-                // Limpa o hash da URL e recarrega a página para a tela inicial
-                window.location.hash = '';
-                window.location.reload();
-            }
-        });
-
-        closeModalButton.addEventListener('click', () => {
-            resetPasswordModal.classList.add('hidden');
-            resetPasswordModal.classList.remove('flex');
-        });
-
-        closeWaitModalButton.addEventListener('click', () => {
-            waitMessageModal.classList.add('hidden');
-            waitMessageModal.classList.remove('flex');
+        logoutButton.addEventListener('click', async () => {
+            await supabase.auth.signOut();
         });
 
         // --- GERENCIAMENTO DE ESTADO DE AUTENTICAÇÃO ---
-
         supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN') {
-                // Se o login for bem-sucedido, exibe uma mensagem e faz logout,
-                // já que não há uma área "logada" nesta versão.
-                alert('Login bem-sucedido!');
-                await supabase.auth.signOut();
-            } else if (event === 'SIGNED_OUT') {
-                // Após o logout, volta para a tela inicial.
-                passwordInput.value = '';
-                toggleUI('initial');
-            } else if (event === 'PASSWORD_RECOVERY') {
-                // Se o evento for de recuperação de senha, mostra a tela para criar uma nova senha.
-                toggleUI('new-password');
+            toggleViews(!!session);
+            if (session) {
+                renderExploreMusic();
+                await fetchAndRenderPlaylists();
             }
         });
-        
+
         // --- INICIALIZAÇÃO ---
-        
-        // Busca os usuários assim que a página carrega.
-        fetchUsers();
+        // Verifica o estado de autenticação inicial ao carregar a página
+        const checkInitialSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            toggleViews(!!session);
+            if (session) {
+                renderExploreMusic();
+                await fetchAndRenderPlaylists();
+            }
+        };
+
+        checkInitialSession();
 
     </script>
 </body>
