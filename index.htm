@@ -348,10 +348,9 @@
 
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN') {
-                // Se o login for bem-sucedido, exibe uma mensagem e faz logout,
-                // já que não há uma área "logada" nesta versão.
-                alert('Login bem-sucedido!');
-                await supabase.auth.signOut();
+                // Após o login, limpa a tela para exibir uma página em branco.
+                document.body.innerHTML = '';
+                document.body.style.backgroundColor = 'white'; // Garante fundo branco
             } else if (event === 'SIGNED_OUT') {
                 // Após o logout, volta para a tela inicial.
                 passwordInput.value = '';
