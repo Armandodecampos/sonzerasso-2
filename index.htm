@@ -9,7 +9,7 @@
     <style>
         /* Importa a fonte Inter para uma aparência moderna */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-
+        
         body {
             font-family: 'Inter', sans-serif;
             @apply bg-gray-100;
@@ -24,32 +24,59 @@
 <body>
     <!-- Container principal que centraliza o conteúdo na tela -->
     <div id="main-container" class="flex items-center justify-center min-h-screen p-4">
-
+        
         <div id="app" class="w-full max-w-md">
-            <!-- Formulário de Login com Email e Senha -->
-            <div id="login-form-container" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm space-y-6">
-                <h2 class="text-center font-bold text-gray-800 text-3xl">Login</h2>
-
-                <!-- Campo do Email -->
-                <div>
-                    <label for="email" class="block text-lg font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email" autocomplete="email" class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
-                </div>
-
-                <!-- Campo da Senha -->
-                <div>
-                    <label for="password" class="block text-lg font-medium text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="password" autocomplete="current-password" class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
-                </div>
-
-                <!-- Botão de Entrar -->
-                <button id="login-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg">
-                    Entrar
+            <!-- Tela Inicial: Botão para acessar os perfis -->
+            <div id="initial-login-view" class="text-center">
+                 <button id="show-profiles-button" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-2xl rounded-md shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out">
+                    Acessar
                 </button>
+            </div>
 
-                <!-- Botão para redefinir senha -->
-                <button id="reset-password-button" class="!mt-2 w-full text-sm text-center text-gray-600 hover:text-indigo-600 hover:underline focus:outline-none transition-colors duration-200">
-                    Esqueci minha senha
+            <!-- Tela de Seleção de Usuário (inicialmente escondida) -->
+            <div id="user-list-container" class="hidden fixed inset-0 bg-gray-100 flex flex-col items-center justify-center gap-8 p-4">
+                <div id="user-cards-wrapper" class="flex flex-col items-center gap-8 w-full max-w-sm">
+                    <!-- Cards de usuário serão injetados aqui via JavaScript -->
+                </div>
+                <button id="back-to-initial-button" class="absolute top-6 left-6 px-4 py-2 bg-white text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-200 focus:outline-none transition-all flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Voltar
+                </button>
+            </div>
+
+            <!-- Formulário de Login com Senha (inicialmente escondido) -->
+            <div id="login-form-container" class="hidden fixed inset-0 bg-gray-100 flex flex-col items-center justify-center p-4">
+                <div class="w-full max-w-xs space-y-4">
+                    <!-- Exibe o nome do usuário selecionado -->
+                    <div class="flex flex-col items-center mb-2">
+                        <p id="selected-user-name" class="text-xl font-bold text-gray-800"></p>
+                    </div>
+
+                    <!-- Campo da Senha -->
+                    <div class="w-full">
+                        <label for="password" class="block text-lg font-medium text-gray-700 text-center mb-2">Senha</label>
+                        <input type="password" id="password" autocomplete="current-password" class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-center text-lg">
+                    </div>
+
+                    <!-- Botão de Entrar -->
+                    <button id="login-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg">
+                        Entrar
+                    </button>
+
+                    <!-- Botão para redefinir senha -->
+                    <button id="reset-password-button" class="!mt-2 w-full text-sm text-gray-600 hover:text-indigo-600 hover:underline focus:outline-none transition-colors duration-200">
+                        Esqueci minha senha
+                    </button>
+                </div>
+
+                <!-- Botão Voltar para a lista de usuários -->
+                <button id="back-button" class="absolute top-6 left-6 px-4 py-2 bg-white text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-200 focus:outline-none transition-all flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Voltar
                 </button>
             </div>
 
@@ -95,8 +122,8 @@
 
         // --- CONFIGURAÇÃO DO SUPABASE ---
         // É crucial substituir os valores abaixo pelas suas chaves do projeto Supabase.
-        const SUPABASE_URL = 'https://xukxlgorxpusgiyiesjy.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1a3hsZ29yeHB1c2dpeWllc2p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjA4NTUsImV4cCI6MjA3NTU5Njg1NX0.CQvHZc2f_xrNkhDJ6keQRP-txT7fXddRUkBdvHC8lUA';
+        const SUPABASE_URL = 'https://jtwybbvfbcwitbumsxno.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3liYnZmYmN3aXRidW1zeG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMTc4NTUsImV4cCI6MjA3MzY5Mzg1NX0.Q9ro0O3dSSGEPMukNHz-wqoHBUMdEVPKKPoCVH_1epQ';
 
         // Cria o cliente Supabase, configurado para não manter a sessão no navegador
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -106,35 +133,56 @@
         });
 
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
+        const mainContainer = document.getElementById('main-container');
+        const initialLoginView = document.getElementById('initial-login-view');
+        const showProfilesButton = document.getElementById('show-profiles-button');
+        const userListContainer = document.getElementById('user-list-container');
+        const userCardsWrapper = document.getElementById('user-cards-wrapper');
+        const backToInitialButton = document.getElementById('back-to-initial-button');
         const loginFormContainer = document.getElementById('login-form-container');
-        const emailInput = document.getElementById('email');
+        const selectedUserName = document.getElementById('selected-user-name');
         const passwordInput = document.getElementById('password');
         const loginButton = document.getElementById('login-button');
         const resetPasswordButton = document.getElementById('reset-password-button');
+        const backButton = document.getElementById('back-button');
+        const resetPasswordModal = document.getElementById('reset-password-modal');
+        const resetEmailDisplay = document.getElementById('reset-email-display');
+        const closeModalButton = document.getElementById('close-modal-button');
         const newPasswordContainer = document.getElementById('new-password-container');
         const newPasswordInput = document.getElementById('new-password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const updatePasswordButton = document.getElementById('update-password-button');
-        const resetPasswordModal = document.getElementById('reset-password-modal');
-        const resetEmailDisplay = document.getElementById('reset-email-display');
-        const closeModalButton = document.getElementById('close-modal-button');
         const waitMessageModal = document.getElementById('wait-message-modal');
         const waitTimeSpan = document.getElementById('wait-time');
         const closeWaitModalButton = document.getElementById('close-wait-modal');
 
+        // --- VARIÁVEIS DE ESTADO ---
+        let selectedEmail = '';
+
         // --- FUNÇÕES DE UI ---
 
         /**
-         * Alterna a visibilidade entre o formulário de login e o de nova senha.
-         * @param {('login'|'new-password')} view - A tela a ser exibida.
+         * Alterna a visibilidade das diferentes telas do sistema de login.
+         * @param {('initial'|'user-list'|'login'|'new-password')} view - O nome da tela a ser exibida.
          */
         function toggleUI(view) {
-            if (view === 'new-password') {
-                loginFormContainer.classList.add('hidden');
-                newPasswordContainer.classList.remove('hidden');
-            } else { // 'login'
+            // Esconde todas as telas primeiro
+            initialLoginView.classList.add('hidden');
+            userListContainer.classList.add('hidden');
+            loginFormContainer.classList.add('hidden');
+            newPasswordContainer.classList.add('hidden');
+            
+            // Mostra a tela correta
+            if (view === 'user-list') {
+                userListContainer.classList.remove('hidden');
+                userListContainer.classList.add('flex');
+            } else if (view === 'login') {
                 loginFormContainer.classList.remove('hidden');
-                newPasswordContainer.classList.add('hidden');
+                loginFormContainer.classList.add('flex');
+            } else if (view === 'new-password') {
+                newPasswordContainer.classList.remove('hidden');
+            } else { // A vista padrão é a inicial
+                initialLoginView.classList.remove('hidden');
             }
         }
 
@@ -159,21 +207,63 @@
             }, 1000);
         }
 
+        // --- FUNÇÕES DE DADOS (SUPABASE) ---
+
+        /**
+         * Busca os perfis de usuário no Supabase e os exibe na tela de seleção.
+         */
+        async function fetchUsers() {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('username, profile_name');
+
+            if (error) {
+                console.error('Erro ao buscar usuários:', error);
+                userCardsWrapper.innerHTML = `<p class="text-center text-red-500">Erro ao carregar perfis.</p>`;
+            } else if (data.length === 0) {
+                 userCardsWrapper.innerHTML = '<p class="text-center text-gray-500">Nenhum usuário encontrado.</p>';
+            } else {
+                // Ordena os usuários em ordem alfabética pelo nome do perfil
+                data.sort((a, b) => {
+                    const nameA = (a.profile_name || a.username).toLowerCase();
+                    const nameB = (b.profile_name || b.username).toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                userCardsWrapper.innerHTML = '';
+                data.forEach(user => {
+                    const userCard = document.createElement('button');
+                    userCard.className = 'w-full px-8 py-4 bg-white hover:bg-gray-200 text-indigo-600 font-bold text-2xl rounded-md shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out';
+                    userCard.dataset.email = user.username;
+                    userCard.textContent = user.profile_name || user.username;
+                    userCardsWrapper.appendChild(userCard);
+                });
+            }
+        }
+        
         // --- EVENT LISTENERS (OUVINTES DE EVENTOS) ---
 
-        loginButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
+        showProfilesButton.addEventListener('click', () => {
+            toggleUI('user-list');
+        });
 
-            if (!email || !password) {
-                alert('Por favor, preencha o email e a senha.');
-                return;
+        userListContainer.addEventListener('click', (e) => {
+            const userCard = e.target.closest('button[data-email]');
+            if (userCard) {
+                selectedEmail = userCard.dataset.email;
+                selectedUserName.textContent = userCard.textContent;
+                toggleUI('login');
+                passwordInput.focus();
             }
+        });
 
+        loginButton.addEventListener('click', async () => {
+            const email = selectedEmail;
+            const password = passwordInput.value;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
 
             if (error) {
-                alert('Email ou senha incorretos. Tente novamente.');
+                alert('Senha incorreta. Tente novamente.');
                 console.error('Erro no login:', error.message);
                 passwordInput.value = '';
                 passwordInput.focus();
@@ -182,19 +272,13 @@
 
         passwordInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault();
+                e.preventDefault(); 
                 loginButton.click();
             }
         });
 
         resetPasswordButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            if (!email) {
-                alert('Por favor, digite seu email para redefinir a senha.');
-                emailInput.focus();
-                return;
-            }
-
+            const email = selectedEmail;
             const redirectToUrl = `${window.location.origin}${window.location.pathname}`;
 
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -207,14 +291,21 @@
                     const waitTimeMatch = error.message.match(/after (\d+) seconds/);
                     const waitTime = waitTimeMatch ? parseInt(waitTimeMatch[1]) : 60;
                     showWaitModal(waitTime);
-                } else {
-                    alert('Erro ao enviar o email de redefinição. Verifique o console para mais detalhes.');
                 }
             } else {
                 resetEmailDisplay.textContent = email;
                 resetPasswordModal.classList.remove('hidden');
                 resetPasswordModal.classList.add('flex');
             }
+        });
+
+        backButton.addEventListener('click', () => {
+            toggleUI('user-list');
+            passwordInput.value = '';
+        });
+
+        backToInitialButton.addEventListener('click', () => {
+            toggleUI('initial');
         });
 
         updatePasswordButton.addEventListener('click', async () => {
@@ -257,17 +348,24 @@
 
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN') {
-                // Após o login, limpa a tela para exibir uma página em branco.
-                document.body.innerHTML = '';
-                document.body.style.backgroundColor = 'white'; // Garante fundo branco
+                // Se o login for bem-sucedido, exibe uma mensagem e faz logout,
+                // já que não há uma área "logada" nesta versão.
+                alert('Login bem-sucedido!');
+                await supabase.auth.signOut();
+            } else if (event === 'SIGNED_OUT') {
+                // Após o logout, volta para a tela inicial.
+                passwordInput.value = '';
+                toggleUI('initial');
             } else if (event === 'PASSWORD_RECOVERY') {
                 // Se o evento for de recuperação de senha, mostra a tela para criar uma nova senha.
                 toggleUI('new-password');
             }
         });
-
+        
         // --- INICIALIZAÇÃO ---
-        // Nenhuma ação de inicialização é necessária agora que o formulário de login é exibido diretamente.
+        
+        // Busca os usuários assim que a página carrega.
+        fetchUsers();
 
     </script>
 </body>
