@@ -345,39 +345,6 @@
         </div>
     </div>
 
-    <!-- Novo Modal da Lista de Compras -->
-    <div id="shopping-list-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <!-- Cabeçalho do Modal -->
-        <header class="flex flex-col p-4 bg-white shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-theme">Lista de Compras</h2>
-                <button id="close-shopping-list-button" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <!-- Botões de filtro -->
-            <div class="flex justify-center space-x-2">
-                <button id="filter-all" class="filter-button bg-indigo-200 text-indigo-800 font-semibold py-2 px-4 rounded-md transition-colors duration-200">Todos</button>
-                <button id="filter-to-buy" class="filter-button bg-orange-200 text-orange-800 font-semibold py-2 px-4 rounded-md transition-colors duration-200">Para comprar</button>
-                <button id="filter-bought" class="filter-button bg-green-200 text-green-800 font-semibold py-2 px-4 rounded-md transition-colors duration-200">Comprados</button>
-            </div>
-        </header>
-
-        <!-- Corpo da Lista de Itens -->
-        <div id="shopping-list-container" class="flex-grow overflow-y-auto p-4 space-y-2 pb-20">
-            <!-- Itens da lista serão injetados aqui -->
-        </div>
-
-        <!-- Botão fixo para adicionar novo item -->
-        <footer class="p-4 bg-white shadow-lg fixed bottom-0 left-0 right-0">
-            <button id="show-add-item-modal-button" class="w-full px-4 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors">
-                Adicionar item para comprar
-            </button>
-        </footer>
-    </div>
-
     <!-- Modal para Seleção de Filtro de Notas -->
     <div id="note-filter-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[60]">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-2">
@@ -390,90 +357,6 @@
             <button id="close-note-filter-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors mt-4">
                 Fechar
             </button>
-        </div>
-    </div>
-
-    <!-- Novo Modal para Adicionar Itens -->
-    <div id="add-item-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 class="text-2xl font-bold text-theme">Adicionar Item</h2>
-            <button id="close-add-item-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4">
-            <div class="relative">
-                <label for="add-item-name-input" class="block text-sm font-medium text-left text-theme">Nome do Item</label>
-                <input type="text" id="add-item-name-input" placeholder="Ex: Maçãs" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-            <div class="flex space-x-2">
-                <div class="relative flex-grow">
-                    <label for="add-item-quantity-input" class="block text-sm font-medium text-left text-theme">Quantidade</label>
-                    <input type="number" id="add-item-quantity-input" placeholder="Qtd" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div class="relative">
-                    <label for="add-item-unit-input" class="block text-sm font-medium text-left text-theme">Unidade</label>
-                    <select id="add-item-unit-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="uni">un</option>
-                        <option value="kg">kg</option>
-                        <option value="g">g</option>
-                        <option value="litro">litro</option>
-                        <option value="ml">ml</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex justify-between space-x-4">
-                <button id="add-item-confirm-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                    Adicionar
-                </button>
-                 <button id="add-item-cancel-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
-                    Cancelar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para editar itens da lista de compras (AGORA EM TELA CHEIA) -->
-    <div id="edit-item-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 class="text-2xl font-bold text-theme">Editar Item</h2>
-            <button id="close-edit-item-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4">
-            <div class="relative">
-                <label for="edit-item-input" class="block text-sm font-medium text-left text-theme">Nome do Item</label>
-                <input type="text" id="edit-item-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-            <div class="flex space-x-2">
-                <div class="relative flex-grow">
-                    <label for="edit-item-quantity" class="block text-sm font-medium text-left text-theme">Quantidade</label>
-                    <input type="number" id="edit-item-quantity" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div class="relative">
-                    <label for="edit-item-unit" class="block text-sm font-medium text-left text-theme">Unidade</label>
-                    <select id="edit-item-unit" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="uni">un</option>
-                        <option value="kg">kg</option>
-                        <option value="g">g</option>
-                        <option value="litro">litro</option>
-                        <option value="ml">ml</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex justify-between space-x-4">
-                <button id="save-edit-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                    Salvar Alterações
-                </button>
-                 <button id="cancel-edit-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
-                    Cancelar
-                </button>
-            </div>
         </div>
     </div>
 
@@ -765,85 +648,6 @@
         </div>
     </div>
 
-    <!-- NOVO: Modal do App de Receitas -->
-    <div id="recipes-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <header class="p-4 bg-white shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-theme">Receitas</h2>
-                <button id="close-recipes-modal" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <!-- NOVA BARRA DE PESQUISA -->
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <i class="fas fa-search text-gray-400"></i>
-                </span>
-                <input type="text" id="recipe-search-input" placeholder="Pesquisar receitas..." class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-        </header>
-        <div id="recipes-container" class="flex-grow overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start pb-20">
-            <!-- Receitas serão inseridas aqui -->
-        </div>
-        <footer class="p-4 bg-white shadow-lg fixed bottom-0 left-0 right-0">
-            <button id="show-add-recipe-modal-button" class="w-full px-4 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-colors">
-                Adicionar Nova Receita
-            </button>
-        </footer>
-    </div>
-
-    <!-- NOVO: Modal para Adicionar/Editar Receita -->
-    <div id="edit-recipe-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[60]">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 id="recipe-modal-title" class="text-2xl font-bold text-theme"></h2>
-            <button id="close-edit-recipe-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4 overflow-y-auto">
-            <input type="text" id="edit-recipe-title" class="w-full p-3 border rounded-md text-lg" placeholder="Título da Receita...">
-            <textarea id="edit-recipe-content" rows="8" class="w-full p-3 border rounded-md resize-y" placeholder="Modo de preparo..."></textarea>
-
-            <div>
-                <label class="block text-sm font-medium text-theme">Fotos (máx. 200px)</label>
-                <input type="file" id="recipe-image-upload" multiple accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-            </div>
-
-            <div id="recipe-image-previews" class="flex flex-wrap gap-2">
-                <!-- Previews das imagens aparecerão aqui -->
-            </div>
-
-            <p id="recipe-error-message" class="text-red-500 text-sm text-center hidden"></p>
-
-            <div class="flex justify-end space-x-4">
-                <button id="cancel-recipe-edit-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="save-recipe-edit-button" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NOVO: Modal para Ver Receita -->
-    <div id="view-recipe-modal" class="fixed inset-0 bg-white hidden flex-col z-[70]">
-        <header class="flex items-center justify-between p-4 border-b flex-shrink-0">
-            <h2 id="view-recipe-title" class="text-2xl font-bold truncate text-theme"></h2>
-            <button id="close-view-recipe-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <div class="flex-grow overflow-y-auto p-6">
-            <div id="view-recipe-images-container" class="flex flex-wrap gap-4 mb-6">
-                <!-- Imagens da receita aqui -->
-            </div>
-            <p id="view-recipe-content" class="whitespace-pre-wrap break-words text-lg text-theme"></p>
-        </div>
-    </div>
-
 
     <script type="module">
         // --- CORREÇÃO IMPORTANTE PARA O ERRO "INVALID API KEY" ---
@@ -912,33 +716,6 @@
         const waitMessageModal = document.getElementById('wait-message-modal');
         const waitTimeSpan = document.getElementById('wait-time');
         const closeWaitModalButton = document.getElementById('close-wait-modal');
-
-        // Referências da nova lista de compras
-        const shoppingListModal = document.getElementById('shopping-list-modal');
-        const closeShoppingListButton = document.getElementById('close-shopping-list-button');
-        const shoppingListContainer = document.getElementById('shopping-list-container');
-        const filterAllButton = document.getElementById('filter-all');
-        const filterToBuyButton = document.getElementById('filter-to-buy');
-        const filterBoughtButton = document.getElementById('filter-bought');
-
-        // Referências do novo modal de adicionar item
-        const showAddItemModalButton = document.getElementById('show-add-item-modal-button');
-        const addItemModal = document.getElementById('add-item-modal');
-        const closeAddItemModalButton = document.getElementById('close-add-item-modal');
-        const addItemNameInput = document.getElementById('add-item-name-input');
-        const addItemQuantityInput = document.getElementById('add-item-quantity-input');
-        const addItemUnitInput = document.getElementById('add-item-unit-input');
-        const addItemConfirmButton = document.getElementById('add-item-confirm-button');
-        const addItemCancelButton = document.getElementById('cancel-add-app-button');
-
-        // Referências do novo modal de edição
-        const editItemModal = document.getElementById('edit-item-modal');
-        const closeEditItemModalButton = document.getElementById('close-edit-item-modal');
-        const editItemInput = document.getElementById('edit-item-input');
-        const editItemQuantity = document.getElementById('edit-item-quantity');
-        const editItemUnit = document.getElementById('edit-item-unit');
-        const saveEditButton = document.getElementById('save-edit-button');
-        const cancelEditButton = document.getElementById('cancel-edit-button');
 
         // Referências do modal de confirmação de exclusão
         const deleteConfirmModal = document.getElementById('delete-confirm-modal');
@@ -1032,64 +809,13 @@
         const saveEditFixedAppButton = document.getElementById('save-edit-fixed-app-button');
         const cancelEditFixedAppButton = document.getElementById('cancel-edit-fixed-app-button');
 
-        // Referências da Comparação de Preços
-        const priceComparisonModal = document.getElementById('price-comparison-modal');
-        const closePriceComparisonModalButton = document.getElementById('close-price-comparison-modal');
-        const comparisonItemName = document.getElementById('comparison-item-name');
-        const priceLocationInput = document.getElementById('price-location-input');
-        const priceValueInput = document.getElementById('price-value-input');
-        const addPriceButton = document.getElementById('add-price-button');
-        const priceListContainer = document.getElementById('price-list-container');
-        const editPriceModal = document.getElementById('edit-price-modal');
-        const editPriceLocationInput = document.getElementById('edit-price-location-input');
-        const editPriceValueInput = document.getElementById('edit-price-value-input');
-        const saveEditPriceButton = document.getElementById('save-edit-price-button');
-        const cancelEditPriceButton = document.getElementById('cancel-edit-price-button');
-        const closeEditPriceModalXButton = document.getElementById('close-edit-price-modal-x-button');
-
-        // NOVO: Referências do App de Receitas
-        const recipesModal = document.getElementById('recipes-modal');
-        const closeRecipesModal = document.getElementById('close-recipes-modal');
-        const recipesContainer = document.getElementById('recipes-container');
-        const showAddRecipeModalButton = document.getElementById('show-add-recipe-modal-button');
-        const editRecipeModal = document.getElementById('edit-recipe-modal');
-        const recipeModalTitle = document.getElementById('recipe-modal-title');
-        const closeEditRecipeModal = document.getElementById('close-edit-recipe-modal');
-        const editRecipeTitle = document.getElementById('edit-recipe-title');
-        const editRecipeContent = document.getElementById('edit-recipe-content');
-        const recipeImageUpload = document.getElementById('recipe-image-upload');
-        const recipeImagePreviews = document.getElementById('recipe-image-previews');
-        const recipeErrorMessage = document.getElementById('recipe-error-message');
-        const cancelRecipeEditButton = document.getElementById('cancel-recipe-edit-button');
-        const saveRecipeEditButton = document.getElementById('save-recipe-edit-button');
-        const viewRecipeModal = document.getElementById('view-recipe-modal');
-        const viewRecipeTitle = document.getElementById('view-recipe-title');
-        const closeViewRecipeModal = document.getElementById('close-view-recipe-modal');
-        const viewRecipeImagesContainer = document.getElementById('view-recipe-images-container');
-        const viewRecipeContent = document.getElementById('view-recipe-content');
-        const recipeSearchInput = document.getElementById('recipe-search-input');
-
-
-        let editingItemId = null;
         let editingNoteId = null;
-        let currentFilter = 'to-buy';
         let itemToDeleteInfo = null;
-        let itemToMove = null;
         let notesSubscription = null;
         let currentNoteFilter = 'active';
         let customAppsSubscription = null;
         let isDragging = false;
         let tempPreferences = {}; // State for settings modal
-        let currentComparisonItemId = null;
-        let priceSubscription = null;
-        let editingPriceId = null;
-        // NOVO: Variáveis de estado para Receitas
-        let allRecipes = [];
-        let editingRecipeId = null;
-        let recipeFilesToUpload = [];
-        let recipeImagesToDelete = [];
-        let recipesSubscription = null;
-        let recipeImagesSubscription = null;
         let isAppInitialized = false;
 
         const availableIcons = [
@@ -1134,9 +860,7 @@
         ];
 
         const fixedAppsMasterList = [
-            { id: 'shopping-list', title: 'Compras', iconClass: 'fas fa-shopping-cart', isFixed: true },
-            { id: 'notes-app', title: 'Notas', iconClass: 'fas fa-sticky-note', isFixed: true },
-            { id: 'recipes-app', title: 'Receitas', iconClass: 'fas fa-utensils', isFixed: true } // NOVO
+            { id: 'notes-app', title: 'Notas', iconClass: 'fas fa-sticky-note', isFixed: true }
         ];
 
         // --- FUNÇÕES DE INICIALIZAÇÃO E UI ---
@@ -1168,10 +892,7 @@
             waitMessageModal.classList.add('hidden');
             editProfileModal.classList.add('hidden');
             settingsModal.classList.add('hidden');
-            shoppingListModal.classList.add('hidden');
             deleteConfirmModal.classList.add('hidden');
-            addItemModal.classList.add('hidden');
-            moveItemModal.classList.add('hidden');
             notesModal.classList.add('hidden');
             editNoteModal.classList.add('hidden');
             viewNoteModal.classList.add('hidden');
@@ -1179,11 +900,6 @@
             addAppModal.classList.add('hidden');
             editFixedAppModal.classList.add('hidden');
             trashBinModal.classList.add('hidden');
-            priceComparisonModal.classList.add('hidden');
-            editPriceModal.classList.add('hidden');
-            recipesModal.classList.add('hidden');
-            editRecipeModal.classList.add('hidden');
-            viewRecipeModal.classList.add('hidden');
 
 
             if (isLoggedIn) {
@@ -1539,651 +1255,6 @@
             noteErrorMessage.classList.add('hidden');
         }
 
-        // --- FUNÇÕES DA LISTA DE COMPRAS ---
-
-        // Função para buscar e renderizar a lista de compras
-        async function fetchShoppingList() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                console.error('Usuário não autenticado.');
-                return;
-            }
-
-            let query = supabase.from('shopping_list').select('*');
-
-            if (currentFilter === 'to-buy') {
-                query = query.eq('is_checked', false);
-            } else if (currentFilter === 'bought') {
-                query = query.eq('is_checked', true);
-            }
-
-            const { data, error } = await query.order('item_name', { ascending: true });
-
-            if (error) {
-                console.error('Erro ao buscar a lista de compras:', error);
-                shoppingListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar a lista.</p>';
-            } else {
-                renderShoppingList(data);
-            }
-        }
-
-        // Função para renderizar os itens na UI
-        function renderShoppingList(items) {
-            shoppingListContainer.innerHTML = '';
-            if (items.length === 0) {
-                shoppingListContainer.innerHTML = '<p class="text-center text-gray-500">A lista está vazia. Adicione um item!</p>';
-                return;
-            }
-            items.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.dataset.id = item.id;
-
-                if (item.is_checked) {
-                    itemDiv.className = 'shopping-list-item flex items-center justify-between p-3 border-b border-gray-200 bg-green-200 rounded-lg shadow-sm transition-colors duration-200';
-                } else {
-                    itemDiv.className = 'shopping-list-item flex items-center justify-between p-3 border-b border-gray-200 bg-orange-200 rounded-lg shadow-sm transition-colors duration-200';
-                }
-
-                const mainContent = document.createElement('div');
-                mainContent.className = 'flex items-center flex-grow space-x-2';
-
-                const quantitySpan = document.createElement('span');
-                quantitySpan.className = 'font-medium whitespace-nowrap text-theme';
-                if (item.quantity || item.unit) {
-                    quantitySpan.textContent = `${item.quantity || ''} ${item.unit || ''}`;
-                }
-
-                const itemNameSpan = document.createElement('span');
-                itemNameSpan.className = 'text-lg cursor-pointer truncate flex-grow text-theme';
-                itemNameSpan.textContent = item.item_name;
-                itemNameSpan.addEventListener('click', () => {
-                    showMoveItemConfirmationModal(item.id, !item.is_checked);
-                });
-
-                const actionButtons = document.createElement('div');
-                actionButtons.className = 'flex items-center space-x-2 flex-shrink-0';
-
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'delete-item-button w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-red-500 hover:text-red-700 transition-colors';
-                deleteButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.013 21H7.987a2 2 0 01-1.92-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                `;
-
-                const editButton = document.createElement('button');
-                editButton.className = 'edit-item-button w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors';
-                editButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                `;
-                editButton.addEventListener('click', () => showEditItemModal(item.id, item.item_name, item.quantity, item.unit));
-
-                const compareButton = document.createElement('button');
-                compareButton.className = 'compare-prices-button w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-blue-500 hover:text-blue-700 transition-colors';
-                compareButton.innerHTML = `<i class="fas fa-dollar-sign text-lg"></i>`;
-                compareButton.addEventListener('click', () => showPriceComparisonModal(item.id, item.item_name));
-
-                mainContent.appendChild(quantitySpan);
-                mainContent.appendChild(itemNameSpan);
-                actionButtons.appendChild(compareButton);
-                actionButtons.appendChild(editButton);
-                actionButtons.appendChild(deleteButton);
-
-                itemDiv.appendChild(mainContent);
-                itemDiv.appendChild(actionButtons);
-
-                shoppingListContainer.appendChild(itemDiv);
-            });
-        }
-
-        function showEditItemModal(itemId, itemName, itemQuantity, itemUnit) {
-            editingItemId = itemId;
-            editItemInput.value = itemName;
-            editItemQuantity.value = itemQuantity || '';
-            editItemUnit.value = itemUnit || 'uni';
-            editItemModal.classList.remove('hidden');
-            editItemModal.classList.add('flex');
-            editItemInput.focus();
-        }
-
-        function closeEditItemModal() {
-            editingItemId = null;
-            editItemInput.value = '';
-            editItemQuantity.value = '';
-            editItemUnit.value = 'uni';
-            editItemModal.classList.add('hidden');
-            editItemModal.classList.remove('flex');
-        }
-
-        async function updateItem(itemId, newItemName, newQuantity, newUnit) {
-            const { error } = await supabase
-                .from('shopping_list')
-                .update({ item_name: newItemName, quantity: newQuantity, unit: newUnit })
-                .eq('id', itemId);
-
-            if (error) {
-                console.error('Erro ao atualizar item:', error);
-            }
-        }
-
-        async function toggleItemChecked(itemId, newStatus) {
-            const { error } = await supabase
-                .from('shopping_list')
-                .update({ is_checked: newStatus })
-                .eq('id', itemId);
-
-            if (error) {
-                console.error('Erro ao atualizar status do item:', error);
-            }
-        }
-
-        async function addItem() {
-            const newItemName = addItemNameInput.value.trim();
-            const newQuantity = parseFloat(addItemQuantityInput.value) || null;
-            const newUnit = addItemUnitInput.value;
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!newItemName || !user) {
-                return;
-            }
-
-            const { error } = await supabase
-                .from('shopping_list')
-                .insert([{ item_name: newItemName, quantity: newQuantity, unit: newUnit }]);
-
-            if (error) {
-                console.error('Erro ao adicionar item:', error);
-            } else {
-                addItemNameInput.value = '';
-                addItemQuantityInput.value = '';
-                addItemUnitInput.value = 'uni';
-                hideAddItemModal();
-            }
-        }
-
-        async function deleteItem(itemId) {
-            const { error } = await supabase
-                .from('shopping_list')
-                .delete()
-                .eq('id', itemId);
-
-            if (error) {
-                console.error('Erro ao deletar item:', error);
-            }
-        }
-
-        const shoppingListChannel = supabase.channel('public:shopping_list')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'shopping_list' }, payload => {
-                fetchShoppingList();
-            })
-            .subscribe((status, err) => {
-                if (status === 'SUBSCRIBED') {
-                    console.log('Real-time subscription to shopping_list successful!');
-                }
-                if (err) {
-                    console.error('Real-time subscription error:', err);
-                }
-            });
-
-        function setActiveFilter(filter) {
-            filterAllButton.classList.remove('bg-indigo-600', 'text-white');
-            filterAllButton.classList.add('bg-indigo-200', 'text-indigo-800');
-
-            filterToBuyButton.classList.remove('bg-orange-500', 'text-white');
-            filterToBuyButton.classList.add('bg-orange-200', 'text-orange-800');
-
-            filterBoughtButton.classList.remove('bg-green-500', 'text-white');
-            filterBoughtButton.classList.add('bg-green-200', 'text-green-800');
-
-            if (filter === 'all') {
-                filterAllButton.classList.add('bg-indigo-600', 'text-white');
-                filterAllButton.classList.remove('bg-indigo-200', 'text-indigo-800');
-            } else if (filter === 'to-buy') {
-                filterToBuyButton.classList.add('bg-orange-500', 'text-white');
-                filterToBuyButton.classList.remove('bg-orange-200', 'text-orange-800');
-            } else if (filter === 'bought') {
-                filterBoughtButton.classList.add('bg-green-500', 'text-white');
-                filterBoughtButton.classList.remove('bg-green-200', 'text-green-800');
-            }
-        }
-
-        // --- FUNÇÕES DE COMPARAÇÃO DE PREÇOS ---
-        async function fetchItemPrices(itemId) {
-            if (!itemId) return;
-            const { data, error } = await supabase
-                .from('item_prices')
-                .select('*')
-                .eq('item_id', itemId);
-
-            if (error) {
-                console.error('Erro ao buscar preços:', error);
-            } else {
-                renderItemPrices(data);
-            }
-        }
-
-        function renderItemPrices(prices) {
-            priceListContainer.innerHTML = '';
-            if (!prices || prices.length === 0) {
-                priceListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum preço adicionado ainda.</p>';
-                return;
-            }
-
-            // Ordena por preço, do menor para o maior
-            prices.sort((a, b) => a.price - b.price);
-
-            prices.forEach((price, index) => {
-                const priceDiv = document.createElement('div');
-                const isBestPrice = index === 0;
-                priceDiv.className = `flex items-center justify-between p-3 rounded-lg shadow-sm border ${isBestPrice ? 'bg-green-100 border-green-400' : 'bg-white border-gray-200'}`;
-
-                const formattedPrice = `R$ ${price.price.toFixed(2).replace('.', ',')}`;
-
-                priceDiv.innerHTML = `
-                    <div class="flex-grow">
-                        <p class="font-bold text-lg text-theme">${price.location}</p>
-                        <p class="font-semibold text-xl ${isBestPrice ? 'text-green-700' : 'text-gray-600'}">${formattedPrice}</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button class="edit-price-button p-2 text-gray-500 hover:text-gray-800" data-price-id="${price.id}" data-location="${price.location}" data-price="${price.price}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="delete-price-button p-2 text-red-500 hover:text-red-700" data-price-id="${price.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                priceListContainer.appendChild(priceDiv);
-            });
-        }
-
-        async function addPrice() {
-            const location = priceLocationInput.value.trim();
-            const price = parseFloat(priceValueInput.value);
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!location || isNaN(price) || !user || !currentComparisonItemId) {
-                // Adicionar feedback ao usuário aqui, se desejar
-                return;
-            }
-
-            const { error } = await supabase
-                .from('item_prices')
-                .insert({
-                    item_id: currentComparisonItemId,
-                    user_id: user.id,
-                    location,
-                    price
-                });
-
-            if (error) {
-                console.error("Erro ao adicionar preço:", error);
-            } else {
-                priceLocationInput.value = '';
-                priceValueInput.value = '';
-            }
-        }
-
-        async function updatePrice(priceId, newLocation, newPrice) {
-             const { error } = await supabase
-                .from('item_prices')
-                .update({ location: newLocation, price: newPrice })
-                .eq('id', priceId);
-            if (error) {
-                console.error("Erro ao atualizar preço:", error);
-            }
-        }
-
-        async function deletePrice(priceId) {
-             const { error } = await supabase
-                .from('item_prices')
-                .delete()
-                .eq('id', priceId);
-            if (error) {
-                console.error("Erro ao deletar preço:", error);
-            }
-        }
-
-        function showPriceComparisonModal(itemId, itemName) {
-            currentComparisonItemId = itemId;
-            comparisonItemName.textContent = itemName;
-            priceComparisonModal.classList.remove('hidden');
-            priceComparisonModal.classList.add('flex');
-
-            fetchItemPrices(itemId); // Busca inicial
-
-            // Inicia a subscrição em tempo real
-            if (priceSubscription) {
-                supabase.removeChannel(priceSubscription);
-            }
-            priceSubscription = supabase
-                .channel(`item_prices_${itemId}`)
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'item_prices',
-                    filter: `item_id=eq.${itemId}`
-                }, payload => {
-                    fetchItemPrices(itemId);
-                })
-                .subscribe();
-        }
-
-        function hidePriceComparisonModal() {
-            priceComparisonModal.classList.add('hidden');
-            priceComparisonModal.classList.remove('flex');
-            currentComparisonItemId = null;
-            comparisonItemName.textContent = '';
-            priceLocationInput.value = '';
-            priceValueInput.value = '';
-
-            // Remove a subscrição para evitar escutas desnecessárias
-            if (priceSubscription) {
-                supabase.removeChannel(priceSubscription);
-                priceSubscription = null;
-            }
-        }
-
-        function showEditPriceModal(priceId, location, price) {
-            editingPriceId = priceId;
-            editPriceLocationInput.value = location;
-            editPriceValueInput.value = price;
-            editPriceModal.classList.remove('hidden');
-            editPriceModal.classList.add('flex');
-        }
-
-        function hideEditPriceModal() {
-            editingPriceId = null;
-            editPriceModal.classList.add('hidden');
-            editPriceModal.classList.remove('flex');
-        }
-
-        // --- NOVO: FUNÇÕES DO APP DE RECEITAS ---
-
-        // Redimensiona uma imagem antes do upload
-        function resizeImage(file, maxWidth, maxHeight) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height = Math.round((height * maxWidth) / width);
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width = Math.round((width * maxHeight) / height);
-                            height = maxHeight;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    canvas.toBlob(blob => {
-                        resolve(blob);
-                    }, file.type || 'image/jpeg');
-                };
-                img.onerror = reject;
-            });
-        }
-
-        // Busca e renderiza as receitas
-        async function fetchRecipes() {
-            const { data, error } = await supabase
-                .from('recipes')
-                .select(`*, recipe_images(image_url)`)
-                .order('title', { ascending: true });
-
-            if (error) {
-                console.error('Erro ao buscar receitas:', error);
-                recipesContainer.innerHTML = '<p class="text-red-500">Não foi possível carregar as receitas.</p>';
-                return;
-            }
-            allRecipes = data || []; // Armazena todas as receitas
-            filterAndRenderRecipes(); // Renderiza com base no filtro atual
-        }
-
-        // Renderiza as receitas na UI
-        function renderRecipes(recipes) {
-            recipesContainer.innerHTML = '';
-            if (recipes.length === 0) {
-                recipesContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">Nenhuma receita encontrada.</p>';
-                return;
-            }
-
-            recipes.forEach(recipe => {
-                const recipeEl = document.createElement('div');
-                recipeEl.className = 'recipe-item';
-                recipeEl.dataset.id = recipe.id;
-
-                const firstImage = recipe.recipe_images[0]?.image_url || 'https://placehold.co/400x300/CCCCCC/FFFFFF?text=Receita';
-
-                recipeEl.innerHTML = `
-                    <img src="${firstImage}" alt="${recipe.title}" class="recipe-image">
-                    <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="font-bold text-lg mb-2 truncate text-theme">${recipe.title}</h3>
-                        <p class="recipe-content-preview flex-grow">${recipe.content || ''}</p>
-                        <div class="flex justify-end space-x-2 mt-4">
-                            <button class="recipe-edit-button p-2 text-gray-500 hover:text-indigo-600"><i class="fas fa-edit"></i></button>
-                            <button class="recipe-delete-button p-2 text-gray-500 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                recipesContainer.appendChild(recipeEl);
-
-                recipeEl.addEventListener('click', (e) => {
-                    if (e.target.closest('.recipe-edit-button')) {
-                        showEditRecipeModal(recipe);
-                    } else if (e.target.closest('.recipe-delete-button')) {
-                        showDeleteConfirmationModal(recipe.id, 'recipe');
-                    } else {
-                        showViewRecipeModal(recipe);
-                    }
-                });
-            });
-        }
-
-        // FUNÇÃO ATUALIZADA: Filtra as receitas com base na pesquisa e renderiza
-        function filterAndRenderRecipes() {
-            const searchTerm = recipeSearchInput.value.toLowerCase().trim();
-            if (!searchTerm) {
-                renderRecipes(allRecipes);
-                return;
-            }
-
-            // Divide o termo de pesquisa em palavras-chave individuais e remove espaços em branco
-            const keywords = searchTerm.split(' ').filter(word => word.length > 0);
-
-            const filteredRecipes = allRecipes.filter(recipe => {
-                // Combina o título e o conteúdo em um único texto para a pesquisa
-                const recipeText = (recipe.title.toLowerCase() + ' ' + (recipe.content ? recipe.content.toLowerCase() : ''));
-
-                // Verifica se TODAS as palavras-chave estão presentes no texto da receita
-                return keywords.every(keyword => recipeText.includes(keyword));
-            });
-
-            renderRecipes(filteredRecipes);
-        }
-
-        // Abre o modal para adicionar ou editar uma receita
-        function showEditRecipeModal(recipe = null) {
-            recipeErrorMessage.classList.add('hidden');
-            recipeFilesToUpload = [];
-            recipeImagesToDelete = [];
-            recipeImagePreviews.innerHTML = '';
-
-            if (recipe) {
-                editingRecipeId = recipe.id;
-                recipeModalTitle.textContent = 'Editar Receita';
-                editRecipeTitle.value = recipe.title;
-                editRecipeContent.value = recipe.content;
-
-                // Mostra as imagens existentes
-                recipe.recipe_images.forEach(img => {
-                    const previewEl = document.createElement('div');
-                    previewEl.className = 'image-preview-item';
-                    previewEl.innerHTML = `
-                        <img src="${img.image_url}" />
-                        <span class="remove-image-btn" data-url="${img.image_url}">&times;</span>
-                    `;
-                    recipeImagePreviews.appendChild(previewEl);
-                });
-
-            } else {
-                editingRecipeId = null;
-                recipeModalTitle.textContent = 'Adicionar Nova Receita';
-                editRecipeTitle.value = '';
-                editRecipeContent.value = '';
-            }
-            editRecipeModal.classList.remove('hidden');
-            editRecipeModal.classList.add('flex');
-        }
-
-        // Fecha o modal de edição de receita
-        function hideEditRecipeModal() {
-            editRecipeModal.classList.add('hidden');
-            editRecipeModal.classList.remove('flex');
-            recipeImageUpload.value = ''; // Limpa o input de arquivo
-        }
-
-        // Abre o modal para visualizar uma receita
-        function showViewRecipeModal(recipe) {
-            viewRecipeTitle.textContent = recipe.title;
-            viewRecipeContent.textContent = recipe.content;
-            viewRecipeImagesContainer.innerHTML = '';
-
-            if(recipe.recipe_images.length > 0) {
-                recipe.recipe_images.forEach(img => {
-                    const imgEl = document.createElement('img');
-                    imgEl.src = img.image_url;
-                    imgEl.className = 'rounded-lg shadow-md';
-                    imgEl.style.width = '200px';
-                    imgEl.style.height = '200px';
-                    imgEl.style.objectFit = 'cover';
-                    viewRecipeImagesContainer.appendChild(imgEl);
-                });
-            } else {
-                viewRecipeImagesContainer.innerHTML = '<p class="text-gray-500">Nenhuma imagem para esta receita.</p>';
-            }
-
-            viewRecipeModal.classList.remove('hidden');
-            viewRecipeModal.classList.add('flex');
-        }
-
-        function hideViewRecipeModal() {
-            viewRecipeModal.classList.add('hidden');
-            viewRecipeModal.classList.remove('flex');
-        }
-
-        // Salva a receita (cria ou atualiza)
-        async function saveRecipe() {
-            const title = editRecipeTitle.value.trim();
-            const content = editRecipeContent.value.trim();
-            const user = (await supabase.auth.getUser()).data.user;
-
-            if (!title || !user) {
-                recipeErrorMessage.textContent = 'O título é obrigatório.';
-                recipeErrorMessage.classList.remove('hidden');
-                return;
-            }
-
-            saveRecipeEditButton.disabled = true;
-            saveRecipeEditButton.textContent = 'Salvando...';
-
-            // 1. Upload de novas imagens
-            const uploadedUrls = [];
-            for (const file of recipeFilesToUpload) {
-                const filePath = `${user.id}/${Date.now()}-${file.name}`;
-                const { error } = await supabase.storage.from('recipes').upload(filePath, file);
-                if (error) {
-                    console.error('Erro no upload da imagem:', error);
-                    continue;
-                }
-                const { data } = supabase.storage.from('recipes').getPublicUrl(filePath);
-                uploadedUrls.push(data.publicUrl);
-            }
-
-            // 2. Deletar imagens marcadas para exclusão (do Storage e do DB)
-            if (recipeImagesToDelete.length > 0) {
-                 const filePaths = recipeImagesToDelete.map(url => {
-                    const parts = url.split('/');
-                    return parts.slice(parts.indexOf(user.id)).join('/');
-                });
-
-                await supabase.storage.from('recipes').remove(filePaths);
-            }
-
-            // 3. Salvar/Atualizar a receita
-            if (editingRecipeId) { // Atualizando
-                const { error } = await supabase
-                    .from('recipes')
-                    .update({ title, content })
-                    .eq('id', editingRecipeId);
-
-                if (error) console.error("Erro ao atualizar receita:", error);
-
-            } else { // Criando
-                const { data, error } = await supabase
-                    .from('recipes')
-                    .insert({ title, content, user_id: user.id })
-                    .select()
-                    .single();
-
-                if (error) {
-                    console.error("Erro ao criar receita:", error);
-                } else {
-                    editingRecipeId = data.id; // Usar o ID da nova receita
-                }
-            }
-
-            // 4. Salvar as novas URLs de imagem
-            if (uploadedUrls.length > 0 && editingRecipeId) {
-                const imagesToInsert = uploadedUrls.map(url => ({
-                    recipe_id: editingRecipeId,
-                    image_url: url
-                }));
-                await supabase.from('recipe_images').insert(imagesToInsert);
-            }
-
-            saveRecipeEditButton.disabled = false;
-            saveRecipeEditButton.textContent = 'Salvar';
-            hideEditRecipeModal();
-        }
-
-        async function deleteRecipe(recipeId) {
-             const { data: images, error: imagesError } = await supabase
-                .from('recipe_images')
-                .select('image_url')
-                .eq('recipe_id', recipeId);
-
-            if (imagesError) {
-                console.error("Erro ao buscar imagens para deletar:", imagesError);
-                return;
-            }
-
-            // Deleta imagens do Storage
-            if (images && images.length > 0) {
-                const user = (await supabase.auth.getUser()).data.user;
-                const filePaths = images.map(img => {
-                    const parts = img.image_url.split('/');
-                    return parts.slice(parts.indexOf(user.id)).join('/');
-                });
-                await supabase.storage.from('recipes').remove(filePaths);
-            }
-
-            // Deleta a receita do banco de dados (o cascade cuidará das imagens)
-            await supabase.from('recipes').delete().eq('id', recipeId);
-        }
 
 
         // --- EVENT LISTENERS ---
@@ -2460,67 +1531,8 @@
                 userEmailDisplay.textContent = newProfileName;
                 uploadMessage.textContent = 'Nome do perfil atualizado com sucesso!';
                 uploadMessage.classList.add('text-green-700');
-                fetchUsers();
             }
         });
-
-        closeShoppingListButton.addEventListener('click', () => {
-            shoppingListModal.classList.add('hidden');
-            shoppingListModal.classList.remove('flex');
-        });
-
-        shoppingListContainer.addEventListener('click', (e) => {
-            const deleteButton = e.target.closest('.delete-item-button');
-            if (deleteButton) {
-                const itemDiv = deleteButton.closest('.shopping-list-item');
-                const itemId = itemDiv.dataset.id;
-                showDeleteConfirmationModal(itemId, 'shopping_item');
-            }
-        });
-
-        saveEditButton.addEventListener('click', async () => {
-            if (editingItemId) {
-                await updateItem(editingItemId, editItemInput.value.trim(), parseFloat(editItemQuantity.value), editItemUnit.value);
-                closeEditItemModal();
-            }
-        });
-
-        cancelEditButton.addEventListener('click', closeEditItemModal);
-        closeEditItemModalButton.addEventListener('click', closeEditItemModal);
-
-        filterAllButton.addEventListener('click', () => {
-            currentFilter = 'all';
-            setActiveFilter('all');
-            fetchShoppingList();
-        });
-
-        filterToBuyButton.addEventListener('click', () => {
-            currentFilter = 'to-buy';
-            setActiveFilter('to-buy');
-            fetchShoppingList();
-        });
-
-        filterBoughtButton.addEventListener('click', () => {
-            currentFilter = 'bought';
-            setActiveFilter('bought');
-            fetchShoppingList();
-        });
-
-        function showAddItemModal() {
-            addItemModal.classList.remove('hidden');
-            addItemModal.classList.add('flex');
-            addItemNameInput.focus();
-        }
-
-        function hideAddItemModal() {
-            addItemModal.classList.add('hidden');
-            addItemModal.classList.remove('flex');
-        }
-
-        showAddItemModalButton.addEventListener('click', showAddItemModal);
-        closeAddItemModalButton.addEventListener('click', hideAddItemModal);
-        addItemCancelButton.addEventListener('click', hideAddItemModal);
-        addItemConfirmButton.addEventListener('click', addItem);
 
         function showDeleteConfirmationModal(id, type, name = '') {
             itemToDeleteInfo = { id, type };
@@ -2530,13 +1542,6 @@
                 messageEl.textContent = 'Tem a certeza que quer apagar esta nota?';
             } else if (type === 'custom_app_permanent') {
                 messageEl.innerHTML = `Tem certeza que deseja excluir permanentemente o aplicativo "<strong>${name}</strong>"? <br>Esta ação não pode ser desfeita.`;
-            } else if (type === 'price') {
-                messageEl.textContent = 'Tem certeza que deseja excluir este preço?';
-            } else if (type === 'recipe') {
-                messageEl.textContent = 'Tem a certeza que quer apagar esta receita? Esta ação não pode ser desfeita.';
-            }
-            else { // Default for shopping list item
-                messageEl.textContent = 'Tem certeza que deseja excluir este item da lista?';
             }
             deleteConfirmModal.classList.remove('hidden');
             deleteConfirmModal.classList.add('flex');
@@ -2557,13 +1562,6 @@
             if (type === 'note') {
                 await deleteNote(id);
                 fetchNotes();
-            } else if (type === 'price') {
-                await deletePrice(id);
-                if (currentComparisonItemId) {
-                    fetchItemPrices(currentComparisonItemId);
-                }
-            } else if (type === 'recipe') {
-                await deleteRecipe(id);
             } else if (type === 'custom_app_permanent') {
                 if (user) {
                     // 1. Delete from the database table
@@ -2580,45 +1578,12 @@
                     // 3. Refresh the trash list
                     await renderTrashList();
                 }
-            } else { // Default case for shopping list item
-                await deleteItem(id);
             }
-
             hideDeleteConfirmationModal();
         });
 
         cancelDeleteButton.addEventListener('click', () => {
             hideDeleteConfirmationModal();
-        });
-
-        function showMoveItemConfirmationModal(itemId, newStatus) {
-            mainHeader.style.zIndex = '20';
-            itemToMove = { id: itemId, status: newStatus };
-            if (newStatus === false) {
-                moveItemConfirmMessage.textContent = "Deseja adicionar este item à lista 'Para comprar'?";
-            } else {
-                moveItemConfirmMessage.textContent = "Deseja mover este item para a lista de 'Comprados'?";
-            }
-            moveItemModal.classList.remove('hidden');
-            moveItemModal.classList.add('flex');
-        }
-
-        function hideMoveItemConfirmationModal() {
-            mainHeader.style.zIndex = '';
-            itemToMove = null;
-            moveItemModal.classList.add('hidden');
-            moveItemModal.classList.remove('flex');
-        }
-
-        confirmMoveButton.addEventListener('click', () => {
-            if (itemToMove) {
-                toggleItemChecked(itemToMove.id, itemToMove.status);
-            }
-            hideMoveItemConfirmationModal();
-        });
-
-        cancelMoveButton.addEventListener('click', () => {
-            hideMoveItemConfirmationModal();
         });
 
         // --- EVENTOS DO MODAL DE CONFIGURAÇÕES ---
@@ -3302,20 +2267,11 @@
             const appUrl = appActionBar.dataset.url;
             hideAppActionBar();
 
-            if (appId === 'shopping-list') {
-                shoppingListModal.classList.remove('hidden');
-                shoppingListModal.classList.add('flex');
-                setActiveFilter(currentFilter);
-                fetchShoppingList();
-            } else if (appId === 'notes-app') {
+            if (appId === 'notes-app') {
                 notesModal.classList.remove('hidden');
                 notesModal.classList.add('flex');
                 updateNoteFilterDisplay(currentNoteFilter);
                 fetchNotes();
-            } else if (appId === 'recipes-app') { // NOVO
-                recipesModal.classList.remove('hidden');
-                recipesModal.classList.add('flex');
-                fetchRecipes();
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
@@ -3408,76 +2364,6 @@
             }
         });
 
-        // Event Listeners para Comparação de Preços
-        closePriceComparisonModalButton.addEventListener('click', hidePriceComparisonModal);
-        addPriceButton.addEventListener('click', addPrice);
-        cancelEditPriceButton.addEventListener('click', hideEditPriceModal);
-        closeEditPriceModalXButton.addEventListener('click', hideEditPriceModal);
-
-        priceListContainer.addEventListener('click', (e) => {
-            const editButton = e.target.closest('.edit-price-button');
-            if (editButton) {
-                const priceId = editButton.dataset.priceId;
-                const location = editButton.dataset.location;
-                const price = editButton.dataset.price;
-                showEditPriceModal(priceId, location, price);
-            }
-
-            const deleteButton = e.target.closest('.delete-price-button');
-            if (deleteButton) {
-                const priceId = deleteButton.dataset.priceId;
-                showDeleteConfirmationModal(priceId, 'price');
-            }
-        });
-
-        saveEditPriceButton.addEventListener('click', async () => {
-            const newLocation = editPriceLocationInput.value.trim();
-            const newPrice = parseFloat(editPriceValueInput.value);
-            if(editingPriceId && newLocation && !isNaN(newPrice)) {
-                await updatePrice(editingPriceId, newLocation, newPrice);
-                hideEditPriceModal();
-            }
-        });
-
-        // --- NOVO: EVENT LISTENERS DO APP DE RECEITAS ---
-        recipeSearchInput.addEventListener('input', filterAndRenderRecipes);
-
-        closeRecipesModal.addEventListener('click', () => {
-            recipesModal.classList.add('hidden');
-            recipesModal.classList.remove('flex');
-        });
-        showAddRecipeModalButton.addEventListener('click', () => showEditRecipeModal());
-        closeEditRecipeModal.addEventListener('click', hideEditRecipeModal);
-        cancelRecipeEditButton.addEventListener('click', hideEditRecipeModal);
-        saveRecipeEditButton.addEventListener('click', saveRecipe);
-        closeViewRecipeModal.addEventListener('click', hideViewRecipeModal);
-
-        recipeImageUpload.addEventListener('change', async (e) => {
-            recipeImagePreviews.innerHTML = '';
-            recipeFilesToUpload = [];
-
-            for (const file of e.target.files) {
-                const resizedBlob = await resizeImage(file, 200, 200);
-                recipeFilesToUpload.push(resizedBlob);
-
-                const previewEl = document.createElement('div');
-                previewEl.className = 'image-preview-item';
-                previewEl.innerHTML = `<img src="${URL.createObjectURL(resizedBlob)}" />`;
-                recipeImagePreviews.appendChild(previewEl);
-            }
-        });
-
-        recipeImagePreviews.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-image-btn')) {
-                const url = e.target.dataset.url;
-                if (url) {
-                    recipeImagesToDelete.push(url);
-                    e.target.parentElement.remove();
-                }
-            }
-        });
-
-
         // --- VERIFICAÇÃO DE ESTADO DE AUTENTICAÇÃO E URL ---
         supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
@@ -3505,20 +2391,8 @@
                         })
                         .subscribe();
 
-                    // Subscrições para Receitas
-                    if (recipesSubscription) supabase.removeChannel(recipesSubscription);
-                    recipesSubscription = supabase.channel('public:recipes')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recipes' }, payload => fetchRecipes())
-                        .subscribe();
-
-                    if (recipeImagesSubscription) supabase.removeChannel(recipeImagesSubscription);
-                    recipeImagesSubscription = supabase.channel('public:recipe_images')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recipe_images' }, payload => fetchRecipes())
-                        .subscribe();
-
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
-                    fetchShoppingList();
                 }
             } else { // Sem sessão ou o usuário saiu
                 isAppInitialized = false; // Reinicia a flag
@@ -3526,14 +2400,8 @@
                 // Limpa todas as subscrições para evitar vazamentos de memória
                 if (notesSubscription) supabase.removeChannel(notesSubscription);
                 if (customAppsSubscription) supabase.removeChannel(customAppsSubscription);
-                if (priceSubscription) supabase.removeChannel(priceSubscription);
-                if (recipesSubscription) supabase.removeChannel(recipesSubscription);
-                if (recipeImagesSubscription) supabase.removeChannel(recipeImagesSubscription);
                 notesSubscription = null;
                 customAppsSubscription = null;
-                priceSubscription = null;
-                recipesSubscription = null;
-                recipeImagesSubscription = null;
 
                 // Determina qual vista mostrar
                 const params = new URLSearchParams(window.location.hash.substring(1));
