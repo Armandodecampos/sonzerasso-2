@@ -128,11 +128,14 @@
         .music-info {
             @apply flex-grow;
         }
-        .music-title {
+        .music-artist-display {
             @apply font-bold text-gray-800;
         }
-        .music-artist {
-            @apply text-sm text-gray-600;
+        .music-album-display {
+            @apply italic text-gray-600;
+        }
+        .music-title-display {
+            @apply text-sm text-gray-700;
         }
 
         /* Estilos para o player de música */
@@ -1548,11 +1551,13 @@
                 musicItem.dataset.title = musica['Nome - Musica'];
                 musicItem.dataset.artist = musica['Nome - Artista'];
                 musicItem.dataset.albumArt = musica.Imagem;
+                musicItem.dataset.album = musica['Nome - Album'];
 
                 musicItem.innerHTML = `
                     <div class="music-info">
-                        <p class="music-title">${musica['Nome - Musica']}</p>
-                        <p class="music-artist">${musica['Nome - Artista']}</p>
+                        <p class="music-artist-display">${musica['Nome - Artista'] || 'Artista Desconhecido'}</p>
+                        <p class="music-album-display">${musica['Nome - Album'] || 'Álbum Desconhecido'}</p>
+                        <p class="music-title-display">${musica['Nome - Musica'] || 'Título Desconhecido'}</p>
                     </div>
                 `;
                 musicListContainer.appendChild(musicItem);
