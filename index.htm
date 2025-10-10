@@ -592,6 +592,21 @@
         </div>
     </div>
 
+    <!-- NOVO: Modal do App Explorar -->
+    <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-md">
+            <h2 class="text-2xl font-bold text-theme">Explorar</h2>
+            <button id="close-explore-modal" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+        <div class="flex-grow p-4">
+            <!-- Conteúdo do app Explorar virá aqui -->
+        </div>
+    </div>
+
     <!-- Modal de Comparação de Preços -->
     <div id="price-comparison-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
         <!-- Cabeçalho do Modal -->
@@ -802,6 +817,10 @@
         const closeTrashBinModal = document.getElementById('close-trash-bin-modal');
         const trashListContainer = document.getElementById('trash-list-container');
 
+        // Referências do App Explorar
+        const exploreModal = document.getElementById('explore-modal');
+        const closeExploreModalButton = document.getElementById('close-explore-modal');
+
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
         const editFixedAppTitle = document.getElementById('edit-fixed-app-title');
@@ -860,7 +879,8 @@
         ];
 
         const fixedAppsMasterList = [
-            { id: 'notes-app', title: 'Notas', iconClass: 'fas fa-sticky-note', isFixed: true }
+            { id: 'notes-app', title: 'Notas', iconClass: 'fas fa-sticky-note', isFixed: true },
+            { id: 'explore-app', title: 'Explorar', iconClass: 'fas fa-compass', isFixed: true }
         ];
 
         // --- FUNÇÕES DE INICIALIZAÇÃO E UI ---
@@ -900,6 +920,7 @@
             addAppModal.classList.add('hidden');
             editFixedAppModal.classList.add('hidden');
             trashBinModal.classList.add('hidden');
+            exploreModal.classList.add('hidden');
 
 
             if (isLoggedIn) {
@@ -2272,9 +2293,17 @@
                 notesModal.classList.add('flex');
                 updateNoteFilterDisplay(currentNoteFilter);
                 fetchNotes();
+            } else if (appId === 'explore-app') {
+                exploreModal.classList.remove('hidden');
+                exploreModal.classList.add('flex');
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
+        });
+
+        closeExploreModalButton.addEventListener('click', () => {
+            exploreModal.classList.add('hidden');
+            exploreModal.classList.remove('flex');
         });
 
         editAppButton.addEventListener('click', () => {
