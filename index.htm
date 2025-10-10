@@ -112,6 +112,21 @@
         .note-button {
             @apply cursor-pointer;
         }
+        .song-item {
+            @apply flex items-center p-3 bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02];
+        }
+        .song-item-image {
+            @apply w-16 h-16 rounded-md object-cover mr-4;
+        }
+        .song-item-details {
+            @apply flex-grow;
+        }
+        .song-item-title {
+            @apply font-bold text-lg text-gray-800 truncate;
+        }
+        .song-item-artist {
+            @apply text-sm text-gray-600;
+        }
         .icon-picker-item {
             @apply cursor-pointer text-2xl text-gray-600 p-2 rounded-md hover:bg-gray-200 text-center;
         }
@@ -553,6 +568,40 @@
     </div>
 
 
+    <!-- NOVO: Music Player Fixo -->
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 transform translate-y-full transition-transform duration-300 ease-in-out z-50 hidden">
+        <div class="flex items-center space-x-4">
+            <img id="player-album-art" src="https://placehold.co/64x64" alt="Album Art" class="w-16 h-16 rounded-md object-cover">
+            <div class="flex-grow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p id="player-song-title" class="font-bold text-lg text-gray-900 truncate">Nome da Música</p>
+                        <p id="player-artist-name" class="text-sm text-gray-600">Nome do Artista</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="player-play-pause-btn" class="w-12 h-12 flex items-center justify-center rounded-full text-gray-800 bg-gray-200 hover:bg-gray-300 transition-colors">
+                            <i id="player-play-icon" class="fas fa-play text-xl"></i>
+                            <i id="player-pause-icon" class="fas fa-pause text-xl hidden"></i>
+                        </button>
+                        <button id="player-close-btn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div id="player-progress-container" class="w-full bg-gray-200 rounded-full h-1.5 cursor-pointer">
+                        <div id="player-progress-bar" class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                     <div class="flex justify-between text-xs font-mono text-gray-500 mt-1">
+                        <span id="player-current-time">0:00</span>
+                        <span id="player-duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <audio id="player-audio-element" src=""></audio>
+    </div>
+
     <script type="module">
         // --- CORREÇÃO IMPORTANTE PARA O ERRO "INVALID API KEY" ---
         // O erro que está a receber ("Invalid API key") significa que os valores abaixo
@@ -670,6 +719,22 @@
         // Referências do App Explorar
         const exploreModal = document.getElementById('explore-modal');
         const closeExploreModalButton = document.getElementById('close-explore-modal');
+        const exploreContent = exploreModal.querySelector('.flex-grow');
+
+        // Referências do Music Player
+        const musicPlayer = document.getElementById('music-player');
+        const playerAlbumArt = document.getElementById('player-album-art');
+        const playerSongTitle = document.getElementById('player-song-title');
+        const playerArtistName = document.getElementById('player-artist-name');
+        const playerPlayPauseBtn = document.getElementById('player-play-pause-btn');
+        const playerPlayIcon = document.getElementById('player-play-icon');
+        const playerPauseIcon = document.getElementById('player-pause-icon');
+        const playerCloseBtn = document.getElementById('player-close-btn');
+        const playerProgressContainer = document.getElementById('player-progress-container');
+        const playerProgressBar = document.getElementById('player-progress-bar');
+        const playerCurrentTime = document.getElementById('player-current-time');
+        const playerDuration = document.getElementById('player-duration');
+        const audioElement = document.getElementById('player-audio-element');
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
@@ -1455,22 +1520,10 @@
                     <span class="grid-item-label text-theme noselect">${app.title}</span>
                 `;
 
-                appContainer.addEventListener('click', () => {
+                const gridItem = appContainer.querySelector('.grid-item');
+                gridItem.addEventListener('click', () => {
                     if (isDragging) return;
-
-                    const isFixed = app.isFixed;
-
-                    if (isFixed) {
-                         // Ação direta para apps fixos
-                        if (app.id === 'explore-app') {
-                            exploreModal.classList.remove('hidden');
-                            exploreModal.classList.add('flex');
-                        }
-                        // Adicionar outras lógicas de apps fixos aqui se necessário
-                    } else {
-                        // Mostra o menu de ações para apps personalizados
-                        showAppActionBar(app);
-                    }
+                    showAppActionBar(app); // Alterado para chamar a nova função
                 });
 
                 buttonGridContainer.appendChild(appContainer);
@@ -1849,14 +1902,51 @@
         cancelAddAppButton.addEventListener('click', hideAddAppModal);
         saveAppButton.addEventListener('click', saveAppDetails);
 
+        async function openExploreModal() {
+            exploreContent.innerHTML = '<p class="text-center text-gray-500">Carregando músicas...</p>';
+            exploreModal.classList.remove('hidden');
+            exploreModal.classList.add('flex');
+
+            const { data: songs, error } = await supabase.from('Musicas').select('*');
+
+            if (error) {
+                console.error('Erro ao buscar músicas:', error);
+                exploreContent.innerHTML = '<p class="text-center text-red-500">Não foi possível carregar as músicas.</p>';
+                return;
+            }
+
+            if (!songs || songs.length === 0) {
+                exploreContent.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
+                return;
+            }
+
+            exploreContent.innerHTML = '';
+            const songListContainer = document.createElement('div');
+            songListContainer.className = 'space-y-4';
+
+            songs.forEach(song => {
+                const songItem = document.createElement('div');
+                songItem.className = 'song-item';
+                songItem.innerHTML = `
+                    <img src="${song.Imagem}" alt="Capa do Álbum" class="song-item-image">
+                    <div class="song-item-details">
+                        <p class="song-item-title">${song['Nome - Musica']}</p>
+                        <p class="song-item-artist">${song['Nome - Artista']}</p>
+                    </div>
+                `;
+                songItem.addEventListener('click', () => playSong(song));
+                songListContainer.appendChild(songItem);
+            });
+            exploreContent.appendChild(songListContainer);
+        }
+
         openAppButton.addEventListener('click', () => {
             const appId = appActionBar.dataset.id;
             const appUrl = appActionBar.dataset.url;
             hideAppActionBar();
 
             if (appId === 'explore-app') {
-                exploreModal.classList.remove('hidden');
-                exploreModal.classList.add('flex');
+                openExploreModal();
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
@@ -1929,6 +2019,82 @@
             hideEditFixedAppModal();
         });
         cancelEditFixedAppButton.addEventListener('click', hideEditFixedAppModal);
+
+        // --- LÓGICA DO MUSIC PLAYER ---
+        let isPlaying = false;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function playSong(song) {
+            audioElement.src = song.Musica;
+            playerAlbumArt.src = song.Imagem;
+            playerSongTitle.textContent = song['Nome - Musica'];
+            playerArtistName.textContent = song['Nome - Artista'];
+
+            musicPlayer.classList.remove('hidden');
+            setTimeout(() => {
+                musicPlayer.classList.remove('translate-y-full');
+            }, 10); // Pequeno delay para garantir que a transição funcione
+
+            audioElement.play();
+            isPlaying = true;
+            playerPlayIcon.classList.add('hidden');
+            playerPauseIcon.classList.remove('hidden');
+            exploreModal.classList.add('hidden');
+            exploreModal.classList.remove('flex');
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                audioElement.pause();
+                playerPlayIcon.classList.remove('hidden');
+                playerPauseIcon.classList.add('hidden');
+            } else {
+                audioElement.play();
+                playerPlayIcon.classList.add('hidden');
+                playerPauseIcon.classList.remove('hidden');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function updateProgress() {
+            if (audioElement.duration) {
+                const progressPercentage = (audioElement.currentTime / audioElement.duration) * 100;
+                playerProgressBar.style.width = `${progressPercentage}%`;
+                playerCurrentTime.textContent = formatTime(audioElement.currentTime);
+                playerDuration.textContent = formatTime(audioElement.duration);
+            }
+        }
+
+        function seek(e) {
+            const width = playerProgressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audioElement.duration;
+            audioElement.currentTime = (clickX / width) * duration;
+        }
+
+        playerPlayPauseBtn.addEventListener('click', togglePlayPause);
+        playerCloseBtn.addEventListener('click', () => {
+            audioElement.pause();
+            isPlaying = false;
+            musicPlayer.classList.add('translate-y-full');
+             setTimeout(() => {
+                musicPlayer.classList.add('hidden');
+            }, 300);
+        });
+
+        audioElement.addEventListener('timeupdate', updateProgress);
+        audioElement.addEventListener('ended', () => {
+            playerPlayIcon.classList.remove('hidden');
+            playerPauseIcon.classList.add('hidden');
+            isPlaying = false;
+        });
+        playerProgressContainer.addEventListener('click', seek);
+
 
         // --- VERIFICAÇÃO DE ESTADO DE AUTENTICAÇÃO E URL ---
         supabase.auth.onAuthStateChange((event, session) => {
