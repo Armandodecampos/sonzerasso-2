@@ -345,21 +345,6 @@
         </div>
     </div>
 
-    <!-- Modal para Seleção de Filtro de Notas -->
-    <div id="note-filter-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[60]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-2">
-            <h3 class="text-xl font-bold text-center text-theme mb-2">Filtrar Notas Por</h3>
-            <button class="note-filter-option w-full text-left p-3 hover:bg-gray-100 rounded-md" data-filter="active">Dia de Hoje</button>
-            <button class="note-filter-option w-full text-left p-3 hover:bg-gray-100 rounded-md" data-filter="futuras">Futuras</button>
-            <button class="note-filter-option w-full text-left p-3 hover:bg-gray-100 rounded-md" data-filter="antigas">Antigas</button>
-            <button class="note-filter-option w-full text-left p-3 hover:bg-gray-100 rounded-md" data-filter="fixed">Fixas</button>
-            <button class="note-filter-option w-full text-left p-3 hover:bg-gray-100 rounded-md" data-filter="all">Todas</button>
-            <button id="close-note-filter-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors mt-4">
-                Fechar
-            </button>
-        </div>
-    </div>
-
     <!-- Modal para confirmação de exclusão -->
     <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
@@ -432,84 +417,6 @@
         </div>
     </div>
 
-    <!-- Modal de Notas Pessoais -->
-    <div id="notes-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 class="text-2xl font-bold text-theme">Notas</h2>
-            <button id="close-notes-modal-button" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-        </header>
-        <div class="p-4 bg-white sticky top-0 z-10 shadow-sm flex justify-start items-center space-x-4">
-            <button id="show-note-filter-modal-button" class="p-2 rounded-md hover:bg-gray-200 text-gray-600">
-                <i class="fas fa-filter text-xl"></i>
-            </button>
-            <p id="current-note-filter-display" class="font-semibold text-lg text-gray-700">Notas de Hoje</p>
-        </div>
-        <div id="notes-container" class="flex-grow overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
-            <!-- As notas serão inseridas aqui -->
-        </div>
-        <footer class="p-4 bg-white shadow-lg">
-            <button id="show-add-note-modal-button" class="w-full px-4 py-3 bg-yellow-400 text-yellow-900 font-semibold rounded-md hover:bg-yellow-500 transition-colors">
-                Criar Nova Nota
-            </button>
-        </footer>
-    </div>
-
-     <!-- Modal para Ver Nota -->
-    <div id="view-note-modal" class="fixed inset-0 bg-white hidden flex-col z-[90]">
-        <header class="flex items-center justify-between p-4 border-b flex-shrink-0">
-            <h2 id="view-note-title" class="text-2xl font-bold truncate text-theme"></h2>
-            <button id="close-view-note-modal-button" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <!-- Container de scroll -->
-        <div class="flex-grow overflow-y-auto">
-            <div class="p-6">
-                <p id="view-note-content" class="whitespace-pre-wrap break-words text-theme"></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Adicionar/Editar Nota -->
-    <div id="edit-note-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[80]">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 id="note-modal-title" class="text-2xl font-bold text-theme"></h2>
-            <button id="close-edit-note-modal-button" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4">
-            <input type="text" id="edit-note-title" class="w-full p-2 border rounded-md" placeholder="Título...">
-            <div class="flex items-center space-x-4">
-                <div class="flex-grow">
-                    <label for="edit-note-start-date" class="block text-sm font-medium text-theme">Data de Início</label>
-                    <input type="date" id="edit-note-start-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="flex-grow">
-                    <label for="edit-note-end-date" class="block text-sm font-medium text-theme">Data de Fim</label>
-                    <input type="date" id="edit-note-end-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                </div>
-            </div>
-            <div class="flex items-center">
-                <input type="checkbox" id="edit-note-is-fixed" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                <label for="edit-note-is-fixed" class="ml-2 block text-sm text-theme">Nota Fixa</label>
-            </div>
-            <textarea id="edit-note-input" rows="6" class="w-full p-2 border rounded-md resize-y" placeholder="Escreva a sua nota..."></textarea>
-            <p id="note-error-message" class="text-red-500 text-sm text-center hidden"></p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancel-note-edit-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="save-note-edit-button" class="px-6 py-2 bg-yellow-400 text-yellow-900 font-semibold rounded-md hover:bg-yellow-500">Salvar</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
     <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
@@ -758,39 +665,6 @@
         const buttonGridContainer = document.getElementById('button-grid-container');
         const mainHeader = document.getElementById('main-header');
 
-        // Referências do App de Notas
-        const notesModal = document.getElementById('notes-modal');
-        const closeNotesModalButton = document.getElementById('close-notes-modal-button');
-        const notesContainer = document.getElementById('notes-container');
-        const showAddNoteModalButton = document.getElementById('show-add-note-modal-button');
-
-        // Referências do Modal de Edição de Nota (usado para Adicionar e Editar)
-        const editNoteModal = document.getElementById('edit-note-modal');
-        const noteModalTitle = document.getElementById('note-modal-title');
-        const closeEditNoteModalButton = document.getElementById('close-edit-note-modal-button');
-        const editNoteTitleInput = document.getElementById('edit-note-title');
-        const editNoteInput = document.getElementById('edit-note-input');
-        const saveNoteEditButton = document.getElementById('save-note-edit-button');
-        const cancelNoteEditButton = document.getElementById('cancel-note-edit-button');
-        const editNoteStartDateInput = document.getElementById('edit-note-start-date');
-        const editNoteEndDateInput = document.getElementById('edit-note-end-date');
-        const editNoteIsFixedCheckbox = document.getElementById('edit-note-is-fixed');
-        const noteErrorMessage = document.getElementById('note-error-message');
-
-        // NOVO: Referências do Modal de Filtro de Notas
-        const showNoteFilterModalButton = document.getElementById('show-note-filter-modal-button');
-        const noteFilterModal = document.getElementById('note-filter-modal');
-        const closeNoteFilterModalButton = document.getElementById('close-note-filter-modal-button');
-        const currentNoteFilterDisplay = document.getElementById('current-note-filter-display');
-        const noteFilterOptions = document.querySelectorAll('.note-filter-option');
-
-
-        // Referências do Modal de Visualização de Nota
-        const viewNoteModal = document.getElementById('view-note-modal');
-        const viewNoteTitle = document.getElementById('view-note-title');
-        const viewNoteContent = document.getElementById('view-note-content');
-        const closeViewNoteModalButton = document.getElementById('close-view-note-modal-button');
-
         // Referências do novo modal para adicionar aplicativos
         const addAppButton = document.getElementById('add-app-button');
         const addAppModal = document.getElementById('add-app-modal');
@@ -828,10 +702,7 @@
         const saveEditFixedAppButton = document.getElementById('save-edit-fixed-app-button');
         const cancelEditFixedAppButton = document.getElementById('cancel-edit-fixed-app-button');
 
-        let editingNoteId = null;
         let itemToDeleteInfo = null;
-        let notesSubscription = null;
-        let currentNoteFilter = 'active';
         let customAppsSubscription = null;
         let isDragging = false;
         let tempPreferences = {}; // State for settings modal
@@ -879,7 +750,6 @@
         ];
 
         const fixedAppsMasterList = [
-            { id: 'notes-app', title: 'Notas', iconClass: 'fas fa-sticky-note', isFixed: true },
             { id: 'explore-app', title: 'Explorar', iconClass: 'fas fa-compass', isFixed: true }
         ];
 
@@ -913,10 +783,6 @@
             editProfileModal.classList.add('hidden');
             settingsModal.classList.add('hidden');
             deleteConfirmModal.classList.add('hidden');
-            notesModal.classList.add('hidden');
-            editNoteModal.classList.add('hidden');
-            viewNoteModal.classList.add('hidden');
-            noteFilterModal.classList.add('hidden');
             addAppModal.classList.add('hidden');
             editFixedAppModal.classList.add('hidden');
             trashBinModal.classList.add('hidden');
@@ -1061,164 +927,6 @@
             }
         }
 
-        // --- FUNÇÕES DO APP DE NOTAS ---
-
-        // Renderiza as notas na UI
-        function renderNotes(notes) {
-            notesContainer.innerHTML = ''; // Limpa o container
-            if (notes.length === 0) {
-                notesContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">Nenhuma nota encontrada.</p>';
-                return;
-            }
-
-            notes.forEach(note => {
-                const noteEl = document.createElement('div');
-                noteEl.className = 'note-item';
-                noteEl.dataset.id = note.id;
-                noteEl.dataset.title = note.title || '';
-                noteEl.dataset.content = note.content || '';
-                noteEl.dataset.startDate = note.start_date || '';
-                noteEl.dataset.endDate = note.end_date || '';
-                noteEl.dataset.isFixed = note.is_fixed;
-
-                noteEl.innerHTML = `
-                    <div>
-                        <h3 class="note-title">${note.title || 'Sem Título'}</h3>
-                        <p class="note-content-preview">${note.content || ''}</p>
-                    </div>
-                    <div class="note-actions">
-                         <div class="text-xs text-gray-500">
-                            ${note.is_fixed
-                                ? '<span><i class="fas fa-thumbtack"></i> Fixa</span>'
-                                : note.start_date
-                                    ? `<span>${new Date(note.start_date + 'T00:00:00').toLocaleDateString()} - ${new Date(note.end_date + 'T00:00:00').toLocaleDateString()}</span>`
-                                    : ''}
-                        </div>
-                        <div>
-                            <button class="note-button note-edit-button text-gray-600 hover:text-indigo-600 p-1"><i class="fas fa-edit"></i></button>
-                            <button class="note-button note-delete-button text-gray-600 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                notesContainer.appendChild(noteEl);
-            });
-        }
-
-
-        // Busca e renderiza as notas do usuário
-        async function fetchNotes() {
-            const { data: { user } = {} } = await supabase.auth.getUser();
-            if (!user) return;
-
-            let query = supabase
-                .from('notes')
-                .select('id, title, content, start_date, end_date, is_fixed')
-                .eq('user_id', user.id);
-
-            // Correção: Garante que estamos a usar a data local para evitar problemas de fuso horário.
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Meses são 0-indexados
-            const day = String(now.getDate()).padStart(2, '0');
-            const today = `${year}-${month}-${day}`;
-
-            if (currentNoteFilter === 'fixed') {
-                query = query.eq('is_fixed', true);
-            } else if (currentNoteFilter === 'active') {
-                // 'Ativas' (Dia de Hoje) são notas não fixas cujo período (de start_date a end_date) inclui o dia de hoje.
-                query = query.eq('is_fixed', false)
-                             .lte('start_date', today)
-                             .gte('end_date', today);
-            } else if (currentNoteFilter === 'futuras') {
-                 // 'Futuras' são notas não fixas cuja data de início (start_date) é posterior a hoje.
-                query = query.eq('is_fixed', false)
-                             .gt('start_date', today);
-            } else if (currentNoteFilter === 'antigas') {
-                // 'Antigas' são notas não fixas cuja data final (end_date) já passou (é anterior a hoje).
-                query = query.eq('is_fixed', false)
-                             .lt('end_date', today);
-            }
-
-            // Aplica a ordenação com base no filtro selecionado
-            switch(currentNoteFilter) {
-                case 'active': // Dia de Hoje
-                case 'fixed': // Fixas
-                    query = query.order('title', { ascending: true });
-                    break;
-                case 'futuras': // Futuras
-                    query = query.order('start_date', { ascending: true });
-                    break;
-                case 'antigas': // Antigas
-                    query = query.order('end_date', { ascending: false });
-                    break;
-                case 'all': // Todas
-                default:
-                    // Prioriza notas fixas, depois ordena por data de início
-                    query = query.order('is_fixed', { ascending: false }).order('start_date', { ascending: true, nullsFirst: false });
-                    break;
-            }
-
-            const { data: notes, error } = await query;
-
-            if (error) {
-                console.error('Erro ao buscar notas:', error);
-                notesContainer.innerHTML = '<p class="text-red-500">Não foi possível carregar as notas.</p>';
-                return;
-            }
-
-            if (notes) {
-                renderNotes(notes);
-            }
-        }
-
-        // Adiciona uma nova nota
-        async function addNote(title, content, startDate, endDate, isFixed) {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { error } = await supabase
-                .from('notes')
-                .insert({ title, content, user_id: user.id, start_date: startDate, end_date: endDate, is_fixed: isFixed });
-
-            if (error) {
-                console.error('Erro ao adicionar nota:', error);
-            }
-        }
-
-        // Apaga uma nota
-        async function deleteNote(noteId) {
-            const { error } = await supabase
-                .from('notes')
-                .delete()
-                .eq('id', noteId);
-
-            if (error) {
-                console.error('Erro ao apagar nota:', error);
-            }
-        }
-
-        // Atualiza uma nota
-        async function updateNote(noteId, title, content, startDate, endDate, isFixed) {
-            const { error } = await supabase
-                .from('notes')
-                .update({ title, content, start_date: startDate, end_date: endDate, is_fixed: isFixed })
-                .eq('id', noteId);
-            if (error) {
-                console.error('Erro ao atualizar nota:', error);
-            }
-        }
-
-        function showViewNoteModal(title, content) {
-            viewNoteTitle.textContent = title || 'Sem Título';
-            viewNoteContent.textContent = content;
-            viewNoteModal.classList.remove('hidden');
-            viewNoteModal.classList.add('flex');
-        }
-
-        function closeViewNoteModal() {
-            viewNoteModal.classList.add('hidden');
-            viewNoteModal.classList.remove('flex');
-        }
 
         function renderIconPicker(selectedIconClass) {
             iconPickerContainer.innerHTML = '';
@@ -1580,10 +1288,7 @@
             const { id, type } = itemToDeleteInfo;
             const user = (await supabase.auth.getUser()).data.user;
 
-            if (type === 'note') {
-                await deleteNote(id);
-                fetchNotes();
-            } else if (type === 'custom_app_permanent') {
+            if (type === 'custom_app_permanent') {
                 if (user) {
                     // 1. Delete from the database table
                     await supabase.from('custom_apps').delete().match({ id: id, user_id: user.id });
@@ -1728,132 +1433,6 @@
             headerColorInput.value = '#FFFFFF';
             textColorInput.value = '#1f2937';
         });
-
-        closeNotesModalButton.addEventListener('click', () => {
-            notesModal.classList.add('hidden');
-            notesModal.classList.remove('flex');
-        });
-
-        showAddNoteModalButton.addEventListener('click', () => {
-            showEditNoteModal(null, '', '', null, null, false);
-        });
-
-        notesContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            const noteEl = target.closest('.note-item');
-            if (!noteEl) return;
-
-            const noteId = noteEl.dataset.id;
-            const title = noteEl.dataset.title;
-            const content = noteEl.dataset.content;
-            const startDate = noteEl.dataset.startDate;
-            const endDate = noteEl.dataset.endDate;
-            const isFixed = noteEl.dataset.isFixed === 'true';
-
-            const deleteButton = target.closest('.note-delete-button');
-            const editButton = target.closest('.note-edit-button');
-
-            if (editButton) {
-                showEditNoteModal(noteId, title, content, startDate, endDate, isFixed);
-            } else if (deleteButton) {
-                showDeleteConfirmationModal(noteId, 'note');
-            } else {
-                showViewNoteModal(title, content);
-            }
-        });
-
-        closeEditNoteModalButton.addEventListener('click', closeEditNoteModal);
-        cancelNoteEditButton.addEventListener('click', closeEditNoteModal);
-        saveNoteEditButton.addEventListener('click', async () => {
-            noteErrorMessage.classList.add('hidden');
-            const newTitle = editNoteTitleInput.value.trim();
-            const newContent = editNoteInput.value.trim();
-            const isFixed = editNoteIsFixedCheckbox.checked;
-            const startDate = !isFixed && editNoteStartDateInput.value ? editNoteStartDateInput.value : null;
-            const endDate = !isFixed && editNoteEndDateInput.value ? editNoteEndDateInput.value : null;
-
-            if (!isFixed && (!startDate || !endDate)) {
-                noteErrorMessage.textContent = 'Por favor, defina uma data de início e fim, ou marque a nota como fixa.';
-                noteErrorMessage.classList.remove('hidden');
-                return;
-            }
-
-            if (!newTitle && !newContent) {
-                noteErrorMessage.textContent = 'A nota precisa de um título ou conteúdo para ser salva.';
-                noteErrorMessage.classList.remove('hidden');
-                return;
-            }
-
-            if (editingNoteId) {
-                await updateNote(editingNoteId, newTitle, newContent, startDate, endDate, isFixed);
-            } else {
-                await addNote(newTitle, newContent, startDate, endDate, isFixed);
-            }
-            closeEditNoteModal();
-        });
-
-        closeViewNoteModalButton.addEventListener('click', closeViewNoteModal);
-
-        editNoteIsFixedCheckbox.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            editNoteStartDateInput.disabled = isChecked;
-            editNoteEndDateInput.disabled = isChecked;
-            if (isChecked) {
-                editNoteStartDateInput.value = '';
-                editNoteEndDateInput.value = '';
-            }
-        });
-
-        // NOVO: Funções e eventos para o modal de filtro de notas
-        function showNoteFilterModal() {
-            noteFilterModal.classList.remove('hidden');
-            noteFilterModal.classList.add('flex');
-        }
-
-        function hideNoteFilterModal() {
-            noteFilterModal.classList.add('hidden');
-            noteFilterModal.classList.remove('flex');
-        }
-
-        function updateNoteFilterDisplay(filterValue) {
-            let displayText = "Notas de Hoje"; // Default
-            switch (filterValue) {
-                case 'active':
-                    displayText = 'Notas de Hoje';
-                    break;
-                case 'futuras':
-                    displayText = 'Notas Futuras';
-                    break;
-                case 'antigas':
-                    displayText = 'Notas Antigas';
-                    break;
-                case 'fixed':
-                    displayText = 'Notas Fixas';
-                    break;
-                case 'all':
-                    displayText = 'Ver Tudo';
-                    break;
-            }
-            currentNoteFilterDisplay.textContent = displayText;
-        }
-
-        function selectNoteFilter(filterValue) {
-            currentNoteFilter = filterValue;
-            updateNoteFilterDisplay(filterValue);
-            fetchNotes();
-            hideNoteFilterModal();
-        }
-
-        showNoteFilterModalButton.addEventListener('click', showNoteFilterModal);
-        closeNoteFilterModalButton.addEventListener('click', hideNoteFilterModal);
-
-        noteFilterOptions.forEach(button => {
-            button.addEventListener('click', () => {
-                const filterValue = button.dataset.filter;
-                selectNoteFilter(filterValue);
-            });
-        });
-
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
         async function renderApps(appsToRender, appOrder) {
@@ -2288,12 +1867,7 @@
             const appUrl = appActionBar.dataset.url;
             hideAppActionBar();
 
-            if (appId === 'notes-app') {
-                notesModal.classList.remove('hidden');
-                notesModal.classList.add('flex');
-                updateNoteFilterDisplay(currentNoteFilter);
-                fetchNotes();
-            } else if (appId === 'explore-app') {
+            if (appId === 'explore-app') {
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
             } else if (appUrl) {
@@ -2413,13 +1987,6 @@
                         })
                         .subscribe();
 
-                    if (notesSubscription) supabase.removeChannel(notesSubscription);
-                    notesSubscription = supabase.channel('public:notes')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'notes', filter: `user_id=eq.${session.user.id}` }, payload => {
-                            fetchNotes();
-                        })
-                        .subscribe();
-
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
                 }
@@ -2427,9 +1994,7 @@
                 isAppInitialized = false; // Reinicia a flag
 
                 // Limpa todas as subscrições para evitar vazamentos de memória
-                if (notesSubscription) supabase.removeChannel(notesSubscription);
                 if (customAppsSubscription) supabase.removeChannel(customAppsSubscription);
-                notesSubscription = null;
                 customAppsSubscription = null;
 
                 // Determina qual vista mostrar
