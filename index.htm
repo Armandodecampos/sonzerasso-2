@@ -118,6 +118,30 @@
         .icon-picker-item.selected {
             @apply bg-indigo-500 text-white;
         }
+        /* Estilos para a lista de músicas */
+        .music-item {
+            @apply flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200;
+        }
+        .music-item:last-child {
+            @apply border-b-0;
+        }
+        .music-album-art {
+            @apply w-12 h-12 rounded-md object-cover mr-4;
+        }
+        .music-info {
+            @apply flex-grow;
+        }
+        .music-title {
+            @apply font-bold text-gray-800;
+        }
+        .music-artist {
+            @apply text-sm text-gray-600;
+        }
+
+        /* Estilos para o player de música */
+        #music-player.player-visible {
+            @apply translate-y-0;
+        }
         /* Estilos para o App de Receitas */
         .recipe-item {
             @apply bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 cursor-pointer flex flex-col;
@@ -484,15 +508,27 @@
     <!-- NOVO: Modal do App Explorar -->
     <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 class="text-2xl font-bold text-theme">Explorar</h2>
+            <h2 class="text-2xl font-bold text-theme">Explorar Músicas</h2>
             <button id="close-explore-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </header>
-        <div class="flex-grow p-4">
-            <!-- Conteúdo do app Explorar virá aqui -->
+        <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- As músicas carregadas do Supabase serão inseridas aqui -->
+        </div>
+    </div>
+
+    <!-- Player de Música Fixo -->
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out z-50">
+        <div class="flex items-center">
+            <img id="player-album-art" src="https-placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
+            <div class="flex-grow">
+                <h3 id="player-song-title" class="font-bold">Nome da Música</h3>
+                <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
+            </div>
+            <audio id="player-audio" controls class="w-1/2"></audio>
         </div>
     </div>
 
@@ -670,6 +706,14 @@
         // Referências do App Explorar
         const exploreModal = document.getElementById('explore-modal');
         const closeExploreModalButton = document.getElementById('close-explore-modal');
+        const musicListContainer = document.getElementById('music-list-container');
+
+        // Referências do Player de Música
+        const musicPlayer = document.getElementById('music-player');
+        const playerAlbumArt = document.getElementById('player-album-art');
+        const playerSongTitle = document.getElementById('player-song-title');
+        const playerArtistName = document.getElementById('player-artist-name');
+        const playerAudio = document.getElementById('player-audio');
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
@@ -1455,7 +1499,7 @@
                     <span class="grid-item-label text-theme noselect">${app.title}</span>
                 `;
 
-                appContainer.addEventListener('click', () => {
+                appContainer.addEventListener('click', async () => { // Tornando o listener assíncrono
                     if (isDragging) return;
 
                     const isFixed = app.isFixed;
@@ -1463,6 +1507,7 @@
                     if (isFixed) {
                          // Ação direta para apps fixos
                         if (app.id === 'explore-app') {
+                            await fetchAndDisplayMusic(); // Carrega as músicas antes de mostrar
                             exploreModal.classList.remove('hidden');
                             exploreModal.classList.add('flex');
                         }
@@ -1474,6 +1519,47 @@
                 });
 
                 buttonGridContainer.appendChild(appContainer);
+            });
+        }
+
+        // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
+        async function fetchAndDisplayMusic() {
+            musicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando músicas...</p>';
+
+            const { data: musicas, error } = await supabase
+                .from('Musicas')
+                .select('*');
+
+            if (error) {
+                console.error('Erro ao buscar músicas:', error);
+                musicListContainer.innerHTML = '<p class="text-center text-red-500">Não foi possível carregar as músicas.</p>';
+                return;
+            }
+
+            if (musicas.length === 0) {
+                musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
+                return;
+            }
+
+            musicListContainer.innerHTML = ''; // Limpa o container
+
+            musicas.forEach(musica => {
+                const musicItem = document.createElement('div');
+                musicItem.className = 'music-item';
+                // Armazena todos os dados da música no elemento para fácil acesso
+                musicItem.dataset.src = musica.Musica;
+                musicItem.dataset.title = musica['Nome - Musica'];
+                musicItem.dataset.artist = musica['Nome - Artista'];
+                musicItem.dataset.albumArt = musica.Imagem;
+
+                musicItem.innerHTML = `
+                    <img src="${musica.Imagem}" alt="Capa do Álbum" class="music-album-art">
+                    <div class="music-info">
+                        <p class="music-title">${musica['Nome - Musica']}</p>
+                        <p class="music-artist">${musica['Nome - Artista']}</p>
+                    </div>
+                `;
+                musicListContainer.appendChild(musicItem);
             });
         }
 
@@ -1849,17 +1935,37 @@
         cancelAddAppButton.addEventListener('click', hideAddAppModal);
         saveAppButton.addEventListener('click', saveAppDetails);
 
-        openAppButton.addEventListener('click', () => {
+        openAppButton.addEventListener('click', async () => {
             const appId = appActionBar.dataset.id;
             const appUrl = appActionBar.dataset.url;
             hideAppActionBar();
 
             if (appId === 'explore-app') {
+                await fetchAndDisplayMusic();
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
+        });
+
+        // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
+        musicListContainer.addEventListener('click', (e) => {
+            const musicItem = e.target.closest('.music-item');
+            if (!musicItem) return;
+
+            // Pega os dados da música do elemento clicado
+            const { src, title, artist, albumArt } = musicItem.dataset;
+
+            // Atualiza o player
+            playerAlbumArt.src = albumArt;
+            playerSongTitle.textContent = title;
+            playerArtistName.textContent = artist;
+            playerAudio.src = src;
+
+            // Mostra o player e toca a música
+            musicPlayer.classList.add('player-visible');
+            playerAudio.play();
         });
 
         closeExploreModalButton.addEventListener('click', () => {
