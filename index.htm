@@ -1455,10 +1455,22 @@
                     <span class="grid-item-label text-theme noselect">${app.title}</span>
                 `;
 
-                const gridItem = appContainer.querySelector('.grid-item');
-                gridItem.addEventListener('click', () => {
+                appContainer.addEventListener('click', () => {
                     if (isDragging) return;
-                    showAppActionBar(app); // Alterado para chamar a nova função
+
+                    const isFixed = app.isFixed;
+
+                    if (isFixed) {
+                         // Ação direta para apps fixos
+                        if (app.id === 'explore-app') {
+                            exploreModal.classList.remove('hidden');
+                            exploreModal.classList.add('flex');
+                        }
+                        // Adicionar outras lógicas de apps fixos aqui se necessário
+                    } else {
+                        // Mostra o menu de ações para apps personalizados
+                        showAppActionBar(app);
+                    }
                 });
 
                 buttonGridContainer.appendChild(appContainer);
