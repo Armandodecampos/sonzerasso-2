@@ -528,9 +528,6 @@
         const saveEditFixedAppButton = document.getElementById('save-edit-fixed-app-button');
         const cancelEditFixedAppButton = document.getElementById('cancel-edit-fixed-app-button');
 
-        // Referências da vista de login
-        const initialLoginView = document.getElementById('initial-login-view');
-        const showProfilesButton = document.getElementById('show-profiles-button');
 
         // Referências da Comparação de Preços
         const priceComparisonModal = document.getElementById('price-comparison-modal');
@@ -999,7 +996,7 @@
             if (error) {
                 console.error('Erro ao sair:', error);
             } else {
-                toggleUI(false, 'initial');
+                toggleUI(false, 'login');
                 passwordInput.value = '';
             }
         });
