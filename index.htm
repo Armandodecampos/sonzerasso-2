@@ -125,9 +125,6 @@
         .music-item:last-child {
             @apply border-b-0;
         }
-        .music-album-art {
-            @apply w-12 h-12 rounded-md object-cover mr-4;
-        }
         .music-info {
             @apply flex-grow;
         }
@@ -1553,7 +1550,6 @@
                 musicItem.dataset.albumArt = musica.Imagem;
 
                 musicItem.innerHTML = `
-                    <img src="${musica.Imagem}" alt="Capa do Álbum" class="music-album-art">
                     <div class="music-info">
                         <p class="music-title">${musica['Nome - Musica']}</p>
                         <p class="music-artist">${musica['Nome - Artista']}</p>
@@ -1952,10 +1948,16 @@
         // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
         musicListContainer.addEventListener('click', (e) => {
             const musicItem = e.target.closest('.music-item');
-            if (!musicItem) return;
+            if (!musicItem || !musicItem.dataset.src) { // Guard: não faz nada se não houver item ou fonte de áudio
+                console.warn('Item de música clicado, mas sem fonte de áudio (dataset.src).');
+                return;
+            }
 
-            // Pega os dados da música do elemento clicado
-            const { src, title, artist, albumArt } = musicItem.dataset;
+            // Pega os dados da música do elemento clicado, com fallbacks para evitar erros
+            const src = musicItem.dataset.src;
+            const title = musicItem.dataset.title || 'Música desconhecida';
+            const artist = musicItem.dataset.artist || 'Artista desconhecido';
+            const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
 
             // Atualiza o player
             playerAlbumArt.src = albumArt;
