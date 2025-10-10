@@ -518,17 +518,13 @@
         <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
             <!-- As músicas carregadas do Supabase serão inseridas aqui -->
         </div>
-        <div class="p-4 bg-white border-t border-gray-200">
-            <button id="load-more-music" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                Carregar Mais
-            </button>
         </div>
     </div>
 
     <!-- Player de Música Fixo -->
     <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out z-50">
         <div class="flex items-center">
-            <img id="player-album-art" src="https-placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
+            <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
                 <h3 id="player-song-title" class="font-bold">Nome da Música</h3>
                 <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
@@ -717,6 +713,8 @@
         // Variáveis de estado para paginação
         let currentMusicPage = 0;
         const MUSIC_PAGE_SIZE = 50;
+        let isLoadingMoreMusic = false;
+        let noMoreMusicToLoad = false;
 
 
         // Referências do Player de Música
@@ -1518,10 +1516,10 @@
                     if (isFixed) {
                          // Ação direta para apps fixos
                         if (app.id === 'explore-app') {
-                            currentMusicPage = 0; // Reseta a página ao abrir
-                            musicListContainer.innerHTML = ''; // Limpa a lista antiga
-                            loadMoreMusicButton.style.display = 'block'; // Garante que o botão esteja visível
-                            await fetchAndDisplayMusic(currentMusicPage); // Carrega a primeira página
+                            currentMusicPage = 0;
+                            noMoreMusicToLoad = false;
+                            musicListContainer.innerHTML = '';
+                            await fetchAndDisplayMusic();
                             exploreModal.classList.remove('hidden');
                             exploreModal.classList.add('flex');
                         }
@@ -1537,12 +1535,12 @@
         }
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
-        async function fetchAndDisplayMusic(page = 0) {
-            const from = page * MUSIC_PAGE_SIZE;
-            const to = from + MUSIC_PAGE_SIZE - 1;
+        async function fetchAndDisplayMusic() {
+            if (isLoadingMoreMusic || noMoreMusicToLoad) return;
 
-            loadMoreMusicButton.textContent = 'Carregando...';
-            loadMoreMusicButton.disabled = true;
+            isLoadingMoreMusic = true;
+            const from = currentMusicPage * MUSIC_PAGE_SIZE;
+            const to = from + MUSIC_PAGE_SIZE - 1;
 
 
             const { data: musicas, error } = await supabase
@@ -1550,24 +1548,21 @@
                 .select('*')
                 .range(from, to);
 
-            loadMoreMusicButton.textContent = 'Carregar Mais';
-            loadMoreMusicButton.disabled = false;
+            isLoadingMoreMusic = false;
 
             if (error) {
                 console.error('Erro ao buscar músicas:', error);
-                // Não limpa a lista, apenas mostra um erro no botão talvez?
-                loadMoreMusicButton.textContent = 'Erro ao carregar';
                 return;
             }
 
-            if (musicas.length === 0 && page === 0) {
+            if (musicas.length === 0 && currentMusicPage === 0) {
                  musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
-                 loadMoreMusicButton.style.display = 'none'; // Esconde o botão se não houver musicas
+                 noMoreMusicToLoad = true;
                  return;
             }
 
             if (musicas.length < MUSIC_PAGE_SIZE) {
-                loadMoreMusicButton.style.display = 'none'; // Esconde o botão se não houver mais páginas
+                noMoreMusicToLoad = true;
             }
 
 
@@ -1610,6 +1605,7 @@
                 // Anexar o item completo à lista
                 musicListContainer.appendChild(musicItem);
             });
+            currentMusicPage++;
         }
 
         async function fetchAndRenderApps(userId) {
@@ -1992,7 +1988,6 @@
             if (appId === 'explore-app') {
                 currentMusicPage = 0; // Reseta a página ao abrir
                 musicListContainer.innerHTML = ''; // Limpa a lista antiga
-                loadMoreMusicButton.style.display = 'block'; // Garante que o botão esteja visível
                 await fetchAndDisplayMusic(currentMusicPage); // Carrega a primeira página
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
@@ -2001,9 +1996,10 @@
             }
         });
 
-        loadMoreMusicButton.addEventListener('click', () => {
-            currentMusicPage++;
-            fetchAndDisplayMusic(currentMusicPage);
+        musicListContainer.addEventListener('scroll', () => {
+            if (musicListContainer.scrollTop + musicListContainer.clientHeight >= musicListContainer.scrollHeight - 5) {
+                fetchAndDisplayMusic();
+            }
         });
 
         // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
