@@ -122,6 +122,9 @@
         .music-item {
             @apply flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200;
         }
+        .music-item.selected-for-folder {
+            @apply bg-orange-300;
+        }
         .music-item:last-child {
             @apply border-b-0;
         }
@@ -442,7 +445,7 @@
     <!-- Novo Modal para adicionar aplicativos personalizados -->
     <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Adicionar Aplicativo</h2>
+            <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
             <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -451,12 +454,8 @@
         </header>
         <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4 overflow-y-auto">
             <div class="relative">
-                <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Título</label>
-                <input type="text" id="app-title-input" placeholder="Ex: Google" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-            <div class="relative">
-                <label for="app-url-input" class="block text-sm font-medium text-left text-theme">URL</label>
-                <input type="url" id="app-url-input" placeholder="Ex: https://google.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Nome da Pasta</label>
+                <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
             <!-- Novos campos para personalização -->
@@ -481,7 +480,7 @@
 
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="save-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                    Salvar
+                    Criar Pasta
                 </button>
                 <button id="cancel-add-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
                     Cancelar
@@ -515,9 +514,29 @@
                 </svg>
             </button>
         </header>
+        <!-- Nova Barra de Ações para Adicionar Músicas -->
+        <div id="music-action-bar" class="p-4 bg-white border-b border-gray-200">
+            <!-- Vista Inicial: Botão para ativar o modo de seleção -->
+            <div id="initial-music-action-view">
+                <button id="add-songs-to-folder-btn" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                    Adicionar músicas a pasta
+                </button>
+            </div>
+            <!-- Vista de Seleção: Dropdown de pastas e botões de ação -->
+            <div id="folder-selection-view" class="hidden items-center space-x-2">
+                <select id="folder-select" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <!-- As pastas do usuário serão carregadas aqui -->
+                </select>
+                <button id="confirm-add-to-folder-btn" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600">
+                    Adicionar
+                </button>
+                <button id="cancel-add-to-folder-btn" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400">
+                    Cancelar
+                </button>
+            </div>
+        </div>
         <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
             <!-- As músicas carregadas do Supabase serão inseridas aqui -->
-        </div>
         </div>
     </div>
 
@@ -689,7 +708,6 @@
         const addAppModal = document.getElementById('add-app-modal');
         const closeAddAppModalButton = document.getElementById('close-add-app-modal');
         const appTitleInput = document.getElementById('app-title-input');
-        const appUrlInput = document.getElementById('app-url-input');
         const saveAppButton = document.getElementById('save-app-button');
         const cancelAddAppButton = document.getElementById('cancel-add-app-button');
         const iconPickerContainer = document.getElementById('icon-picker-container');
@@ -708,13 +726,23 @@
         const exploreModal = document.getElementById('explore-modal');
         const closeExploreModalButton = document.getElementById('close-explore-modal');
         const musicListContainer = document.getElementById('music-list-container');
-        const loadMoreMusicButton = document.getElementById('load-more-music');
+
+        // Referências da nova barra de ações de música
+        const musicActionBar = document.getElementById('music-action-bar');
+        const initialMusicActionView = document.getElementById('initial-music-action-view');
+        const addSongsToFolderBtn = document.getElementById('add-songs-to-folder-btn');
+        const folderSelectionView = document.getElementById('folder-selection-view');
+        const folderSelect = document.getElementById('folder-select');
+        const confirmAddToFolderBtn = document.getElementById('confirm-add-to-folder-btn');
+        const cancelAddToFolderBtn = document.getElementById('cancel-add-to-folder-btn');
+
 
         // Variáveis de estado para paginação
         let currentMusicPage = 0;
         const MUSIC_PAGE_SIZE = 50;
         let isLoadingMoreMusic = false;
         let noMoreMusicToLoad = false;
+        let isMusicSelectionModeActive = false; // Novo estado para o modo de seleção
 
 
         // Referências do Player de Música
@@ -1463,59 +1491,56 @@
         });
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
-        async function renderApps(appsToRender, appOrder) {
+        async function renderApps(itemsToRender, itemOrder) {
             buttonGridContainer.innerHTML = '';
 
-            const sortedApps = [...appsToRender].sort((a, b) => {
-                const indexA = appOrder.indexOf(a.id);
-                const indexB = appOrder.indexOf(b.id);
+            const sortedItems = [...itemsToRender].sort((a, b) => {
+                const indexA = itemOrder.indexOf(a.id);
+                const indexB = itemOrder.indexOf(b.id);
 
-                if (indexA !== -1 && indexB !== -1) {
-                    return indexA - indexB;
-                }
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB;
                 if (indexA !== -1) return -1;
                 if (indexB !== -1) return 1;
                 return a.title.localeCompare(b.title);
             });
 
-            sortedApps.forEach(app => {
-                const appContainer = document.createElement('div');
-                appContainer.className = 'app-container';
-                appContainer.dataset.id = app.id;
-                appContainer.dataset.title = app.title;
-                appContainer.dataset.isFixed = app.isFixed;
-                if (app.url) appContainer.dataset.url = app.url;
-                if (app.icon_class) appContainer.dataset.iconClass = app.icon_class;
-                if (app.bg_color) appContainer.dataset.bgColor = app.bg_color;
-                if (app.icon_color) appContainer.dataset.iconColor = app.icon_color;
+            sortedItems.forEach(item => {
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'app-container';
+                itemContainer.dataset.id = item.id;
+                itemContainer.dataset.title = item.title;
+                itemContainer.dataset.isFixed = item.isFixed;
+                itemContainer.dataset.isFolder = item.isFolder || false;
+                if (item.url) itemContainer.dataset.url = item.url;
+                if (item.icon_class) itemContainer.dataset.iconClass = item.icon_class;
+                if (item.bg_color) itemContainer.dataset.bgColor = item.bg_color;
+                if (item.icon_color) itemContainer.dataset.iconColor = item.icon_color;
 
-                const iconClass = app.icon_class || 'fas fa-link';
+                const defaultIcon = item.isFolder ? 'fas fa-folder' : 'fas fa-link';
+                const iconClass = item.icon_class || defaultIcon;
                 const styleParts = [];
-                if (app.bg_color) {
-                    styleParts.push(`background-color: ${app.bg_color}`);
-                }
+                if (item.bg_color) styleParts.push(`background-color: ${item.bg_color}`);
                 const iconStyleParts = [];
-                if (app.icon_color) {
-                    iconStyleParts.push(`color: ${app.icon_color}`);
-                }
+                if (item.icon_color) iconStyleParts.push(`color: ${item.icon_color}`);
                 const gridItemStyle = styleParts.join('; ');
                 const iconStyle = iconStyleParts.join('; ');
 
-                appContainer.innerHTML = `
+                itemContainer.innerHTML = `
                     <div class="grid-item" draggable="true" style="${gridItemStyle}">
                         <i class="${iconClass} grid-item-icon" style="${iconStyle}"></i>
                     </div>
-                    <span class="grid-item-label text-theme noselect">${app.title}</span>
+                    <span class="grid-item-label text-theme noselect">${item.title}</span>
                 `;
 
-                appContainer.addEventListener('click', async () => { // Tornando o listener assíncrono
-                    if (isDragging) return;
+                itemContainer.addEventListener('click', async () => {
+                    // Pastas não fazem nada ao serem clicadas (por enquanto)
+                    // Arrastar também é desativado durante o clique
+                    if (isDragging || item.isFolder) return;
 
-                    const isFixed = app.isFixed;
+                    const isFixed = item.isFixed;
 
                     if (isFixed) {
-                         // Ação direta para apps fixos
-                        if (app.id === 'explore-app') {
+                        if (item.id === 'explore-app') {
                             currentMusicPage = 0;
                             noMoreMusicToLoad = false;
                             musicListContainer.innerHTML = '';
@@ -1523,14 +1548,13 @@
                             exploreModal.classList.remove('hidden');
                             exploreModal.classList.add('flex');
                         }
-                        // Adicionar outras lógicas de apps fixos aqui se necessário
                     } else {
-                        // Mostra o menu de ações para apps personalizados
-                        showAppActionBar(app);
+                        // Mostra o menu de ações apenas para apps personalizados
+                        showAppActionBar(item);
                     }
                 });
 
-                buttonGridContainer.appendChild(appContainer);
+                buttonGridContainer.appendChild(itemContainer);
             });
         }
 
@@ -1571,6 +1595,7 @@
                 musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
 
                 // Armazenar todos os dados da música no dataset do container
+                musicItem.dataset.id = musica.id; // Adiciona o ID da música
                 musicItem.dataset.src = musica.Musica;
                 musicItem.dataset.title = musica['Nome - Musica'];
                 musicItem.dataset.artist = musica['Nome - Artista'];
@@ -1615,9 +1640,11 @@
         async function fetchAndRenderApps(userId) {
             if (!userId) return;
 
-            const [profileResponse, appOrderResponse] = await Promise.all([
+            const [profileResponse, appOrderResponse, customAppsResponse, foldersResponse] = await Promise.all([
                 supabase.from('profiles').select('preferences').eq('id', userId).single(),
-                supabase.from('user_app_order').select('app_ids').eq('user_id', userId).single()
+                supabase.from('user_app_order').select('app_ids').eq('user_id', userId).single(),
+                supabase.from('custom_apps').select('*').eq('user_id', userId),
+                supabase.from('pastas').select('*').eq('user_id', userId)
             ]);
 
             const { data: profile, error: profileError } = profileResponse;
@@ -1634,24 +1661,27 @@
                     ...app,
                     title: customization.title || app.title,
                     icon_class: customization.icon_class || app.iconClass,
-                    bg_color: customization.bg_color, // Pode ser nulo, tratado na renderização
-                    icon_color: customization.icon_color, // Pode ser nulo, tratado na renderização
+                    bg_color: customization.bg_color,
+                    icon_color: customization.icon_color,
                 };
             });
 
-            const { data: customApps, error: fetchAppsError } = await supabase
-                .from('custom_apps')
-                .select('*')
-                .eq('user_id', userId);
-
+            const { data: customApps, error: fetchAppsError } = customAppsResponse;
             if (fetchAppsError) {
                 console.error('Erro ao buscar apps existentes:', fetchAppsError);
             }
 
-            const allAvailableApps = [...fixedApps, ...(customApps || [])];
-            const visibleApps = allAvailableApps.filter(app => !removedApps.includes(app.id));
+            const { data: folders, error: fetchFoldersError } = foldersResponse;
+            if (fetchFoldersError) {
+                console.error('Erro ao buscar pastas:', fetchFoldersError);
+            }
 
-            renderApps(visibleApps, appOrder);
+            const foldersWithMarker = (folders || []).map(folder => ({ ...folder, isFolder: true }));
+
+            const allAvailableItems = [...fixedApps, ...(customApps || []), ...foldersWithMarker];
+            const visibleItems = allAvailableItems.filter(item => !removedApps.includes(item.id));
+
+            renderApps(visibleItems, appOrder);
         }
 
         async function saveAppOrder(userId) {
@@ -1712,36 +1742,28 @@
         }
 
         function showAddAppModal(appData = null) {
-            const urlInputContainer = appUrlInput.parentElement;
-
             if (appData) { // Modo de Edição
                 addAppModal.dataset.editId = appData.id;
                 addAppModal.dataset.isFixed = appData.isFixed;
                 document.getElementById('add-app-title').textContent = 'Editar Aplicativo';
                 appTitleInput.value = appData.title;
-                appUrlInput.value = appData.url || '';
 
-                if (appData.isFixed) {
-                    urlInputContainer.classList.add('hidden');
-                } else {
-                    urlInputContainer.classList.remove('hidden');
-                }
+                // Como a URL não se aplica a pastas, a lógica de edição de URL é removida
+                // Se a edição de pastas precisar de campos diferentes, a lógica seria aqui
 
-                const selectedIcon = appData.icon_class || 'fas fa-link';
+                const selectedIcon = appData.icon_class || (appData.isFolder ? 'fas fa-folder' : 'fas fa-link');
                 appIconClassInput.value = selectedIcon;
                 appBgColorInput.value = appData.bg_color || '#333333';
                 appIconColorInput.value = appData.icon_color || '#FFFFFF';
                 renderIconPicker(selectedIcon);
 
-            } else { // Modo de Adição
+            } else { // Modo de Adição (agora, para criar pastas)
                 addAppModal.removeAttribute('data-edit-id');
                 addAppModal.removeAttribute('data-is-fixed');
-                document.getElementById('add-app-title').textContent = 'Adicionar Aplicativo';
+                document.getElementById('add-app-title').textContent = 'Criar Pasta';
                 appTitleInput.value = '';
-                appUrlInput.value = '';
-                urlInputContainer.classList.remove('hidden');
 
-                const defaultIcon = 'fas fa-link';
+                const defaultIcon = 'fas fa-folder'; // O ícone padrão agora é de pasta
                 appIconClassInput.value = defaultIcon;
                 appBgColorInput.value = '#333333';
                 appIconColorInput.value = '#FFFFFF';
@@ -1757,26 +1779,26 @@
             addAppModal.classList.remove('flex');
             addAppModal.removeAttribute('data-edit-id');
             appTitleInput.value = '';
-            appUrlInput.value = '';
         }
 
-        async function saveAppDetails() {
+        async function saveDetails() {
             const user = (await supabase.auth.getUser()).data.user;
             if (!user) return;
 
-            const appId = addAppModal.dataset.editId;
+            const itemId = addAppModal.dataset.editId;
             const isFixed = addAppModal.dataset.isFixed === 'true';
 
-            const appDetails = {
+            // Com a remoção do campo URL, o objeto agora representa uma pasta.
+            const folderDetails = {
                 title: appTitleInput.value.trim(),
-                url: appUrlInput.value.trim(),
                 icon_class: appIconClassInput.value,
                 bg_color: appBgColorInput.value,
                 icon_color: appIconColorInput.value,
             };
 
             if (isFixed) {
-                // Salvar personalização para apps fixos nas preferências do perfil
+                // A lógica para personalizar apps fixos permanece a mesma,
+                // apenas o nome da variável e o objeto foram ajustados.
                 const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
                 if (error && error.code !== 'PGRST116') {
                     console.error("Erro ao buscar perfil:", error);
@@ -1787,28 +1809,29 @@
                 if (!prefs.app_customizations) {
                     prefs.app_customizations = {};
                 }
-                prefs.app_customizations[appId] = {
-                    title: appDetails.title,
-                    icon_class: appDetails.icon_class,
-                    bg_color: appDetails.bg_color,
-                    icon_color: appDetails.icon_color,
+                // Salva a personalização usando o ID do item fixo como chave
+                prefs.app_customizations[itemId] = {
+                    title: folderDetails.title,
+                    icon_class: folderDetails.icon_class,
+                    bg_color: folderDetails.bg_color,
+                    icon_color: folderDetails.icon_color,
                 };
 
                 await saveUserPreferences(prefs);
 
             } else {
-                // Lógica original para apps personalizados
-                if (!appDetails.title || !appDetails.url) {
-                    console.error('Título e URL são obrigatórios para apps personalizados.');
+                // Lógica para criar ou editar pastas personalizadas
+                if (!folderDetails.title) {
+                    console.error('O nome da pasta é obrigatório.');
                     return;
                 }
 
-                if (appId) { // Editar app personalizado
-                    const { error } = await supabase.from('custom_apps').update(appDetails).match({ id: appId, user_id: user.id });
-                    if (error) console.error('Erro ao atualizar app personalizado:', error);
-                } else { // Adicionar novo app personalizado
-                    const { error } = await supabase.from('custom_apps').insert({ ...appDetails, user_id: user.id });
-                    if (error) console.error('Erro ao criar app personalizado:', error);
+                if (itemId) { // Editar pasta existente
+                    const { error } = await supabase.from('pastas').update(folderDetails).match({ id: itemId, user_id: user.id });
+                    if (error) console.error('Erro ao atualizar pasta:', error);
+                } else { // Adicionar nova pasta
+                    const { error } = await supabase.from('pastas').insert({ ...folderDetails, user_id: user.id });
+                    if (error) console.error('Erro ao criar pasta:', error);
                 }
             }
 
@@ -1982,7 +2005,7 @@
         addAppButton.addEventListener('click', () => showAddAppModal());
         closeAddAppModalButton.addEventListener('click', hideAddAppModal);
         cancelAddAppButton.addEventListener('click', hideAddAppModal);
-        saveAppButton.addEventListener('click', saveAppDetails);
+        saveAppButton.addEventListener('click', saveDetails);
 
         openAppButton.addEventListener('click', async () => {
             const appId = appActionBar.dataset.id;
@@ -2007,28 +2030,122 @@
             }
         });
 
-        // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
-        musicListContainer.addEventListener('click', (e) => {
-            const musicItem = e.target.closest('.music-item');
-            if (!musicItem || !musicItem.dataset.src) { // Guard: não faz nada se não houver item ou fonte de áudio
-                console.warn('Item de música clicado, mas sem fonte de áudio (dataset.src).');
+        // --- LÓGICA DA BARRA DE AÇÕES DE MÚSICA ---
+
+        // Ativa o modo de seleção de pastas
+        addSongsToFolderBtn.addEventListener('click', async () => {
+            const user = (await supabase.auth.getUser()).data.user;
+            if (!user) return;
+
+            // Ativa o modo de seleção
+            isMusicSelectionModeActive = true;
+
+            // Busca as pastas do usuário
+            const { data: folders, error } = await supabase
+                .from('pastas')
+                .select('id, title')
+                .eq('user_id', user.id);
+
+            if (error) {
+                console.error('Erro ao buscar pastas:', error);
+                isMusicSelectionModeActive = false; // Desativa em caso de erro
                 return;
             }
 
-            // Pega os dados da música do elemento clicado, com fallbacks para evitar erros
-            const src = musicItem.dataset.src;
-            const title = musicItem.dataset.title || 'Música desconhecida';
-            const artist = musicItem.dataset.artist || 'Artista desconhecido';
-            const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
+            // Popula o dropdown
+            folderSelect.innerHTML = ''; // Limpa opções anteriores
+            if (folders && folders.length > 0) {
+                folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.id;
+                    option.textContent = folder.title;
+                    folderSelect.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'Nenhuma pasta criada';
+                option.disabled = true;
+                folderSelect.appendChild(option);
+                confirmAddToFolderBtn.disabled = true; // Desabilita o botão se não há pastas
+            }
 
-            // Atualiza o player
-            playerAlbumArt.src = albumArt;
-            playerSongTitle.textContent = title;
-            playerArtistName.textContent = artist;
-            playerAudio.src = src;
+            // Alterna a visibilidade das vistas
+            initialMusicActionView.classList.add('hidden');
+            folderSelectionView.classList.remove('hidden');
+            folderSelectionView.classList.add('flex'); // Garante o alinhamento correto
+        });
 
-            // Toca a música
-            playerAudio.play();
+        // Cancela o modo de seleção
+        cancelAddToFolderBtn.addEventListener('click', () => {
+            isMusicSelectionModeActive = false; // Desativa o modo
+
+            // Limpa a seleção visual de todas as músicas
+            document.querySelectorAll('.music-item.selected-for-folder').forEach(item => {
+                item.classList.remove('selected-for-folder');
+            });
+
+            initialMusicActionView.classList.remove('hidden');
+            folderSelectionView.classList.add('hidden');
+            folderSelectionView.classList.remove('flex');
+            confirmAddToFolderBtn.disabled = false; // Reabilita o botão
+        });
+
+        // Confirma a adição das músicas à pasta selecionada
+        confirmAddToFolderBtn.addEventListener('click', async () => {
+            const selectedFolderId = folderSelect.value;
+            const selectedMusicItems = document.querySelectorAll('.music-item.selected-for-folder');
+
+            if (!selectedFolderId || selectedMusicItems.length === 0) {
+                alert('Por favor, selecione uma pasta e pelo menos uma música.');
+                return;
+            }
+
+            const songsToInsert = Array.from(selectedMusicItems).map(item => ({
+                pasta_id: selectedFolderId,
+                musica_id: item.dataset.id
+            }));
+
+            const { error } = await supabase.from('musicas_pastas').insert(songsToInsert);
+
+            if (error) {
+                console.error('Erro ao adicionar músicas à pasta:', error);
+                alert(`Ocorreu um erro: ${error.message}`);
+            } else {
+                alert('Músicas adicionadas com sucesso!');
+                // Reseta a interface chamando a lógica do botão de cancelar
+                cancelAddToFolderBtn.click();
+            }
+        });
+
+
+        // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
+        musicListContainer.addEventListener('click', (e) => {
+            const musicItem = e.target.closest('.music-item');
+            if (!musicItem) return;
+
+            if (isMusicSelectionModeActive) {
+                // Modo de Seleção: Apenas alterna a classe visual
+                musicItem.classList.toggle('selected-for-folder');
+            } else {
+                // Modo Padrão: Toca a música
+                if (!musicItem.dataset.src) {
+                    console.warn('Item de música clicado, mas sem fonte de áudio (dataset.src).');
+                    return;
+                }
+                const src = musicItem.dataset.src;
+                const title = musicItem.dataset.title || 'Música desconhecida';
+                const artist = musicItem.dataset.artist || 'Artista desconhecido';
+                const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
+
+                // Atualiza o player
+                playerAlbumArt.src = albumArt;
+                playerSongTitle.textContent = title;
+                playerArtistName.textContent = artist;
+                playerAudio.src = src;
+
+                // Toca a música
+                playerAudio.play();
+            }
         });
 
         closeExploreModalButton.addEventListener('click', () => {
@@ -2037,6 +2154,13 @@
         });
 
         editAppButton.addEventListener('click', () => {
+            const isFolder = appActionBar.dataset.isFolder === 'true';
+            // A edição só é permitida para aplicativos, não para pastas.
+            if (isFolder) {
+                hideAppActionBar();
+                return;
+            }
+
             const appData = {
                 id: appActionBar.dataset.id,
                 title: appActionBar.dataset.title,
