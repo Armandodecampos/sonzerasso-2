@@ -443,7 +443,7 @@
 
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
-    <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
+    <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[60]">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
             <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
             <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
@@ -2048,6 +2048,7 @@
 
             if (error) {
                 console.error('Erro ao buscar pastas:', error);
+                alert('Não foi possível carregar as pastas. Verifique se a tabela "pastas" tem as permissões de leitura (RLS) corretas no Supabase.');
                 isMusicSelectionModeActive = false; // Desativa em caso de erro
                 return;
             }
@@ -2055,6 +2056,7 @@
             // Popula o dropdown
             folderSelect.innerHTML = ''; // Limpa opções anteriores
             if (folders && folders.length > 0) {
+                confirmAddToFolderBtn.disabled = false; // Garante que o botão está habilitado
                 folders.forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.id;
