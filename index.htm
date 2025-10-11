@@ -522,7 +522,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out z-50">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg z-50">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -2027,8 +2027,7 @@
             playerArtistName.textContent = artist;
             playerAudio.src = src;
 
-            // Mostra o player e toca a música
-            musicPlayer.classList.add('player-visible');
+            // Toca a música
             playerAudio.play();
         });
 
