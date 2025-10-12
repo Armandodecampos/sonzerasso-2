@@ -753,7 +753,76 @@
         const currentTimeDisplay = document.getElementById('current-time');
         const durationDisplay = document.getElementById('duration');
         const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const repeatModeBtn = document.getElementById('repeat-mode-btn');
+        const volumeSlider = document.getElementById('volume-slider');
 
+        // --- LÓGICA DOS BOTÕES DE NAVEGAÇÃO ---
+
+        function playNextSong() {
+            if (currentQueue.length === 0) return;
+
+            if (repeatMode === 'shuffle') {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * currentQueue.length);
+                } while (currentQueue.length > 1 && randomIndex === currentQueueIndex);
+                playSongAtIndex(randomIndex);
+            } else {
+                const nextIndex = currentQueueIndex + 1;
+                if (nextIndex < currentQueue.length) {
+                    playSongAtIndex(nextIndex);
+                } else if (repeatMode === 'repeat-all') {
+                    playSongAtIndex(0); // Volta ao início
+                }
+            }
+        }
+
+        nextBtn.addEventListener('click', playNextSong);
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQueue.length > 0 && currentQueueIndex > 0) {
+                playSongAtIndex(currentQueueIndex - 1);
+            }
+        });
+
+        // --- LÓGICA DO CONTROLE DE VOLUME ---
+
+        volumeSlider.addEventListener('input', (e) => {
+            playerAudio.volume = e.target.value;
+        });
+
+
+        // Variáveis da Fila de Reprodução (Queue)
+        let currentQueue = [];
+        let currentQueueIndex = -1;
+        let repeatMode = 'none'; // 'none', 'repeat-all', 'repeat-one', 'shuffle'
+
+        // --- LÓGICA DO MODO DE REPETIÇÃO ---
+        const repeatModes = [
+            { mode: 'none', icon: 'fa-random' },
+            { mode: 'repeat-all', icon: 'fa-redo-alt' },
+            { mode: 'repeat-one', icon: 'fa-retweet' },
+            { mode: 'shuffle', icon: 'fa-random' }
+        ];
+
+        repeatModeBtn.addEventListener('click', () => {
+            const currentModeIndex = repeatModes.findIndex(m => m.mode === repeatMode);
+            const nextMode = repeatModes[(currentModeIndex + 1) % repeatModes.length];
+            repeatMode = nextMode.mode;
+
+            // Atualiza o ícone
+            const icon = repeatModeBtn.querySelector('i');
+            icon.className = `fas ${nextMode.icon}`;
+
+            // Lógica para o modo 'repeat-one' vs 'repeat-all' com o mesmo ícone
+            if (repeatMode === 'repeat-one') {
+                icon.classList.add('text-indigo-400'); // Destaca o ícone para 'repeat-one'
+            } else {
+                icon.classList.remove('text-indigo-400');
+            }
+        });
 
         // Variáveis de estado para paginação
         let currentMusicPage = 0;
@@ -1679,17 +1748,9 @@
             const musicItem = e.target.closest('.music-item');
             if (!musicItem || !musicItem.dataset.src) return;
 
-            const src = musicItem.dataset.src;
-            const title = musicItem.dataset.title || 'Música desconhecida';
-            const artist = musicItem.dataset.artist || 'Artista desconhecido';
-            const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
-
-            // Atualiza e toca no player
-            playerAlbumArt.src = albumArt;
-            playerSongTitle.textContent = title;
-            playerArtistName.textContent = artist;
-            playerAudio.src = src;
-            playerAudio.play();
+            // A lógica de seleção não se aplica aqui, então apenas tocamos a música
+            // e configuramos a fila a partir desta lista.
+            setupQueueAndPlay(musicItem, folderMusicListContainer);
         });
 
 
@@ -2349,6 +2410,15 @@
             durationDisplay.textContent = formatTime(playerAudio.duration);
         });
 
+        // Lida com o que acontece quando uma música termina
+        playerAudio.addEventListener('ended', () => {
+            if (repeatMode === 'repeat-one') {
+                playSongAtIndex(currentQueueIndex); // Toca a mesma música novamente
+            } else {
+                playNextSong(); // Se comporta como o botão "próxima" para os outros modos
+            }
+        });
+
         // Permite clicar na barra de progresso para pular para um ponto da música
         progressBarContainer.addEventListener('click', (e) => {
             const width = progressBarContainer.clientWidth;
@@ -2361,6 +2431,41 @@
         });
 
 
+        // --- FUNÇÕES DE CONTROLE DE REPRODUÇÃO E FILA ---
+
+        function playSongAtIndex(index) {
+            if (index < 0 || index >= currentQueue.length) {
+                console.error("Índice da fila fora do limite.");
+                return;
+            }
+
+            currentQueueIndex = index;
+            const song = currentQueue[index];
+
+            // Atualiza os players (minimizado e tela cheia)
+            playerAlbumArt.src = song.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
+            playerSongTitle.textContent = song.title || 'Música desconhecida';
+            playerArtistName.textContent = song.artist || 'Artista desconhecido';
+
+            fullscreenAlbumArt.src = playerAlbumArt.src;
+            fullscreenSongTitle.textContent = playerSongTitle.textContent;
+            fullscreenArtistName.textContent = playerArtistName.textContent;
+
+            playerAudio.src = song.src;
+            playerAudio.play();
+        }
+
+        function setupQueueAndPlay(clickedItem, container) {
+            const allMusicItems = container.querySelectorAll('.music-item');
+            currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
+
+            const clickedIndex = Array.from(allMusicItems).findIndex(item => item === clickedItem);
+
+            if (clickedIndex !== -1) {
+                playSongAtIndex(clickedIndex);
+            }
+        }
+
         // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
         musicListContainer.addEventListener('click', (e) => {
             const musicItem = e.target.closest('.music-item');
@@ -2370,24 +2475,12 @@
                 // Modo de Seleção: Apenas alterna a classe visual
                 musicItem.classList.toggle('selected-for-folder');
             } else {
-                // Modo Padrão: Toca a música
+                // Modo Padrão: Configura a fila e toca a música
                 if (!musicItem.dataset.src) {
                     console.warn('Item de música clicado, mas sem fonte de áudio (dataset.src).');
                     return;
                 }
-                const src = musicItem.dataset.src;
-                const title = musicItem.dataset.title || 'Música desconhecida';
-                const artist = musicItem.dataset.artist || 'Artista desconhecido';
-                const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
-
-                // Atualiza o player
-                playerAlbumArt.src = albumArt;
-                playerSongTitle.textContent = title;
-                playerArtistName.textContent = artist;
-                playerAudio.src = src;
-
-                // Toca a música
-                playerAudio.play();
+                setupQueueAndPlay(musicItem, musicListContainer);
             }
         });
 
@@ -2554,9 +2647,27 @@
 
             <!-- Controles -->
             <div class="flex items-center justify-center space-x-8">
+                <button id="prev-btn" class="text-3xl text-gray-400 hover:text-white">
+                    <i class="fas fa-step-backward"></i>
+                </button>
                 <button id="play-pause-btn" class="text-5xl">
                     <i class="fas fa-play"></i>
                 </button>
+                <button id="next-btn" class="text-3xl text-gray-400 hover:text-white">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+
+            <!-- Controles Adicionais (Volume e Modo de Repetição) -->
+            <div class="w-full max-w-sm mx-auto mt-6 flex items-center justify-between space-x-4">
+                <button id="repeat-mode-btn" class="text-xl text-gray-400 hover:text-white" data-mode="none">
+                    <i class="fas fa-random"></i> <!-- Ícone inicial, pode mudar -->
+                </button>
+                <div class="flex items-center flex-grow space-x-2">
+                    <i class="fas fa-volume-down text-gray-400"></i>
+                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    <i class="fas fa-volume-up text-gray-400"></i>
+                </div>
             </div>
         </div>
     </div>
