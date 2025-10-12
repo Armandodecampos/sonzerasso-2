@@ -736,6 +736,12 @@
         const confirmAddToFolderBtn = document.getElementById('confirm-add-to-folder-btn');
         const cancelAddToFolderBtn = document.getElementById('cancel-add-to-folder-btn');
 
+        // Referências do novo Modal de Conteúdo da Pasta
+        const folderContentModal = document.getElementById('folder-content-modal');
+        const folderContentTitle = document.getElementById('folder-content-title');
+        const closeFolderContentModalBtn = document.getElementById('close-folder-content-modal');
+        const folderMusicListContainer = document.getElementById('folder-music-list-container');
+
 
         // Variáveis de estado para paginação
         let currentMusicPage = 0;
@@ -1533,30 +1539,127 @@
                 `;
 
                 itemContainer.addEventListener('click', async () => {
-                    // Pastas não fazem nada ao serem clicadas (por enquanto)
-                    // Arrastar também é desativado durante o clique
-                    if (isDragging || item.isFolder) return;
+                    if (isDragging) return;
 
-                    const isFixed = item.isFixed;
-
-                    if (isFixed) {
-                        if (item.id === 'explore-app') {
-                            currentMusicPage = 0;
-                            noMoreMusicToLoad = false;
-                            musicListContainer.innerHTML = '';
-                            await fetchAndDisplayMusic();
-                            exploreModal.classList.remove('hidden');
-                            exploreModal.classList.add('flex');
-                        }
+                    if (item.isFolder) {
+                        // Ação para Pastas: Abrir o modal de conteúdo
+                        showFolderContentModal(item.id, item.title);
                     } else {
-                        // Mostra o menu de ações apenas para apps personalizados
-                        showAppActionBar(item);
+                        // Ação para Aplicativos
+                        const isFixed = item.isFixed;
+                        if (isFixed) {
+                            if (item.id === 'explore-app') {
+                                currentMusicPage = 0;
+                                noMoreMusicToLoad = false;
+                                musicListContainer.innerHTML = '';
+                                await fetchAndDisplayMusic();
+                                exploreModal.classList.remove('hidden');
+                                exploreModal.classList.add('flex');
+                            }
+                        } else {
+                            showAppActionBar(item);
+                        }
                     }
                 });
 
                 buttonGridContainer.appendChild(itemContainer);
             });
         }
+
+        // --- FUNÇÕES PARA O MODAL DE CONTEÚDO DA PASTA ---
+
+        async function fetchAndDisplayFolderContent(folderId) {
+            folderMusicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando músicas...</p>';
+
+            // 1. Busca os IDs das músicas na pasta
+            const { data: musicLinks, error: linkError } = await supabase
+                .from('musicas_pastas')
+                .select('musica_id')
+                .eq('pasta_id', folderId);
+
+            if (linkError) {
+                console.error('Erro ao buscar músicas da pasta:', linkError);
+                folderMusicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                return;
+            }
+
+            if (!musicLinks || musicLinks.length === 0) {
+                folderMusicListContainer.innerHTML = '<p class="text-center text-gray-500">Esta pasta está vazia.</p>';
+                return;
+            }
+
+            const musicIds = musicLinks.map(link => link.musica_id);
+
+            // 2. Busca os detalhes das músicas encontradas
+            const { data: musicas, error: musicError } = await supabase
+                .from('Musicas')
+                .select('*')
+                .in('id', musicIds);
+
+            if (musicError) {
+                console.error('Erro ao buscar detalhes das músicas:', musicError);
+                folderMusicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar os detalhes das músicas.</p>';
+                return;
+            }
+
+            folderMusicListContainer.innerHTML = ''; // Limpa a mensagem de "Carregando"
+
+            // 3. Renderiza as músicas na lista
+            musicas.forEach(musica => {
+                const musicItem = document.createElement('div');
+                musicItem.className = 'music-item'; // Reutiliza a mesma classe e estilo
+                musicItem.dataset.id = musica.id;
+                musicItem.dataset.src = musica.Musica;
+                musicItem.dataset.title = musica['Nome - Musica'];
+                musicItem.dataset.artist = musica['Nome - Artista'];
+                musicItem.dataset.albumArt = musica.Imagem;
+                musicItem.dataset.album = musica['Nome - Album'];
+
+                musicItem.innerHTML = `
+                    <img src="${musica.Imagem || 'https://placehold.co/64x64/333/fff?text=Art'}" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4 object-cover">
+                    <div class="music-info flex-grow">
+                        <p class="music-artist-display">${musica['Nome - Artista'] || 'Artista Desconhecido'}</p>
+                        <p class="music-title-display">${musica['Nome - Musica'] || 'Título Desconhecido'}</p>
+                        <p class="music-album-display">${musica['Nome - Album'] || 'Álbum Desconhecido'}</p>
+                    </div>
+                `;
+                folderMusicListContainer.appendChild(musicItem);
+            });
+        }
+
+        function showFolderContentModal(folderId, folderTitle) {
+            folderContentTitle.textContent = folderTitle;
+            folderContentModal.classList.remove('hidden');
+            folderContentModal.classList.add('flex');
+            fetchAndDisplayFolderContent(folderId); // Chama a função para buscar o conteúdo
+        }
+
+        function hideFolderContentModal() {
+            folderContentModal.classList.add('hidden');
+            folderContentModal.classList.remove('flex');
+            folderMusicListContainer.innerHTML = ''; // Limpa o conteúdo ao fechar
+        }
+
+        closeFolderContentModalBtn.addEventListener('click', hideFolderContentModal);
+
+        // Adiciona um listener para tocar as músicas de dentro da pasta
+        folderMusicListContainer.addEventListener('click', (e) => {
+            const musicItem = e.target.closest('.music-item');
+            if (!musicItem || !musicItem.dataset.src) return;
+
+            const src = musicItem.dataset.src;
+            const title = musicItem.dataset.title || 'Música desconhecida';
+            const artist = musicItem.dataset.artist || 'Artista desconhecido';
+            const albumArt = musicItem.dataset.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
+
+            // Atualiza e toca no player
+            playerAlbumArt.src = albumArt;
+            playerSongTitle.textContent = title;
+            playerArtistName.textContent = artist;
+            playerAudio.src = src;
+            playerAudio.play();
+        });
+
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
         async function fetchAndDisplayMusic() {
@@ -2102,21 +2205,57 @@
                 return;
             }
 
-            const songsToInsert = Array.from(selectedMusicItems).map(item => ({
-                pasta_id: selectedFolderId,
-                musica_id: item.dataset.id
-            }));
+            // 1. Pega os IDs de todas as músicas que o usuário selecionou
+            const selectedMusicIds = new Set(Array.from(selectedMusicItems).map(item => item.dataset.id));
 
-            const { error } = await supabase.from('musicas_pastas').insert(songsToInsert);
+            // 2. Verifica quais dessas músicas já existem na pasta
+            const { data: existingSongs, error: fetchError } = await supabase
+                .from('musicas_pastas')
+                .select('musica_id')
+                .eq('pasta_id', selectedFolderId)
+                .in('musica_id', Array.from(selectedMusicIds));
 
-            if (error) {
-                console.error('Erro ao adicionar músicas à pasta:', error);
-                alert(`Ocorreu um erro: ${error.message}`);
-            } else {
-                alert('Músicas adicionadas com sucesso!');
-                // Reseta a interface chamando a lógica do botão de cancelar
-                cancelAddToFolderBtn.click();
+            if (fetchError) {
+                console.error('Erro ao verificar músicas existentes:', fetchError);
+                alert('Ocorreu um erro ao verificar as músicas na pasta. Tente novamente.');
+                return;
             }
+
+            // 3. Filtra para encontrar apenas as músicas que ainda não estão na pasta
+            const existingMusicIds = new Set(existingSongs.map(song => song.musica_id.toString()));
+            const newSongsToInsert = Array.from(selectedMusicIds)
+                .filter(id => !existingMusicIds.has(id))
+                .map(id => ({
+                    pasta_id: selectedFolderId,
+                    musica_id: id,
+                }));
+
+            let successMessage = '';
+            const ignoredCount = selectedMusicIds.size - newSongsToInsert.length;
+
+            // 4. Insere apenas as novas músicas, se houver alguma
+            if (newSongsToInsert.length > 0) {
+                const { error: insertError } = await supabase.from('musicas_pastas').insert(newSongsToInsert);
+
+                if (insertError) {
+                    console.error('Erro ao adicionar novas músicas:', insertError);
+                    alert(`Ocorreu um erro ao adicionar as novas músicas: ${insertError.message}`);
+                    return; // Interrompe se a inserção falhar
+                }
+                successMessage = `${newSongsToInsert.length} nova(s) música(s) adicionada(s) com sucesso.`;
+            }
+
+            if (ignoredCount > 0) {
+                successMessage += `\n${ignoredCount} música(s) foram ignoradas por já estarem na pasta.`;
+            }
+
+            if (!successMessage) {
+                successMessage = 'Nenhuma música nova para adicionar. Todas as selecionadas já estão na pasta.';
+            }
+
+            alert(successMessage.trim());
+            // Reseta a interface
+            cancelAddToFolderBtn.click();
         });
 
 
@@ -2273,5 +2412,20 @@
             e.returnValue = '';
         });
     </script>
+
+    <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
+    <div id="folder-content-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[70]">
+        <header class="flex items-center justify-between p-4 bg-white shadow-md">
+            <h2 id="folder-content-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h2>
+            <button id="close-folder-content-modal" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+        <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- As músicas da pasta serão inseridas aqui -->
+        </div>
+    </div>
 </body>
 </html>
