@@ -1607,7 +1607,7 @@
             // 3. Renderiza as músicas na lista
             musicas.forEach(musica => {
                 const musicItem = document.createElement('div');
-                musicItem.className = 'music-item'; // Reutiliza a mesma classe e estilo
+                musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
                 musicItem.dataset.id = musica.id;
                 musicItem.dataset.src = musica.Musica;
                 musicItem.dataset.title = musica['Nome - Musica'];
@@ -1615,14 +1615,34 @@
                 musicItem.dataset.albumArt = musica.Imagem;
                 musicItem.dataset.album = musica['Nome - Album'];
 
-                musicItem.innerHTML = `
-                    <img src="${musica.Imagem || 'https://placehold.co/64x64/333/fff?text=Art'}" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4 object-cover">
-                    <div class="music-info flex-grow">
-                        <p class="music-artist-display">${musica['Nome - Artista'] || 'Artista Desconhecido'}</p>
-                        <p class="music-title-display">${musica['Nome - Musica'] || 'Título Desconhecido'}</p>
-                        <p class="music-album-display">${musica['Nome - Album'] || 'Álbum Desconhecido'}</p>
-                    </div>
-                `;
+                // Reconstrução programática para garantir consistência
+                const albumArt = document.createElement('img');
+                albumArt.src = musica.Imagem || 'https://placehold.co/64x64/333/fff?text=Art';
+                albumArt.alt = 'Capa do Álbum';
+                albumArt.className = 'w-16 h-16 rounded-md mr-4 object-cover';
+
+                const musicInfo = document.createElement('div');
+                musicInfo.className = 'music-info flex-grow';
+
+                const artistP = document.createElement('p');
+                artistP.className = 'music-artist-display font-bold text-gray-800';
+                artistP.textContent = musica['Nome - Artista'] || 'Artista Desconhecido';
+
+                const albumP = document.createElement('p');
+                albumP.className = 'music-album-display italic text-gray-600';
+                albumP.textContent = musica['Nome - Album'] || 'Álbum Desconhecido';
+
+                const titleP = document.createElement('p');
+                titleP.className = 'music-title-display text-sm text-gray-700';
+                titleP.textContent = musica['Nome - Musica'] || 'Título Desconhecido';
+
+                musicInfo.appendChild(artistP);
+                musicInfo.appendChild(titleP);
+                musicInfo.appendChild(albumP);
+
+                musicItem.appendChild(albumArt);
+                musicItem.appendChild(musicInfo);
+
                 folderMusicListContainer.appendChild(musicItem);
             });
         }
@@ -2414,7 +2434,7 @@
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
-    <div id="folder-content-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[70]">
+    <div id="folder-content-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-40">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
             <h2 id="folder-content-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h2>
             <button id="close-folder-content-modal" class="text-gray-500 hover:text-gray-700">
