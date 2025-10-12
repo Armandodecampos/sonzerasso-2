@@ -1751,6 +1751,30 @@
                 </div>
             `;
 
+            // 1. Faz uma consulta rápida para obter apenas a contagem de músicas
+            const { count, error: countError } = await supabase
+                .from('Musicas')
+                .select('*', { count: 'exact', head: true });
+
+            if (countError) {
+                console.error('Erro ao obter contagem de músicas:', countError);
+                musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
+                return;
+            }
+
+            // 2. Tenta carregar do cache
+            try {
+                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
+                if (cachedMusicData && cachedMusicData.count === count) {
+                    // Se a contagem for a mesma, usa o cache
+                    renderMusicList(cachedMusicData.songs);
+                    return; // Interrompe a execução
+                }
+            } catch (e) {
+                console.warn('Cache de músicas inválido ou não encontrado:', e);
+            }
+
+            // 3. Se o cache não for válido ou estiver desatualizado, busca do Supabase
             let allSongs = [];
             let page = 0;
             let hasMore = true;
@@ -1759,13 +1783,13 @@
                 const from = page * MUSIC_PAGE_SIZE;
                 const to = from + MUSIC_PAGE_SIZE - 1;
 
-                const { data: musicas, error } = await supabase
+                const { data: musicas, error: fetchError } = await supabase
                     .from('Musicas')
                     .select('*')
                     .range(from, to);
 
-                if (error) {
-                    console.error('Erro ao buscar músicas:', error);
+                if (fetchError) {
+                    console.error('Erro ao buscar músicas:', fetchError);
                     musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
                     return;
                 }
@@ -1778,14 +1802,29 @@
                 }
             }
 
+            // 4. Salva o resultado no cache para a próxima vez
+            try {
+                const musicDataToCache = {
+                    count: count,
+                    songs: allSongs
+                };
+                localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
+            } catch (e) {
+                console.error('Erro ao salvar músicas no cache:', e);
+            }
+
+            renderMusicList(allSongs);
+        }
+
+        function renderMusicList(songs) {
             musicListContainer.innerHTML = ''; // Limpa a lista antes de renderizar
 
-            if (allSongs.length === 0) {
+            if (!songs || songs.length === 0) {
                 musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
                 return;
             }
 
-            allSongs.forEach(musica => {
+            songs.forEach(musica => {
                 const musicItem = document.createElement('div');
                 musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
 
