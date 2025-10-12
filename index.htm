@@ -541,14 +541,14 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg z-50">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg z-50 cursor-pointer">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
                 <h3 id="player-song-title" class="font-bold">Nome da Música</h3>
                 <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
             </div>
-            <audio id="player-audio" controls class="w-1/2"></audio>
+            <audio id="player-audio" class="w-1/2"></audio>
         </div>
     </div>
 
@@ -741,6 +741,18 @@
         const folderContentTitle = document.getElementById('folder-content-title');
         const closeFolderContentModalBtn = document.getElementById('close-folder-content-modal');
         const folderMusicListContainer = document.getElementById('folder-music-list-container');
+
+        // Referências do Player de Tela Cheia
+        const fullscreenPlayer = document.getElementById('fullscreen-player');
+        const closeFullscreenPlayerBtn = document.getElementById('close-fullscreen-player');
+        const fullscreenAlbumArt = document.getElementById('fullscreen-album-art');
+        const fullscreenSongTitle = document.getElementById('fullscreen-song-title');
+        const fullscreenArtistName = document.getElementById('fullscreen-artist-name');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+        const playPauseBtn = document.getElementById('play-pause-btn');
 
 
         // Variáveis de estado para paginação
@@ -2279,6 +2291,76 @@
         });
 
 
+        // --- LÓGICA DO PLAYER EXPANSÍVEL ---
+
+        // Abrir o player em tela cheia
+        musicPlayer.addEventListener('click', () => {
+            // Copia as informações do player minimizado para o de tela cheia
+            fullscreenAlbumArt.src = playerAlbumArt.src;
+            fullscreenSongTitle.textContent = playerSongTitle.textContent;
+            fullscreenArtistName.textContent = playerArtistName.textContent;
+
+            fullscreenPlayer.classList.remove('hidden');
+            fullscreenPlayer.classList.add('flex');
+        });
+
+        // Fechar o player em tela cheia
+        closeFullscreenPlayerBtn.addEventListener('click', () => {
+            fullscreenPlayer.classList.add('hidden');
+            fullscreenPlayer.classList.remove('flex');
+        });
+
+        // Sincronização dos controles personalizados
+        playPauseBtn.addEventListener('click', () => {
+            if (playerAudio.paused) {
+                playerAudio.play();
+            } else {
+                playerAudio.pause();
+            }
+        });
+
+        playerAudio.addEventListener('play', () => {
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        playerAudio.addEventListener('pause', () => {
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        });
+
+        // Função para formatar o tempo de segundos para MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Atualiza a barra de progresso e os tempos
+        playerAudio.addEventListener('timeupdate', () => {
+            const { currentTime, duration } = playerAudio;
+            if (duration) {
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTimeDisplay.textContent = formatTime(currentTime);
+            }
+        });
+
+        // Define a duração total quando os metadados da música são carregados
+        playerAudio.addEventListener('loadedmetadata', () => {
+            durationDisplay.textContent = formatTime(playerAudio.duration);
+        });
+
+        // Permite clicar na barra de progresso para pular para um ponto da música
+        progressBarContainer.addEventListener('click', (e) => {
+            const width = progressBarContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = playerAudio.duration;
+
+            if (duration) {
+                playerAudio.currentTime = (clickX / width) * duration;
+            }
+        });
+
+
         // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
         musicListContainer.addEventListener('click', (e) => {
             const musicItem = e.target.closest('.music-item');
@@ -2445,6 +2527,37 @@
         </header>
         <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto">
             <!-- As músicas da pasta serão inseridas aqui -->
+        </div>
+    </div>
+
+    <!-- NOVO: Player de Música em Tela Cheia -->
+    <div id="fullscreen-player" class="fixed inset-0 bg-gray-900 bg-opacity-95 text-white hidden flex-col items-center justify-center p-4 z-[80]">
+        <!-- Botão de Fechar -->
+        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
+
+        <div class="w-full max-w-md text-center">
+            <!-- Arte do Álbum -->
+            <img id="fullscreen-album-art" src="https://placehold.co/400x400" alt="Capa do Álbum" class="w-full rounded-lg shadow-lg mb-6">
+
+            <!-- Informações da Música -->
+            <h2 id="fullscreen-song-title" class="text-3xl font-bold">Nome da Música</h2>
+            <p id="fullscreen-artist-name" class="text-lg text-gray-400 mb-6">Nome do Artista</p>
+
+            <!-- Barra de Progresso -->
+            <div id="progress-bar-container" class="w-full bg-gray-700 rounded-full h-2.5 mb-2 cursor-pointer">
+                <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-400 mb-6">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+
+            <!-- Controles -->
+            <div class="flex items-center justify-center space-x-8">
+                <button id="play-pause-btn" class="text-5xl">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
         </div>
     </div>
 </body>
