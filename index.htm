@@ -824,11 +824,7 @@
             }
         });
 
-        // Variáveis de estado para paginação
-        let currentMusicPage = 0;
-        const MUSIC_PAGE_SIZE = 50;
-        let isLoadingMoreMusic = false;
-        let noMoreMusicToLoad = false;
+        const MUSIC_PAGE_SIZE = 50; // Usado no loop de busca
         let isMusicSelectionModeActive = false; // Novo estado para o modo de seleção
 
 
@@ -1756,55 +1752,58 @@
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
         async function fetchAndDisplayMusic() {
-            if (isLoadingMoreMusic || noMoreMusicToLoad) return;
+            musicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando todas as músicas...</p>';
 
-            isLoadingMoreMusic = true;
-            const from = currentMusicPage * MUSIC_PAGE_SIZE;
-            const to = from + MUSIC_PAGE_SIZE - 1;
+            let allSongs = [];
+            let page = 0;
+            let hasMore = true;
 
+            while(hasMore) {
+                const from = page * MUSIC_PAGE_SIZE;
+                const to = from + MUSIC_PAGE_SIZE - 1;
 
-            const { data: musicas, error } = await supabase
-                .from('Musicas')
-                .select('*')
-                .range(from, to);
+                const { data: musicas, error } = await supabase
+                    .from('Musicas')
+                    .select('*')
+                    .range(from, to);
 
-            isLoadingMoreMusic = false;
+                if (error) {
+                    console.error('Erro ao buscar músicas:', error);
+                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                    return;
+                }
 
-            if (error) {
-                console.error('Erro ao buscar músicas:', error);
+                if (musicas.length > 0) {
+                    allSongs.push(...musicas);
+                    page++;
+                } else {
+                    hasMore = false;
+                }
+            }
+
+            musicListContainer.innerHTML = ''; // Limpa a lista antes de renderizar
+
+            if (allSongs.length === 0) {
+                musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
                 return;
             }
 
-            if (musicas.length === 0 && currentMusicPage === 0) {
-                 musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
-                 noMoreMusicToLoad = true;
-                 return;
-            }
-
-            if (musicas.length < MUSIC_PAGE_SIZE) {
-                noMoreMusicToLoad = true;
-            }
-
-
-            musicas.forEach(musica => {
+            allSongs.forEach(musica => {
                 const musicItem = document.createElement('div');
                 musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
 
-                // Armazenar todos os dados da música no dataset do container
-                musicItem.dataset.id = musica.id; // Adiciona o ID da música
+                musicItem.dataset.id = musica.id;
                 musicItem.dataset.src = musica.Musica;
                 musicItem.dataset.title = musica['Nome - Musica'];
                 musicItem.dataset.artist = musica['Nome - Artista'];
                 musicItem.dataset.albumArt = musica.Imagem;
                 musicItem.dataset.album = musica['Nome - Album'];
 
-                // Imagem do Álbum
                 const albumArt = document.createElement('img');
                 albumArt.src = musica.Imagem || 'https://placehold.co/64x64/333/fff?text=Art';
                 albumArt.alt = 'Capa do Álbum';
                 albumArt.className = 'w-16 h-16 rounded-md mr-4 object-cover';
 
-                // Container para as informações da música
                 const musicInfo = document.createElement('div');
                 musicInfo.className = 'music-info flex-grow';
 
@@ -1820,9 +1819,8 @@
                 titleP.className = 'music-title-display text-sm text-gray-700';
                 titleP.textContent = musica['Nome - Musica'] || 'Título Desconhecido';
 
-                // Anexar os elementos
                 musicInfo.appendChild(artistP);
-                musicInfo.appendChild(titleP); // Título agora vem antes do álbum
+                musicInfo.appendChild(titleP);
                 musicInfo.appendChild(albumP);
 
                 musicItem.appendChild(albumArt);
@@ -1830,7 +1828,6 @@
 
                 musicListContainer.appendChild(musicItem);
             });
-            currentMusicPage++;
         }
 
         async function fetchAndRenderApps(userId) {
@@ -2217,12 +2214,6 @@
                 exploreModal.classList.add('flex');
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
-            }
-        });
-
-        musicListContainer.addEventListener('scroll', () => {
-            if (musicListContainer.scrollTop + musicListContainer.clientHeight >= musicListContainer.scrollHeight - 5) {
-                fetchAndDisplayMusic();
             }
         });
 
