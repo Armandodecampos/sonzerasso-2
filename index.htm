@@ -1627,9 +1627,9 @@
                         if (isFixed) {
                             if (item.id === 'explore-app') {
                                 musicListContainer.innerHTML = '';
-                                await fetchAndDisplayMusic();
                                 exploreModal.classList.remove('hidden');
                                 exploreModal.classList.add('flex');
+                                await fetchAndDisplayMusic(); // Carrega depois de abrir
                             }
                         } else {
                             showAppActionBar(item);
@@ -1744,7 +1744,12 @@
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
         async function fetchAndDisplayMusic() {
-            musicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando todas as músicas...</p>';
+            musicListContainer.innerHTML = `
+                <div class="text-center text-gray-500 p-4">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i>
+                    <p class="mt-2">Carregando músicas...</p>
+                </div>
+            `;
 
             let allSongs = [];
             let page = 0;
@@ -2193,9 +2198,9 @@
 
             if (appId === 'explore-app') {
                 musicListContainer.innerHTML = '';
-                await fetchAndDisplayMusic();
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
+                await fetchAndDisplayMusic(); // Carrega depois de abrir
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
