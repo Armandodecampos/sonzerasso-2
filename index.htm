@@ -1685,7 +1685,7 @@
 
                 const albumP = document.createElement('p');
                 albumP.className = 'music-album-display italic text-gray-600';
-                albumP.textContent = musica.musica_album || 'Álbum Desconhecido';
+                albumP.textContent = musica.musica_album || '';
 
                 const titleP = document.createElement('p');
                 titleP.className = 'music-title-display text-sm text-gray-700';
@@ -1829,7 +1829,7 @@
 
                 const albumP = document.createElement('p');
                 albumP.className = 'music-album-display italic text-gray-600';
-                albumP.textContent = musica['Nome - Album'] || 'Álbum Desconhecido';
+                albumP.textContent = musica['Nome - Album'] || '';
 
                 const titleP = document.createElement('p');
                 titleP.className = 'music-title-display text-sm text-gray-700';
@@ -2307,18 +2307,40 @@
                 return;
             }
 
-            // Mapeia os itens selecionados para o formato da nova tabela
-            const newSongsToInsert = Array.from(selectedMusicItems).map(item => ({
-                pasta_id: selectedFolderId,
-                user_id: user.id,
-                musica_titulo: item.dataset.title,
-                musica_artista: item.dataset.artist,
-                musica_album: item.dataset.album,
-                musica_url: item.dataset.src,
-                imagem_url: item.dataset.albumArt
-            }));
+            // 1. Pega os URLs das músicas selecionadas, que servem como identificador único
+            const selectedSongUrls = new Set(Array.from(selectedMusicItems).map(item => item.dataset.src));
 
-            // Insere as cópias das músicas na nova tabela
+            // 2. Verifica quais músicas (pelos URLs) já existem na pasta
+            const { data: existingSongs, error: fetchError } = await supabase
+                .from('musicas_salvas_usuario')
+                .select('musica_url')
+                .eq('pasta_id', selectedFolderId);
+
+            if (fetchError) {
+                console.error('Erro ao verificar músicas existentes:', fetchError);
+                alert('Ocorreu um erro ao verificar as músicas na pasta. Tente novamente.');
+                return;
+            }
+
+            const existingSongUrls = new Set(existingSongs.map(song => song.musica_url));
+
+            // 3. Filtra para encontrar apenas as músicas que ainda não estão na pasta
+            const newSongsToInsert = Array.from(selectedMusicItems)
+                .filter(item => !existingSongUrls.has(item.dataset.src))
+                .map(item => ({
+                    pasta_id: selectedFolderId,
+                    user_id: user.id,
+                    musica_titulo: item.dataset.title,
+                    musica_artista: item.dataset.artist,
+                    musica_album: item.dataset.album,
+                    musica_url: item.dataset.src,
+                    imagem_url: item.dataset.albumArt
+                }));
+
+            let successMessage = '';
+            const ignoredCount = selectedSongUrls.size - newSongsToInsert.length;
+
+            // 4. Insere apenas as novas músicas, se houver alguma
             if (newSongsToInsert.length > 0) {
                 const { error: insertError } = await supabase
                     .from('musicas_salvas_usuario')
@@ -2329,9 +2351,18 @@
                     alert(`Ocorreu um erro ao salvar as músicas: ${insertError.message}`);
                     return;
                 }
-
-                alert(`${newSongsToInsert.length} música(s) salva(s) com sucesso na pasta!`);
+                successMessage = `${newSongsToInsert.length} nova(s) música(s) adicionada(s) com sucesso.`;
             }
+
+            if (ignoredCount > 0) {
+                successMessage += `\n${ignoredCount} música(s) foram ignoradas por já estarem na pasta.`;
+            }
+
+            if (!successMessage) {
+                successMessage = 'Nenhuma música nova para adicionar. Todas as selecionadas já estão na pasta.';
+            }
+
+            alert(successMessage.trim());
 
             // Reseta a interface
             cancelAddToFolderBtn.click();
