@@ -1433,6 +1433,22 @@
                     // 3. Refresh the trash list
                     await renderTrashList();
                 }
+            } else if (type === 'saved_song') {
+                const { error } = await supabase
+                    .from('musicas_salvas_usuario')
+                    .delete()
+                    .match({ id: id, user_id: user.id });
+
+                if (error) {
+                    console.error('Erro ao deletar música salva:', error);
+                    alert('Não foi possível remover a música.');
+                } else {
+                    // Remove o item da UI
+                    const songItem = folderMusicListContainer.querySelector(`[data-id="${id}"]`);
+                    if (songItem) {
+                        songItem.remove();
+                    }
+                }
             }
             hideDeleteConfirmationModal();
         });
@@ -1691,6 +1707,12 @@
 
                 musicItem.appendChild(musicInfo);
 
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-song-btn ml-4 px-3 py-1 text-lg text-red-500 hover:text-red-700 transition-colors';
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteButton.dataset.id = musica.id;
+                musicItem.appendChild(deleteButton);
+
                 folderMusicListContainer.appendChild(musicItem);
             });
         }
@@ -1712,6 +1734,13 @@
 
         // Adiciona um listener para tocar as músicas de dentro da pasta
         folderMusicListContainer.addEventListener('click', (e) => {
+            const deleteButton = e.target.closest('.delete-song-btn');
+            if (deleteButton) {
+                const songId = deleteButton.dataset.id;
+                showDeleteConfirmationModal(songId, 'saved_song');
+                return;
+            }
+
             const musicItem = e.target.closest('.music-item');
             if (!musicItem || !musicItem.dataset.src) return;
 
