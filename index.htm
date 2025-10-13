@@ -504,6 +504,23 @@
         </div>
     </div>
 
+    <!-- NOVO: Modal para Adicionar Música à Pasta -->
+    <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[70]">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+            <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
+            <div class="relative">
+                <label for="modal-folder-select" class="block text-sm font-medium text-left text-theme">Selecione a Pasta</label>
+                <select id="modal-folder-select" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <!-- Opções de pasta serão preenchidas aqui -->
+                </select>
+            </div>
+            <div class="flex justify-between space-x-4 pt-2">
+                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- NOVO: Modal do App Explorar -->
     <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
@@ -514,27 +531,6 @@
                 </svg>
             </button>
         </header>
-        <!-- Nova Barra de Ações para Adicionar Músicas -->
-        <div id="music-action-bar" class="p-4 bg-white border-b border-gray-200">
-            <!-- Vista Inicial: Botão para ativar o modo de seleção -->
-            <div id="initial-music-action-view">
-                <button id="add-songs-to-folder-btn" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                    Adicionar músicas a pasta
-                </button>
-            </div>
-            <!-- Vista de Seleção: Dropdown de pastas e botões de ação -->
-            <div id="folder-selection-view" class="hidden items-center space-x-2">
-                <select id="folder-select" class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <!-- As pastas do usuário serão carregadas aqui -->
-                </select>
-                <button id="confirm-add-to-folder-btn" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600">
-                    Adicionar
-                </button>
-                <button id="cancel-add-to-folder-btn" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400">
-                    Cancelar
-                </button>
-            </div>
-        </div>
         <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
             <!-- As músicas carregadas do Supabase serão inseridas aqui -->
         </div>
@@ -723,20 +719,18 @@
         const closeExploreModalButton = document.getElementById('close-explore-modal');
         const musicListContainer = document.getElementById('music-list-container');
 
-        // Referências da nova barra de ações de música
-        const musicActionBar = document.getElementById('music-action-bar');
-        const initialMusicActionView = document.getElementById('initial-music-action-view');
-        const addSongsToFolderBtn = document.getElementById('add-songs-to-folder-btn');
-        const folderSelectionView = document.getElementById('folder-selection-view');
-        const folderSelect = document.getElementById('folder-select');
-        const confirmAddToFolderBtn = document.getElementById('confirm-add-to-folder-btn');
-        const cancelAddToFolderBtn = document.getElementById('cancel-add-to-folder-btn');
 
         // Referências do novo Modal de Conteúdo da Pasta
         const folderContentModal = document.getElementById('folder-content-modal');
         const folderContentTitle = document.getElementById('folder-content-title');
         const closeFolderContentModalBtn = document.getElementById('close-folder-content-modal');
         const folderMusicListContainer = document.getElementById('folder-music-list-container');
+
+        // NOVO: Referências do Modal "Adicionar à Pasta"
+        const addToFolderModal = document.getElementById('add-to-folder-modal');
+        const modalFolderSelect = document.getElementById('modal-folder-select');
+        const cancelAddToFolderModalButton = document.getElementById('cancel-add-to-folder-modal-button');
+        const confirmAddToFolderModalButton = document.getElementById('confirm-add-to-folder-modal-button');
 
         // Referências do Player de Tela Cheia
         const fullscreenPlayer = document.getElementById('fullscreen-player');
@@ -1841,9 +1835,136 @@
 
                 musicItem.appendChild(musicInfo);
 
+                // Botão de Adicionar (+)
+                const addButton = document.createElement('button');
+                addButton.className = 'add-to-folder-plus-btn ml-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors';
+                addButton.textContent = '+';
+                // Adiciona todos os data attributes da música ao botão para fácil acesso
+                Object.keys(musicItem.dataset).forEach(key => {
+                    addButton.dataset[key] = musicItem.dataset[key];
+                });
+                musicItem.appendChild(addButton);
+
+
                 musicListContainer.appendChild(musicItem);
             });
         }
+
+        let songDataForModal = null; // Armazena os dados da música para o modal
+
+        // --- LÓGICA DO NOVO MODAL "ADICIONAR À PASTA" ---
+
+        musicListContainer.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('add-to-folder-plus-btn')) {
+                const button = e.target;
+                songDataForModal = { ...button.dataset }; // Armazena os dados da música
+
+                // Mostra o modal e busca as pastas
+                addToFolderModal.classList.remove('hidden');
+                addToFolderModal.classList.add('flex');
+
+                modalFolderSelect.innerHTML = '<option>Carregando pastas...</option>';
+
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    modalFolderSelect.innerHTML = '<option>Erro: Usuário não encontrado</option>';
+                    return;
+                }
+
+                const { data: folders, error } = await supabase
+                    .from('pastas')
+                    .select('id, title')
+                    .eq('user_id', user.id);
+
+                if (error) {
+                    console.error('Erro ao buscar pastas:', error);
+                    modalFolderSelect.innerHTML = '<option>Erro ao carregar pastas</option>';
+                    return;
+                }
+
+                modalFolderSelect.innerHTML = ''; // Limpa o "carregando"
+                if (folders && folders.length > 0) {
+                    folders.forEach(folder => {
+                        const option = document.createElement('option');
+                        option.value = folder.id;
+                        option.textContent = folder.title;
+                        modalFolderSelect.appendChild(option);
+                    });
+
+                    // Pré-seleciona a última pasta escolhida
+                    const lastFolderId = localStorage.getItem('lastSelectedFolderId');
+                    if (lastFolderId) {
+                        modalFolderSelect.value = lastFolderId;
+                    }
+                } else {
+                    modalFolderSelect.innerHTML = '<option value="">Nenhuma pasta criada</option>';
+                    confirmAddToFolderModalButton.disabled = true;
+                }
+            }
+        });
+
+        cancelAddToFolderModalButton.addEventListener('click', () => {
+            addToFolderModal.classList.add('hidden');
+            addToFolderModal.classList.remove('flex');
+            songDataForModal = null; // Limpa os dados da música
+            confirmAddToFolderModalButton.disabled = false; // Garante que o botão seja reativado
+        });
+
+        confirmAddToFolderModalButton.addEventListener('click', async () => {
+            const selectedFolderId = modalFolderSelect.value;
+            if (!songDataForModal || !selectedFolderId) {
+                alert('Por favor, selecione uma pasta.');
+                return;
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert('Usuário não autenticado.');
+                return;
+            }
+
+            // Verifica se a música já existe na pasta
+            const { data: existingSongs, error: fetchError } = await supabase
+                .from('musicas_salvas_usuario')
+                .select('id')
+                .eq('pasta_id', selectedFolderId)
+                .eq('musica_url', songDataForModal.src);
+
+            if (fetchError) {
+                console.error('Erro ao verificar música existente:', fetchError);
+                alert('Ocorreu um erro. Tente novamente.');
+                return;
+            }
+
+            if (existingSongs && existingSongs.length > 0) {
+                alert('Esta música já está nesta pasta.');
+                return;
+            }
+
+            // Insere a nova música
+            const newSong = {
+                pasta_id: selectedFolderId,
+                user_id: user.id,
+                musica_titulo: songDataForModal.title,
+                musica_artista: songDataForModal.artist,
+                musica_album: songDataForModal.album,
+                musica_url: songDataForModal.src,
+                imagem_url: songDataForModal.albumArt
+            };
+
+            const { error: insertError } = await supabase
+                .from('musicas_salvas_usuario')
+                .insert(newSong);
+
+            if (insertError) {
+                console.error('Erro ao salvar música:', insertError);
+                alert('Não foi possível adicionar a música.');
+            } else {
+                alert('Música adicionada com sucesso!');
+                localStorage.setItem('lastSelectedFolderId', selectedFolderId); // Salva a escolha
+                cancelAddToFolderModalButton.click(); // Fecha o modal
+            }
+        });
 
         async function fetchAndRenderApps(userId) {
             if (!userId) return;
@@ -2230,143 +2351,6 @@
             }
         });
 
-        // --- LÓGICA DA BARRA DE AÇÕES DE MÚSICA ---
-
-        // Ativa o modo de seleção de pastas
-        addSongsToFolderBtn.addEventListener('click', async () => {
-            const user = (await supabase.auth.getUser()).data.user;
-            if (!user) return;
-
-            // Ativa o modo de seleção
-            isMusicSelectionModeActive = true;
-
-            // Busca as pastas do usuário
-            const { data: folders, error } = await supabase
-                .from('pastas')
-                .select('id, title')
-                .eq('user_id', user.id);
-
-            if (error) {
-                console.error('Erro ao buscar pastas:', error);
-                alert('Não foi possível carregar as pastas. Verifique se a tabela "pastas" tem as permissões de leitura (RLS) corretas no Supabase.');
-                isMusicSelectionModeActive = false; // Desativa em caso de erro
-                return;
-            }
-
-            // Popula o dropdown
-            folderSelect.innerHTML = ''; // Limpa opções anteriores
-            if (folders && folders.length > 0) {
-                confirmAddToFolderBtn.disabled = false; // Garante que o botão está habilitado
-                folders.forEach(folder => {
-                    const option = document.createElement('option');
-                    option.value = folder.id;
-                    option.textContent = folder.title;
-                    folderSelect.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'Nenhuma pasta criada';
-                option.disabled = true;
-                folderSelect.appendChild(option);
-                confirmAddToFolderBtn.disabled = true; // Desabilita o botão se não há pastas
-            }
-
-            // Alterna a visibilidade das vistas
-            initialMusicActionView.classList.add('hidden');
-            folderSelectionView.classList.remove('hidden');
-            folderSelectionView.classList.add('flex'); // Garante o alinhamento correto
-        });
-
-        // Cancela o modo de seleção
-        cancelAddToFolderBtn.addEventListener('click', () => {
-            isMusicSelectionModeActive = false; // Desativa o modo
-
-            // Limpa a seleção visual de todas as músicas
-            document.querySelectorAll('.music-item.selected-for-folder').forEach(item => {
-                item.classList.remove('selected-for-folder');
-            });
-
-            initialMusicActionView.classList.remove('hidden');
-            folderSelectionView.classList.add('hidden');
-            folderSelectionView.classList.remove('flex');
-            confirmAddToFolderBtn.disabled = false; // Reabilita o botão
-        });
-
-        // Confirma a adição das músicas à pasta selecionada
-        confirmAddToFolderBtn.addEventListener('click', async () => {
-            const selectedFolderId = folderSelect.value;
-            const selectedMusicItems = document.querySelectorAll('.music-item.selected-for-folder');
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!selectedFolderId || selectedMusicItems.length === 0) {
-                alert('Por favor, selecione uma pasta e pelo menos uma música.');
-                return;
-            }
-            if (!user) {
-                alert('Usuário não autenticado. Por favor, faça o login novamente.');
-                return;
-            }
-
-            // 1. Pega os URLs das músicas selecionadas, que servem como identificador único
-            const selectedSongUrls = new Set(Array.from(selectedMusicItems).map(item => item.dataset.src));
-
-            // 2. Verifica quais músicas (pelos URLs) já existem na pasta
-            const { data: existingSongs, error: fetchError } = await supabase
-                .from('musicas_salvas_usuario')
-                .select('musica_url')
-                .eq('pasta_id', selectedFolderId);
-
-            if (fetchError) {
-                console.error('Erro ao verificar músicas existentes:', fetchError);
-                alert('Ocorreu um erro ao verificar as músicas na pasta. Tente novamente.');
-                return;
-            }
-
-            const existingSongUrls = new Set(existingSongs.map(song => song.musica_url));
-
-            // 3. Filtra para encontrar apenas as músicas que ainda não estão na pasta
-            const newSongsToInsert = Array.from(selectedMusicItems)
-                .filter(item => !existingSongUrls.has(item.dataset.src))
-                .map(item => ({
-                    pasta_id: selectedFolderId,
-                    user_id: user.id,
-                    musica_titulo: item.dataset.title,
-                    musica_artista: item.dataset.artist,
-                    musica_album: item.dataset.album,
-                    musica_url: item.dataset.src,
-                    imagem_url: item.dataset.albumArt
-                }));
-
-            let successMessage = '';
-            const ignoredCount = selectedSongUrls.size - newSongsToInsert.length;
-
-            // 4. Insere apenas as novas músicas, se houver alguma
-            if (newSongsToInsert.length > 0) {
-                const { error: insertError } = await supabase
-                    .from('musicas_salvas_usuario')
-                    .insert(newSongsToInsert);
-
-                if (insertError) {
-                    console.error('Erro ao salvar músicas:', insertError);
-                    alert(`Ocorreu um erro ao salvar as músicas: ${insertError.message}`);
-                    return;
-                }
-                successMessage = `${newSongsToInsert.length} nova(s) música(s) adicionada(s) com sucesso.`;
-            }
-
-            if (ignoredCount > 0) {
-                successMessage += `\n${ignoredCount} música(s) foram ignoradas por já estarem na pasta.`;
-            }
-
-            if (!successMessage) {
-                successMessage = 'Nenhuma música nova para adicionar. Todas as selecionadas já estão na pasta.';
-            }
-
-            alert(successMessage.trim());
-
-            // Reseta a interface
-            cancelAddToFolderBtn.click();
-        });
 
 
         // --- LÓGICA DO PLAYER EXPANSÍVEL ---
