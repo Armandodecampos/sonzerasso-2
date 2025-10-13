@@ -1642,65 +1642,54 @@
         async function fetchAndDisplayFolderContent(folderId) {
             folderMusicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando músicas...</p>';
 
-            // 1. Busca os IDs das músicas na pasta
-            const { data: musicLinks, error: linkError } = await supabase
-                .from('musicas_pastas')
-                .select('musica_id')
-                .eq('pasta_id', folderId);
+            // Busca as músicas diretamente da nova tabela de cópias
+            const { data: musicas, error } = await supabase
+                .from('musicas_salvas_usuario')
+                .select('*')
+                .eq('pasta_id', folderId)
+                .order('created_at', { ascending: true }); // Opcional: ordena pela data em que foram salvas
 
-            if (linkError) {
-                console.error('Erro ao buscar músicas da pasta:', linkError);
+            if (error) {
+                console.error('Erro ao buscar músicas salvas:', error);
                 folderMusicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
                 return;
             }
 
-            if (!musicLinks || musicLinks.length === 0) {
+            if (!musicas || musicas.length === 0) {
                 folderMusicListContainer.innerHTML = '<p class="text-center text-gray-500">Esta pasta está vazia.</p>';
-                return;
-            }
-
-            const musicIds = musicLinks.map(link => link.musica_id);
-
-            // 2. Busca os detalhes das músicas encontradas
-            const { data: musicas, error: musicError } = await supabase
-                .from('Musicas')
-                .select('*')
-                .in('id', musicIds);
-
-            if (musicError) {
-                console.error('Erro ao buscar detalhes das músicas:', musicError);
-                folderMusicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar os detalhes das músicas.</p>';
                 return;
             }
 
             folderMusicListContainer.innerHTML = ''; // Limpa a mensagem de "Carregando"
 
-            // 3. Renderiza as músicas na lista
+            // Renderiza as músicas salvas
             musicas.forEach(musica => {
                 const musicItem = document.createElement('div');
                 musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
-                musicItem.dataset.id = musica.id;
-                musicItem.dataset.src = musica.Musica;
-                musicItem.dataset.title = musica['Nome - Musica'];
-                musicItem.dataset.artist = musica['Nome - Artista'];
-                musicItem.dataset.albumArt = musica.Imagem;
-                musicItem.dataset.album = musica['Nome - Album'];
 
-                // Reconstrução programática para garantir consistência
+                // Popula o dataset com os dados da cópia para o player funcionar
+                musicItem.dataset.id = musica.id;
+                musicItem.dataset.src = musica.musica_url;
+                musicItem.dataset.title = musica.musica_titulo;
+                musicItem.dataset.artist = musica.musica_artista;
+                musicItem.dataset.albumArt = musica.imagem_url;
+                musicItem.dataset.album = musica.musica_album;
+
+                // Cria os elementos de UI com os dados da cópia
                 const musicInfo = document.createElement('div');
                 musicInfo.className = 'music-info flex-grow';
 
                 const artistP = document.createElement('p');
                 artistP.className = 'music-artist-display font-bold text-gray-800';
-                artistP.textContent = musica['Nome - Artista'] || 'Artista Desconhecido';
+                artistP.textContent = musica.musica_artista || 'Artista Desconhecido';
 
                 const albumP = document.createElement('p');
                 albumP.className = 'music-album-display italic text-gray-600';
-                albumP.textContent = musica['Nome - Album'] || 'Álbum Desconhecido';
+                albumP.textContent = musica.musica_album || 'Álbum Desconhecido';
 
                 const titleP = document.createElement('p');
                 titleP.className = 'music-title-display text-sm text-gray-700';
-                titleP.textContent = musica['Nome - Musica'] || 'Título Desconhecido';
+                titleP.textContent = musica.musica_titulo || 'Título Desconhecido';
 
                 musicInfo.appendChild(artistP);
                 musicInfo.appendChild(titleP);
@@ -2307,61 +2296,43 @@
         confirmAddToFolderBtn.addEventListener('click', async () => {
             const selectedFolderId = folderSelect.value;
             const selectedMusicItems = document.querySelectorAll('.music-item.selected-for-folder');
+            const { data: { user } } = await supabase.auth.getUser();
 
             if (!selectedFolderId || selectedMusicItems.length === 0) {
                 alert('Por favor, selecione uma pasta e pelo menos uma música.');
                 return;
             }
-
-            // 1. Pega os IDs de todas as músicas que o usuário selecionou
-            const selectedMusicIds = new Set(Array.from(selectedMusicItems).map(item => item.dataset.id));
-
-            // 2. Verifica quais dessas músicas já existem na pasta
-            const { data: existingSongs, error: fetchError } = await supabase
-                .from('musicas_pastas')
-                .select('musica_id')
-                .eq('pasta_id', selectedFolderId)
-                .in('musica_id', Array.from(selectedMusicIds));
-
-            if (fetchError) {
-                console.error('Erro ao verificar músicas existentes:', fetchError);
-                alert('Ocorreu um erro ao verificar as músicas na pasta. Tente novamente.');
+            if (!user) {
+                alert('Usuário não autenticado. Por favor, faça o login novamente.');
                 return;
             }
 
-            // 3. Filtra para encontrar apenas as músicas que ainda não estão na pasta
-            const existingMusicIds = new Set(existingSongs.map(song => song.musica_id.toString()));
-            const newSongsToInsert = Array.from(selectedMusicIds)
-                .filter(id => !existingMusicIds.has(id))
-                .map(id => ({
-                    pasta_id: selectedFolderId,
-                    musica_id: id,
-                }));
+            // Mapeia os itens selecionados para o formato da nova tabela
+            const newSongsToInsert = Array.from(selectedMusicItems).map(item => ({
+                pasta_id: selectedFolderId,
+                user_id: user.id,
+                musica_titulo: item.dataset.title,
+                musica_artista: item.dataset.artist,
+                musica_album: item.dataset.album,
+                musica_url: item.dataset.src,
+                imagem_url: item.dataset.albumArt
+            }));
 
-            let successMessage = '';
-            const ignoredCount = selectedMusicIds.size - newSongsToInsert.length;
-
-            // 4. Insere apenas as novas músicas, se houver alguma
+            // Insere as cópias das músicas na nova tabela
             if (newSongsToInsert.length > 0) {
-                const { error: insertError } = await supabase.from('musicas_pastas').insert(newSongsToInsert);
+                const { error: insertError } = await supabase
+                    .from('musicas_salvas_usuario')
+                    .insert(newSongsToInsert);
 
                 if (insertError) {
-                    console.error('Erro ao adicionar novas músicas:', insertError);
-                    alert(`Ocorreu um erro ao adicionar as novas músicas: ${insertError.message}`);
-                    return; // Interrompe se a inserção falhar
+                    console.error('Erro ao salvar músicas:', insertError);
+                    alert(`Ocorreu um erro ao salvar as músicas: ${insertError.message}`);
+                    return;
                 }
-                successMessage = `${newSongsToInsert.length} nova(s) música(s) adicionada(s) com sucesso.`;
+
+                alert(`${newSongsToInsert.length} música(s) salva(s) com sucesso na pasta!`);
             }
 
-            if (ignoredCount > 0) {
-                successMessage += `\n${ignoredCount} música(s) foram ignoradas por já estarem na pasta.`;
-            }
-
-            if (!successMessage) {
-                successMessage = 'Nenhuma música nova para adicionar. Todas as selecionadas já estão na pasta.';
-            }
-
-            alert(successMessage.trim());
             // Reseta a interface
             cancelAddToFolderBtn.click();
         });
