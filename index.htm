@@ -629,12 +629,8 @@
 
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        // Configura o cliente do Supabase para não persistir a sessão no navegador
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                persistSession: false
-            }
-        });
+        // Configura o cliente do Supabase
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
         const mainContainer = document.getElementById('main-container');
