@@ -524,20 +524,15 @@
     <!-- NOVO: Modal do App Explorar -->
     <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <button id="explore-back-button" class="hidden text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <h2 id="explore-title" class="text-2xl font-bold text-theme">Explorar</h2>
+            <h2 class="text-2xl font-bold text-theme">Explorar Músicas</h2>
             <button id="close-explore-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </header>
-        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto">
-            <!-- Conteúdo dinâmico (artistas, álbuns, músicas) será inserido aqui -->
+        <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- As músicas carregadas do Supabase serão inseridas aqui -->
         </div>
     </div>
 
@@ -1438,22 +1433,6 @@
                     // 3. Refresh the trash list
                     await renderTrashList();
                 }
-            } else if (type === 'saved_song') {
-                const { error } = await supabase
-                    .from('musicas_salvas_usuario')
-                    .delete()
-                    .match({ id: id, user_id: user.id });
-
-                if (error) {
-                    console.error('Erro ao deletar música salva:', error);
-                    alert('Não foi possível remover a música.');
-                } else {
-                    // Remove o item da UI
-                    const songItem = folderMusicListContainer.querySelector(`[data-id="${id}"]`);
-                    if (songItem) {
-                        songItem.remove();
-                    }
-                }
             }
             hideDeleteConfirmationModal();
         });
@@ -1637,9 +1616,10 @@
                         const isFixed = item.isFixed;
                         if (isFixed) {
                             if (item.id === 'explore-app') {
+                                musicListContainer.innerHTML = '';
                                 exploreModal.classList.remove('hidden');
                                 exploreModal.classList.add('flex');
-                                updateExploreView({ view: 'artists' });
+                                await fetchAndDisplayMusic(); // Carrega depois de abrir
                             }
                         } else {
                             showAppActionBar(item);
@@ -1711,12 +1691,6 @@
 
                 musicItem.appendChild(musicInfo);
 
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'delete-song-btn ml-4 px-3 py-1 text-lg text-red-500 hover:text-red-700 transition-colors';
-                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.dataset.id = musica.id;
-                musicItem.appendChild(deleteButton);
-
                 folderMusicListContainer.appendChild(musicItem);
             });
         }
@@ -1738,13 +1712,6 @@
 
         // Adiciona um listener para tocar as músicas de dentro da pasta
         folderMusicListContainer.addEventListener('click', (e) => {
-            const deleteButton = e.target.closest('.delete-song-btn');
-            if (deleteButton) {
-                const songId = deleteButton.dataset.id;
-                showDeleteConfirmationModal(songId, 'saved_song');
-                return;
-            }
-
             const musicItem = e.target.closest('.music-item');
             if (!musicItem || !musicItem.dataset.src) return;
 
@@ -1754,125 +1721,78 @@
         });
 
 
-        // --- LÓGICA DE NAVEGAÇÃO HIERÁRQUICA ---
-        let navigationState = []; // Pilha para gerir o estado da navegação
-
-        function updateExploreView({ view, artist = null, album = null }) {
-            const backButton = document.getElementById('explore-back-button');
-            const title = document.getElementById('explore-title');
-
-            if (view === 'artists') {
-                navigationState = [{ view: 'artists' }];
-                backButton.classList.add('hidden');
-                title.textContent = 'Artistas';
-                fetchAndDisplayArtists();
-            } else if (view === 'albums') {
-                navigationState.push({ view: 'albums', artist });
-                backButton.classList.remove('hidden');
-                title.textContent = artist;
-                fetchAndDisplayAlbums(artist);
-            } else if (view === 'songs') {
-                navigationState.push({ view: 'songs', artist, album });
-                backButton.classList.remove('hidden');
-                title.textContent = album;
-                fetchAndDisplayMusic(artist, album);
-            }
-        }
-
-        document.getElementById('explore-back-button').addEventListener('click', () => {
-            if (navigationState.length > 1) {
-                navigationState.pop(); // Remove o estado atual
-                const previousState = navigationState[navigationState.length - 1]; // Pega o estado anterior
-                updateExploreView(previousState);
-            }
-        });
-
-        // --- NOVAS FUNÇÕES PARA NAVEGAÇÃO HIERÁRQUICA ---
-
-        async function fetchAndDisplayArtists() {
-            // Mostra um indicador de carregamento
-            const exploreContentContainer = document.getElementById('explore-content-container');
-            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Carregando artistas...</p></div>`;
-
-            const { data, error } = await supabase
-                .from('Musicas')
-                .select('Nome - Artista');
-
-            if (error) {
-                console.error('Erro ao buscar artistas:', error);
-                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar artistas.</p>';
-                return;
-            }
-
-            // Filtra para obter artistas únicos e remove entradas nulas/vazias
-            const artists = [...new Set(data.map(item => item['Nome - Artista']))].filter(Boolean);
-
-            exploreContentContainer.innerHTML = ''; // Limpa o carregamento
-            artists.forEach(artistName => {
-                const item = document.createElement('div');
-                item.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
-                item.textContent = artistName;
-                item.dataset.artist = artistName;
-                item.addEventListener('click', () => {
-                    updateExploreView({ view: 'albums', artist: artistName });
-                });
-                exploreContentContainer.appendChild(item);
-            });
-        }
-
-        async function fetchAndDisplayAlbums(artistName) {
-            const exploreContentContainer = document.getElementById('explore-content-container');
-            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Carregando álbuns...</p></div>`;
-
-            const { data, error } = await supabase
-                .from('Musicas')
-                .select('Nome - Album')
-                .eq('Nome - Artista', artistName);
-
-            if (error) {
-                console.error('Erro ao buscar álbuns:', error);
-                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar álbuns.</p>';
-                return;
-            }
-
-            const albums = [...new Set(data.map(item => item['Nome - Album']))].filter(Boolean);
-
-            exploreContentContainer.innerHTML = '';
-            albums.forEach(albumName => {
-                const item = document.createElement('div');
-                item.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
-                item.textContent = albumName;
-                item.dataset.artist = artistName;
-                item.dataset.album = albumName;
-                item.addEventListener('click', () => {
-                    updateExploreView({ view: 'songs', artist: artistName, album: albumName });
-                });
-                exploreContentContainer.appendChild(item);
-            });
-        }
-
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
-        async function fetchAndDisplayMusic(artistName, albumName) {
-            const exploreContentContainer = document.getElementById('explore-content-container');
-            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Carregando músicas...</p></div>`;
+        async function fetchAndDisplayMusic() {
+            musicListContainer.innerHTML = `
+                <div class="text-center text-gray-500 p-4">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i>
+                    <p class="mt-2">Carregando músicas...</p>
+                </div>
+            `;
 
-            let query = supabase.from('Musicas').select('*');
-            if (artistName) {
-                query = query.eq('Nome - Artista', artistName);
-            }
-            if (albumName) {
-                query = query.eq('Nome - Album', albumName);
-            }
+            // 1. Faz uma consulta rápida para obter apenas a contagem de músicas
+            const { count, error: countError } = await supabase
+                .from('Musicas')
+                .select('*', { count: 'exact', head: true });
 
-            const { data: songs, error } = await query;
-
-            if (error) {
-                console.error('Erro ao buscar músicas:', error);
-                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar músicas.</p>';
+            if (countError) {
+                console.error('Erro ao obter contagem de músicas:', countError);
+                musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
                 return;
             }
 
-            renderMusicList(songs, exploreContentContainer);
+            // 2. Tenta carregar do cache
+            try {
+                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
+                if (cachedMusicData && cachedMusicData.count === count) {
+                    // Se a contagem for a mesma, usa o cache
+                    renderMusicList(cachedMusicData.songs);
+                    return; // Interrompe a execução
+                }
+            } catch (e) {
+                console.warn('Cache de músicas inválido ou não encontrado:', e);
+            }
+
+            // 3. Se o cache não for válido ou estiver desatualizado, busca do Supabase
+            let allSongs = [];
+            let page = 0;
+            let hasMore = true;
+
+            while(hasMore) {
+                const from = page * MUSIC_PAGE_SIZE;
+                const to = from + MUSIC_PAGE_SIZE - 1;
+
+                const { data: musicas, error: fetchError } = await supabase
+                    .from('Musicas')
+                    .select('*')
+                    .range(from, to);
+
+                if (fetchError) {
+                    console.error('Erro ao buscar músicas:', fetchError);
+                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                    return;
+                }
+
+                if (musicas.length > 0) {
+                    allSongs.push(...musicas);
+                    page++;
+                } else {
+                    hasMore = false;
+                }
+            }
+
+            // 4. Salva o resultado no cache para a próxima vez
+            try {
+                const musicDataToCache = {
+                    count: count,
+                    songs: allSongs
+                };
+                localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
+            } catch (e) {
+                console.error('Erro ao salvar músicas no cache:', e);
+            }
+
+            renderMusicList(allSongs);
         }
 
         function renderMusicList(songs) {
@@ -2422,9 +2342,10 @@
             hideAppActionBar();
 
             if (appId === 'explore-app') {
+                musicListContainer.innerHTML = '';
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
-                updateExploreView({ view: 'artists' });
+                await fetchAndDisplayMusic(); // Carrega depois de abrir
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
