@@ -1766,7 +1766,7 @@
                 item.className = 'music-item';
                 item.innerHTML = `<p class="music-artist-display">${artist}</p>`;
                 item.addEventListener('click', () => {
-                    navigationState.push({ view: 'albums', artist: artist });
+                    navigationState.push({ view: 'songsByArtist', artist: artist });
                     updateExploreView();
                 });
                 exploreContentContainer.appendChild(item);
@@ -1779,16 +1779,14 @@
 
             // Verifica o cache primeiro
             if (artistCache[artist]) {
-                renderAlbumsAndSongs(artistCache[artist]);
+                renderArtistSongs(artistCache[artist]);
                 return;
             }
 
-            // Corrigido: Usa .filter() para lidar com espaços no nome da coluna
-            // Corrigido: Usa .filter() para lidar com espaços no nome da coluna
             const { data: songs, error } = await supabase
                 .from('Musicas')
                 .select('*')
-                .filter('"Nome - Artista"', 'eq', artist);
+                .eq('Nome - Artista', artist);
 
             if (error) {
                 console.error(`Erro ao buscar músicas para ${artist}:`, error);
@@ -1797,53 +1795,18 @@
             }
 
             if (!songs || songs.length === 0) {
-                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada para este artista.</p>';
+                exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada para este artista.</p>';
                 return;
             }
 
-            // Processa e agrupa os dados do artista
-            const artistData = songs.reduce((acc, song) => {
-                const albumName = song['Nome - Album'] || 'Sem Álbum';
-                if (!acc[albumName]) {
-                    acc[albumName] = [];
-                }
-                acc[albumName].push(song);
-                return acc;
-            }, {});
-
-            // Armazena no cache e renderiza
-            artistCache[artist] = artistData;
-            renderAlbumsAndSongs(artistData);
+            // Armazena a lista de músicas no cache e renderiza
+            artistCache[artist] = songs;
+            renderArtistSongs(songs);
         }
 
-        // Renderiza a lista de álbuns e músicas "sem álbum" de um artista (nível 2)
-        function renderAlbumsAndSongs(albums) {
+        // Renderiza a lista de todas as músicas de um artista
+        function renderArtistSongs(songs) {
             exploreContentContainer.innerHTML = '';
-            const albumNames = Object.keys(albums).sort();
-            const currentState = navigationState[navigationState.length - 1];
-            const artist = currentState.artist;
-
-
-            albumNames.forEach(albumName => {
-                if (albumName === 'Sem Álbum') {
-                    albums[albumName].forEach(song => renderSongItem(song));
-                } else {
-                    const albumItem = document.createElement('div');
-                    albumItem.className = 'music-item';
-                    albumItem.innerHTML = `<p class="music-album-display">${albumName}</p>`;
-                    albumItem.addEventListener('click', () => {
-                        navigationState.push({ view: 'songs', artist: artist, album: albumName });
-                        updateExploreView();
-                    });
-                    exploreContentContainer.appendChild(albumItem);
-                }
-            });
-        }
-
-        // Renderiza as músicas de um álbum específico (nível 3)
-        function renderAlbumSongs(artist, album) {
-            exploreContentContainer.innerHTML = '';
-            const songs = artistCache[artist][album];
             songs.forEach(song => renderSongItem(song));
         }
 
@@ -1885,14 +1848,10 @@
                 exploreTitle.textContent = 'Explorar';
                 exploreBackButton.classList.add('hidden');
                 renderArtists(artistListCache || []); // Usa o cache ao voltar
-            } else if (currentState.view === 'albums') {
+            } else if (currentState.view === 'songsByArtist') {
                 exploreTitle.textContent = currentState.artist;
                 exploreBackButton.classList.remove('hidden');
-                fetchAndDisplayArtistContent(currentState.artist); // Alterado para buscar sob demanda
-            } else if (currentState.view === 'songs') {
-                exploreTitle.textContent = currentState.album;
-                exploreBackButton.classList.remove('hidden');
-                renderAlbumSongs(currentState.artist, currentState.album);
+                fetchAndDisplayArtistContent(currentState.artist);
             }
         }
 
@@ -2657,6 +2616,12 @@
             // O Chrome exige que returnValue seja definido
             e.returnValue = '';
         });
+
+        // Expõe a função para o Playwright
+        window.toggleUI = toggleUI;
+        window.renderApps = renderApps;
+        window.fixedAppsMasterList = fixedAppsMasterList;
+        window.renderArtistSongs = renderArtistSongs;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
