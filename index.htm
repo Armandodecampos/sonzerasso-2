@@ -1735,93 +1735,29 @@
 
         // --- LÓGICA REESTRUTURADA PARA O APP EXPLORAR ---
 
-        let musicData = {}; // Armazena a estrutura hierárquica das músicas
+        let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
 
-        // Função principal para buscar, processar e exibir as músicas
+        // Etapa 1: Buscar apenas a lista de artistas
         async function fetchAndDisplayMusic() {
-            exploreContentContainer.innerHTML = `
-                <div class="text-center text-gray-500 p-4">
-                    <i class="fas fa-spinner fa-spin text-2xl"></i>
-                </div>`;
+            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
 
-            // 1. Tenta carregar do cache primeiro
-            try {
-                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
-                const { count, error: countError } = await supabase
-                    .from('Musicas')
-                    .select('*', { count: 'exact', head: true });
+            // Usando uma RPC para obter nomes de artistas distintos de forma eficiente
+            const { data, error } = await supabase.rpc('get_distinct_artists');
 
-                if (countError) throw new Error('Falha ao verificar a contagem de músicas.');
-
-                if (cachedMusicData && cachedMusicData.count === count) {
-                    musicData = cachedMusicData.data;
-                    renderArtists(); // Renderiza a lista de artistas do cache
-                    return;
-                }
-            } catch (e) {
-                console.warn('Cache de músicas inválido ou desatualizado:', e);
+            if (error) {
+                console.error('Erro ao buscar artistas:', error);
+                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar artistas.</p>';
+                return;
             }
 
-            // 2. Se o cache falhar, busca do Supabase com paginação (versão corrigida)
-            let allSongs = [];
-            let page = 0;
-            let hasMore = true;
-            while(hasMore) {
-                const { data: musicas, error: fetchError } = await supabase
-                    .from('Musicas')
-                    .select('*')
-                    .range(page * 1000, (page + 1) * 1000 - 1); // Aumentado o tamanho da página para eficiência
-
-                if (fetchError) {
-                    console.error('Erro ao buscar músicas:', fetchError);
-                    exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
-                    return;
-                }
-
-                if (musicas && musicas.length > 0) {
-                    allSongs.push(...musicas);
-                    page++;
-                } else {
-                    hasMore = false;
-                }
-            }
-
-            // 3. Processa e agrupa os dados
-            musicData = allSongs.reduce((acc, song) => {
-                const artistName = song['Nome - Artista'] || 'Artista Desconhecido';
-                const albumName = song['Nome - Album'] || 'Sem Álbum';
-
-                if (!acc[artistName]) {
-                    acc[artistName] = {};
-                }
-                if (!acc[artistName][albumName]) {
-                    acc[artistName][albumName] = [];
-                }
-                acc[artistName][albumName].push(song);
-
-                return acc;
-            }, {});
-
-            // 4. Salva a nova estrutura no cache
-            try {
-                const { count } = await supabase.from('Musicas').select('*', { count: 'exact', head: true });
-                const musicDataToCache = {
-                    count: count,
-                    data: musicData
-                };
-                localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
-            } catch (e) {
-                console.error('Erro ao salvar músicas no cache:', e);
-            }
-
-            renderArtists();
+            const artists = data.map(item => item.artist_name).sort();
+            renderArtists(artists);
         }
 
-        // Renderiza a lista de artistas (nível 1)
-        function renderArtists() {
+        // Etapa 2: Renderizar a lista de artistas
+        function renderArtists(artists) {
             exploreContentContainer.innerHTML = '';
-            const artists = Object.keys(musicData).sort();
             artists.forEach(artist => {
                 const item = document.createElement('div');
                 item.className = 'music-item';
@@ -1834,18 +1770,54 @@
             });
         }
 
+        // Etapa 3: Buscar o conteúdo de um artista específico sob demanda
+        async function fetchAndDisplayArtistContent(artist) {
+            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
+
+            // Verifica o cache primeiro
+            if (artistCache[artist]) {
+                renderAlbumsAndSongs(artistCache[artist]);
+                return;
+            }
+
+            const { data: songs, error } = await supabase
+                .from('Musicas')
+                .select('*')
+                .eq('Nome - Artista', artist);
+
+            if (error) {
+                console.error(`Erro ao buscar músicas para ${artist}:`, error);
+                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar o conteúdo do artista.</p>';
+                return;
+            }
+
+            // Processa e agrupa os dados do artista
+            const artistData = songs.reduce((acc, song) => {
+                const albumName = song['Nome - Album'] || 'Sem Álbum';
+                if (!acc[albumName]) {
+                    acc[albumName] = [];
+                }
+                acc[albumName].push(song);
+                return acc;
+            }, {});
+
+            // Armazena no cache e renderiza
+            artistCache[artist] = artistData;
+            renderAlbumsAndSongs(artistData);
+        }
+
         // Renderiza a lista de álbuns e músicas "sem álbum" de um artista (nível 2)
-        function renderAlbumsAndSongs(artist) {
+        function renderAlbumsAndSongs(albums) {
             exploreContentContainer.innerHTML = '';
-            const albums = musicData[artist];
             const albumNames = Object.keys(albums).sort();
+            const currentState = navigationState[navigationState.length - 1];
+            const artist = currentState.artist;
+
 
             albumNames.forEach(albumName => {
                 if (albumName === 'Sem Álbum') {
-                    // Renderiza as músicas sem álbum diretamente
                     albums[albumName].forEach(song => renderSongItem(song));
                 } else {
-                    // Renderiza o item do álbum
                     const albumItem = document.createElement('div');
                     albumItem.className = 'music-item';
                     albumItem.innerHTML = `<p class="music-album-display">${albumName}</p>`;
@@ -1861,7 +1833,7 @@
         // Renderiza as músicas de um álbum específico (nível 3)
         function renderAlbumSongs(artist, album) {
             exploreContentContainer.innerHTML = '';
-            const songs = musicData[artist][album];
+            const songs = artistCache[artist][album];
             songs.forEach(song => renderSongItem(song));
         }
 
@@ -1906,7 +1878,7 @@
             } else if (currentState.view === 'albums') {
                 exploreTitle.textContent = currentState.artist;
                 exploreBackButton.classList.remove('hidden');
-                renderAlbumsAndSongs(currentState.artist);
+                fetchAndDisplayArtistContent(currentState.artist); // Alterado para buscar sob demanda
             } else if (currentState.view === 'songs') {
                 exploreTitle.textContent = currentState.album;
                 exploreBackButton.classList.remove('hidden');
