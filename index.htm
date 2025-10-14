@@ -1637,10 +1637,9 @@
                         const isFixed = item.isFixed;
                         if (isFixed) {
                             if (item.id === 'explore-app') {
-                                musicListContainer.innerHTML = '';
                                 exploreModal.classList.remove('hidden');
                                 exploreModal.classList.add('flex');
-                                await fetchAndDisplayMusic(); // Carrega depois de abrir
+                                updateExploreView({ view: 'artists' });
                             }
                         } else {
                             showAppActionBar(item);
