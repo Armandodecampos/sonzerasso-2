@@ -1736,6 +1736,8 @@
         // --- LÓGICA REESTRUTURADA PARA O APP EXPLORAR ---
 
         let artistListCache = null; // Cache para a lista inicial de artistas
+        let artistListCache = null; // Cache para a lista inicial de artistas
+        let artistListCache = null; // Cache para a lista inicial de artistas
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
 
@@ -1752,6 +1754,7 @@
                 return;
             }
 
+            // Armazena a lista de artistas no cache e renderiza
             // Armazena a lista de artistas no cache e renderiza
             artistListCache = data.map(item => item.artist_name).sort();
             renderArtists(artistListCache);
@@ -1783,6 +1786,7 @@
             }
 
             // Corrigido: Usa .filter() para lidar com espaços no nome da coluna
+            // Corrigido: Usa .filter() para lidar com espaços no nome da coluna
             const { data: songs, error } = await supabase
                 .from('Musicas')
                 .select('*')
@@ -1791,6 +1795,11 @@
             if (error) {
                 console.error(`Erro ao buscar músicas para ${artist}:`, error);
                 exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar o conteúdo do artista.</p>';
+                return;
+            }
+
+            if (!songs || songs.length === 0) {
+                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada para este artista.</p>';
                 return;
             }
 
