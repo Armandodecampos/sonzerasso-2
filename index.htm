@@ -1752,37 +1752,47 @@
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
         async function fetchAndDisplayMusic() {
-            musicListContainer.innerHTML = `
-                <div class="text-center text-gray-500 p-4">
-                    <i class="fas fa-spinner fa-spin text-2xl"></i>
-                    <p class="mt-2">Carregando músicas...</p>
-                </div>
-            `;
+            // 1. Tenta carregar do cache imediatamente para uma UI instantânea
+            let cachedMusicData = null;
+            try {
+                cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
+                if (cachedMusicData && cachedMusicData.songs) {
+                    renderMusicList(cachedMusicData.songs); // Renderiza o conteúdo antigo imediatamente
+                } else {
+                    // Mostra o spinner apenas se não houver NADA em cache
+                    musicListContainer.innerHTML = `
+                        <div class="text-center text-gray-500 p-4">
+                            <i class="fas fa-spinner fa-spin text-2xl"></i>
+                            <p class="mt-2">Carregando músicas...</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.warn('Cache de músicas inválido ou não encontrado:', e);
+                musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao ler o cache de músicas.</p>';
+            }
 
-            // 1. Faz uma consulta rápida para obter apenas a contagem de músicas
+            // --- Revalidação em segundo plano ---
+            // 2. Faz a consulta de contagem para verificar se há atualizações
             const { count, error: countError } = await supabase
                 .from('Musicas')
                 .select('*', { count: 'exact', head: true });
 
             if (countError) {
                 console.error('Erro ao obter contagem de músicas:', countError);
-                musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
+                // Não limpa a UI, apenas mostra um erro no console se o cache já foi exibido
+                if (!cachedMusicData) {
+                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
+                }
                 return;
             }
 
-            // 2. Tenta carregar do cache
-            try {
-                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
-                if (cachedMusicData && cachedMusicData.count === count) {
-                    // Se a contagem for a mesma, usa o cache
-                    renderMusicList(cachedMusicData.songs);
-                    return; // Interrompe a execução
-                }
-            } catch (e) {
-                console.warn('Cache de músicas inválido ou não encontrado:', e);
+            // 3. Compara a contagem do cache com a contagem real
+            if (cachedMusicData && cachedMusicData.count === count) {
+                return; // O cache está atualizado, não faz mais nada
             }
 
-            // 3. Se o cache não for válido ou estiver desatualizado, busca do Supabase
+            // 4. Se o cache estiver desatualizado ou não existir, busca os dados completos
             let allSongs = [];
             let page = 0;
             let hasMore = true;
@@ -1798,7 +1808,9 @@
 
                 if (fetchError) {
                     console.error('Erro ao buscar músicas:', fetchError);
-                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                    if (!cachedMusicData) { // Só mostra erro na UI se não houver nada
+                        musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                    }
                     return;
                 }
 
@@ -1810,7 +1822,7 @@
                 }
             }
 
-            // 4. Salva o resultado no cache para a próxima vez
+            // 5. Salva o novo resultado no cache e atualiza a UI
             try {
                 const musicDataToCache = {
                     count: count,
@@ -1821,7 +1833,7 @@
                 console.error('Erro ao salvar músicas no cache:', e);
             }
 
-            renderMusicList(allSongs);
+            renderMusicList(allSongs); // Re-renderiza a lista com os novos dados
         }
 
         function renderMusicList(songs) {
