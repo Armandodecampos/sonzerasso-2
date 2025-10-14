@@ -1763,27 +1763,15 @@
                 console.warn('Cache de músicas inválido ou desatualizado:', e);
             }
 
-            // 2. Se o cache falhar, busca do Supabase
-            let allSongs = [];
-            let page = 0;
-            let hasMore = true;
-            while(hasMore) {
-                const { data: musicas, error: fetchError } = await supabase
-                    .from('Musicas')
-                    .select('*')
-                    .range(page * MUSIC_PAGE_SIZE, (page + 1) * MUSIC_PAGE_SIZE - 1);
+            // 2. Se o cache falhar, busca do Supabase (removida a paginação)
+            const { data: allSongs, error: fetchError } = await supabase
+                .from('Musicas')
+                .select('*');
 
-                if (fetchError) {
-                    console.error('Erro ao buscar músicas:', fetchError);
-                    exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
-                    return;
-                }
-                if (musicas.length > 0) {
-                    allSongs.push(...musicas);
-                    page++;
-                } else {
-                    hasMore = false;
-                }
+            if (fetchError) {
+                console.error('Erro ao buscar músicas:', fetchError);
+                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                return;
             }
 
             // 3. Processa e agrupa os dados
