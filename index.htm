@@ -1751,15 +1751,13 @@
 
 
         // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
-        async function fetchAndDisplayMusic() {
-            // 1. Tenta carregar do cache imediatamente para uma UI instantânea
-            let cachedMusicData = null;
+        function fetchAndDisplayMusic() {
+            // 1. Tenta carregar do cache imediatamente (sincronamente)
             try {
-                cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
+                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
                 if (cachedMusicData && cachedMusicData.songs) {
-                    renderMusicList(cachedMusicData.songs); // Renderiza o conteúdo antigo imediatamente
+                    renderMusicList(cachedMusicData.songs);
                 } else {
-                    // Mostra o spinner apenas se não houver NADA em cache
                     musicListContainer.innerHTML = `
                         <div class="text-center text-gray-500 p-4">
                             <i class="fas fa-spinner fa-spin text-2xl"></i>
@@ -1772,68 +1770,59 @@
                 musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao ler o cache de músicas.</p>';
             }
 
-            // --- Revalidação em segundo plano ---
-            // 2. Faz a consulta de contagem para verificar se há atualizações
-            const { count, error: countError } = await supabase
-                .from('Musicas')
-                .select('*', { count: 'exact', head: true });
+            // 2. Lança a revalidação assíncrona em segundo plano
+            (async () => {
+                const cachedMusicData = JSON.parse(localStorage.getItem('musicCache')) || {};
 
-            if (countError) {
-                console.error('Erro ao obter contagem de músicas:', countError);
-                // Não limpa a UI, apenas mostra um erro no console se o cache já foi exibido
-                if (!cachedMusicData) {
-                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
-                }
-                return;
-            }
-
-            // 3. Compara a contagem do cache com a contagem real
-            if (cachedMusicData && cachedMusicData.count === count) {
-                return; // O cache está atualizado, não faz mais nada
-            }
-
-            // 4. Se o cache estiver desatualizado ou não existir, busca os dados completos
-            let allSongs = [];
-            let page = 0;
-            let hasMore = true;
-
-            while(hasMore) {
-                const from = page * MUSIC_PAGE_SIZE;
-                const to = from + MUSIC_PAGE_SIZE - 1;
-
-                const { data: musicas, error: fetchError } = await supabase
+                const { count, error: countError } = await supabase
                     .from('Musicas')
-                    .select('*')
-                    .range(from, to);
+                    .select('*', { count: 'exact', head: true });
 
-                if (fetchError) {
-                    console.error('Erro ao buscar músicas:', fetchError);
-                    if (!cachedMusicData) { // Só mostra erro na UI se não houver nada
-                        musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                if (countError) {
+                    console.error('Erro ao obter contagem de músicas:', countError);
+                    if (!cachedMusicData.songs) {
+                        musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
                     }
                     return;
                 }
 
-                if (musicas.length > 0) {
-                    allSongs.push(...musicas);
-                    page++;
-                } else {
-                    hasMore = false;
+                if (cachedMusicData.count === count) {
+                    return; // Cache está atualizado
                 }
-            }
 
-            // 5. Salva o novo resultado no cache e atualiza a UI
-            try {
-                const musicDataToCache = {
-                    count: count,
-                    songs: allSongs
-                };
-                localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
-            } catch (e) {
-                console.error('Erro ao salvar músicas no cache:', e);
-            }
+                // Se desatualizado, busca todos os dados
+                let allSongs = [];
+                let page = 0;
+                let hasMore = true;
+                while(hasMore) {
+                    const from = page * MUSIC_PAGE_SIZE;
+                    const to = from + MUSIC_PAGE_SIZE - 1;
+                    const { data: musicas, error: fetchError } = await supabase.from('Musicas').select('*').range(from, to);
 
-            renderMusicList(allSongs); // Re-renderiza a lista com os novos dados
+                    if (fetchError) {
+                        console.error('Erro ao buscar músicas:', fetchError);
+                        if (!cachedMusicData.songs) {
+                            musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                        }
+                        return;
+                    }
+                    if (musicas.length > 0) {
+                        allSongs.push(...musicas);
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+
+                // Atualiza o cache e a UI
+                try {
+                    const musicDataToCache = { count: count, songs: allSongs };
+                    localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
+                } catch (e) {
+                    console.error('Erro ao salvar músicas no cache:', e);
+                }
+                renderMusicList(allSongs);
+            })();
         }
 
         function renderMusicList(songs) {
