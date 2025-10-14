@@ -521,18 +521,27 @@
         </div>
     </div>
 
-    <!-- NOVO: Modal do App Explorar -->
+    <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
     <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
-            <h2 class="text-2xl font-bold text-theme">Explorar Músicas</h2>
-            <button id="close-explore-modal" class="text-gray-500 hover:text-gray-700">
+        <header class="flex items-center p-4 bg-white shadow-md">
+            <!-- Botão de Voltar (inicialmente oculto) -->
+            <button id="explore-back-button" class="hidden mr-4 text-gray-600 hover:text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <!-- Título Dinâmico -->
+            <h2 id="explore-title" class="text-2xl font-bold text-theme truncate">Explorar</h2>
+            <!-- Botão de Fechar (movido para a direita) -->
+            <button id="close-explore-modal" class="ml-auto text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </header>
-        <div id="music-list-container" class="flex-grow p-4 overflow-y-auto">
-            <!-- As músicas carregadas do Supabase serão inseridas aqui -->
+        <!-- Container para as diferentes visualizações -->
+        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
     </div>
 
@@ -717,7 +726,9 @@
         // Referências do App Explorar
         const exploreModal = document.getElementById('explore-modal');
         const closeExploreModalButton = document.getElementById('close-explore-modal');
-        const musicListContainer = document.getElementById('music-list-container');
+        const exploreContentContainer = document.getElementById('explore-content-container');
+        const exploreTitle = document.getElementById('explore-title');
+        const exploreBackButton = document.getElementById('explore-back-button');
 
 
         // Referências do novo Modal de Conteúdo da Pasta
@@ -1616,10 +1627,11 @@
                         const isFixed = item.isFixed;
                         if (isFixed) {
                             if (item.id === 'explore-app') {
-                                musicListContainer.innerHTML = '';
+                                // Limpa o estado de navegação anterior
+                                navigationState = [];
                                 exploreModal.classList.remove('hidden');
                                 exploreModal.classList.add('flex');
-                                await fetchAndDisplayMusic(); // Carrega depois de abrir
+                                await fetchAndDisplayMusic(); // Isso irá renderizar a lista de artistas
                             }
                         } else {
                             showAppActionBar(item);
@@ -1721,58 +1733,51 @@
         });
 
 
-        // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR MÚSICAS ---
+        // --- LÓGICA REESTRUTURADA PARA O APP EXPLORAR ---
+
+        let musicData = {}; // Armazena a estrutura hierárquica das músicas
+        let navigationState = []; // Pilha para gerenciar o estado da navegação
+
+        // Função principal para buscar, processar e exibir as músicas
         async function fetchAndDisplayMusic() {
-            musicListContainer.innerHTML = `
+            exploreContentContainer.innerHTML = `
                 <div class="text-center text-gray-500 p-4">
                     <i class="fas fa-spinner fa-spin text-2xl"></i>
-                    <p class="mt-2">Carregando músicas...</p>
-                </div>
-            `;
+                </div>`;
 
-            // 1. Faz uma consulta rápida para obter apenas a contagem de músicas
-            const { count, error: countError } = await supabase
-                .from('Musicas')
-                .select('*', { count: 'exact', head: true });
-
-            if (countError) {
-                console.error('Erro ao obter contagem de músicas:', countError);
-                musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao verificar as músicas.</p>';
-                return;
-            }
-
-            // 2. Tenta carregar do cache
+            // 1. Tenta carregar do cache primeiro
             try {
                 const cachedMusicData = JSON.parse(localStorage.getItem('musicCache'));
+                const { count, error: countError } = await supabase
+                    .from('Musicas')
+                    .select('*', { count: 'exact', head: true });
+
+                if (countError) throw new Error('Falha ao verificar a contagem de músicas.');
+
                 if (cachedMusicData && cachedMusicData.count === count) {
-                    // Se a contagem for a mesma, usa o cache
-                    renderMusicList(cachedMusicData.songs);
-                    return; // Interrompe a execução
+                    musicData = cachedMusicData.data;
+                    renderArtists(); // Renderiza a lista de artistas do cache
+                    return;
                 }
             } catch (e) {
-                console.warn('Cache de músicas inválido ou não encontrado:', e);
+                console.warn('Cache de músicas inválido ou desatualizado:', e);
             }
 
-            // 3. Se o cache não for válido ou estiver desatualizado, busca do Supabase
+            // 2. Se o cache falhar, busca do Supabase
             let allSongs = [];
             let page = 0;
             let hasMore = true;
-
             while(hasMore) {
-                const from = page * MUSIC_PAGE_SIZE;
-                const to = from + MUSIC_PAGE_SIZE - 1;
-
                 const { data: musicas, error: fetchError } = await supabase
                     .from('Musicas')
                     .select('*')
-                    .range(from, to);
+                    .range(page * MUSIC_PAGE_SIZE, (page + 1) * MUSIC_PAGE_SIZE - 1);
 
                 if (fetchError) {
                     console.error('Erro ao buscar músicas:', fetchError);
-                    musicListContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
+                    exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar as músicas.</p>';
                     return;
                 }
-
                 if (musicas.length > 0) {
                     allSongs.push(...musicas);
                     page++;
@@ -1781,80 +1786,138 @@
                 }
             }
 
-            // 4. Salva o resultado no cache para a próxima vez
+            // 3. Processa e agrupa os dados
+            musicData = allSongs.reduce((acc, song) => {
+                const artistName = song['Nome - Artista'] || 'Artista Desconhecido';
+                const albumName = song['Nome - Album'] || 'Sem Álbum';
+
+                if (!acc[artistName]) {
+                    acc[artistName] = {};
+                }
+                if (!acc[artistName][albumName]) {
+                    acc[artistName][albumName] = [];
+                }
+                acc[artistName][albumName].push(song);
+
+                return acc;
+            }, {});
+
+            // 4. Salva a nova estrutura no cache
             try {
+                const { count } = await supabase.from('Musicas').select('*', { count: 'exact', head: true });
                 const musicDataToCache = {
                     count: count,
-                    songs: allSongs
+                    data: musicData
                 };
                 localStorage.setItem('musicCache', JSON.stringify(musicDataToCache));
             } catch (e) {
                 console.error('Erro ao salvar músicas no cache:', e);
             }
 
-            renderMusicList(allSongs);
+            renderArtists();
         }
 
-        function renderMusicList(songs) {
-            musicListContainer.innerHTML = ''; // Limpa a lista antes de renderizar
-
-            if (!songs || songs.length === 0) {
-                musicListContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada.</p>';
-                return;
-            }
-
-            songs.forEach(musica => {
-                const musicItem = document.createElement('div');
-                musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
-
-                musicItem.dataset.id = musica.id;
-                musicItem.dataset.src = musica.Musica;
-                musicItem.dataset.title = musica['Nome - Musica'];
-                musicItem.dataset.artist = musica['Nome - Artista'];
-                musicItem.dataset.albumArt = musica.Imagem;
-                musicItem.dataset.album = musica['Nome - Album'];
-
-                const musicInfo = document.createElement('div');
-                musicInfo.className = 'music-info flex-grow';
-
-                const artistP = document.createElement('p');
-                artistP.className = 'music-artist-display font-bold text-gray-800';
-                artistP.textContent = musica['Nome - Artista'] || 'Artista Desconhecido';
-
-                const albumP = document.createElement('p');
-                albumP.className = 'music-album-display italic text-gray-600';
-                albumP.textContent = musica['Nome - Album'] || '';
-
-                const titleP = document.createElement('p');
-                titleP.className = 'music-title-display text-sm text-gray-700';
-                titleP.textContent = musica['Nome - Musica'] || 'Título Desconhecido';
-
-                musicInfo.appendChild(artistP);
-                musicInfo.appendChild(titleP);
-                musicInfo.appendChild(albumP);
-
-                musicItem.appendChild(musicInfo);
-
-                // Botão de Adicionar (+)
-                const addButton = document.createElement('button');
-                addButton.className = 'add-to-folder-plus-btn ml-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors';
-                addButton.textContent = '+';
-                // Adiciona todos os data attributes da música ao botão para fácil acesso
-                Object.keys(musicItem.dataset).forEach(key => {
-                    addButton.dataset[key] = musicItem.dataset[key];
+        // Renderiza a lista de artistas (nível 1)
+        function renderArtists() {
+            exploreContentContainer.innerHTML = '';
+            const artists = Object.keys(musicData).sort();
+            artists.forEach(artist => {
+                const item = document.createElement('div');
+                item.className = 'music-item';
+                item.innerHTML = `<p class="music-artist-display">${artist}</p>`;
+                item.addEventListener('click', () => {
+                    navigationState.push({ view: 'albums', artist: artist });
+                    updateExploreView();
                 });
-                musicItem.appendChild(addButton);
-
-
-                musicListContainer.appendChild(musicItem);
+                exploreContentContainer.appendChild(item);
             });
+        }
+
+        // Renderiza a lista de álbuns e músicas "sem álbum" de um artista (nível 2)
+        function renderAlbumsAndSongs(artist) {
+            exploreContentContainer.innerHTML = '';
+            const albums = musicData[artist];
+            const albumNames = Object.keys(albums).sort();
+
+            albumNames.forEach(albumName => {
+                if (albumName === 'Sem Álbum') {
+                    // Renderiza as músicas sem álbum diretamente
+                    albums[albumName].forEach(song => renderSongItem(song));
+                } else {
+                    // Renderiza o item do álbum
+                    const albumItem = document.createElement('div');
+                    albumItem.className = 'music-item';
+                    albumItem.innerHTML = `<p class="music-album-display">${albumName}</p>`;
+                    albumItem.addEventListener('click', () => {
+                        navigationState.push({ view: 'songs', artist: artist, album: albumName });
+                        updateExploreView();
+                    });
+                    exploreContentContainer.appendChild(albumItem);
+                }
+            });
+        }
+
+        // Renderiza as músicas de um álbum específico (nível 3)
+        function renderAlbumSongs(artist, album) {
+            exploreContentContainer.innerHTML = '';
+            const songs = musicData[artist][album];
+            songs.forEach(song => renderSongItem(song));
+        }
+
+        // Função auxiliar para criar um item de música
+        function renderSongItem(song) {
+            const musicItem = document.createElement('div');
+            musicItem.className = 'music-item';
+            // Preenche os data attributes para o player
+            musicItem.dataset.src = song.Musica;
+            musicItem.dataset.title = song['Nome - Musica'];
+            musicItem.dataset.artist = song['Nome - Artista'];
+            musicItem.dataset.albumArt = song.Imagem;
+            musicItem.dataset.album = song['Nome - Album'];
+
+            const musicInfo = `
+                <div class="music-info flex-grow">
+                    <p class="music-title-display">${song['Nome - Musica'] || 'Título Desconhecido'}</p>
+                    <p class="music-album-display text-xs">${song['Nome - Album'] || ''}</p>
+                </div>`;
+
+            const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors">+</button>`;
+
+            musicItem.innerHTML = musicInfo + addButton;
+
+            // Adiciona os data attributes ao botão também
+            const buttonEl = musicItem.querySelector('.add-to-folder-plus-btn');
+            Object.keys(musicItem.dataset).forEach(key => {
+                buttonEl.dataset[key] = musicItem.dataset[key];
+            });
+
+            exploreContentContainer.appendChild(musicItem);
+        }
+
+        // Função central para controlar a visualização no modal Explorar
+        function updateExploreView() {
+            const currentState = navigationState[navigationState.length - 1];
+
+            if (!currentState) { // Estado inicial ou voltou para o início
+                exploreTitle.textContent = 'Explorar';
+                exploreBackButton.classList.add('hidden');
+                renderArtists();
+            } else if (currentState.view === 'albums') {
+                exploreTitle.textContent = currentState.artist;
+                exploreBackButton.classList.remove('hidden');
+                renderAlbumsAndSongs(currentState.artist);
+            } else if (currentState.view === 'songs') {
+                exploreTitle.textContent = currentState.album;
+                exploreBackButton.classList.remove('hidden');
+                renderAlbumSongs(currentState.artist, currentState.album);
+            }
         }
 
         let songDataForModal = null; // Armazena os dados da música para o modal
 
         // --- LÓGICA DO NOVO MODAL "ADICIONAR À PASTA" ---
 
-        musicListContainer.addEventListener('click', async (e) => {
+        exploreContentContainer.addEventListener('click', async (e) => {
             if (e.target.classList.contains('add-to-folder-plus-btn')) {
                 const button = e.target;
                 songDataForModal = { ...button.dataset }; // Armazena os dados da música
@@ -2342,15 +2405,19 @@
             hideAppActionBar();
 
             if (appId === 'explore-app') {
-                musicListContainer.innerHTML = '';
+                navigationState = [];
                 exploreModal.classList.remove('hidden');
                 exploreModal.classList.add('flex');
-                await fetchAndDisplayMusic(); // Carrega depois de abrir
+                await fetchAndDisplayMusic();
             } else if (appUrl) {
                 window.open(appUrl, '_blank');
             }
         });
 
+        exploreBackButton.addEventListener('click', () => {
+            navigationState.pop();
+            updateExploreView();
+        });
 
 
         // --- LÓGICA DO PLAYER EXPANSÍVEL ---
@@ -2457,7 +2524,8 @@
         }
 
         function setupQueueAndPlay(clickedItem, container) {
-            const allMusicItems = container.querySelectorAll('.music-item');
+            // Modificado para selecionar apenas itens de música que podem ser tocados (têm um data-src)
+            const allMusicItems = container.querySelectorAll('.music-item[data-src]');
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
 
             const clickedIndex = Array.from(allMusicItems).findIndex(item => item === clickedItem);
@@ -2468,24 +2536,23 @@
         }
 
         // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
-        musicListContainer.addEventListener('click', (e) => {
-            const musicItem = e.target.closest('.music-item');
-            if (!musicItem) return;
+        exploreContentContainer.addEventListener('click', (e) => {
+             const musicItem = e.target.closest('.music-item');
+            // Ignora o clique se não for num item de música ou se o clique foi no botão '+'
+            if (!musicItem || e.target.classList.contains('add-to-folder-plus-btn')) {
+                return;
+            }
 
-            if (isMusicSelectionModeActive) {
-                // Modo de Seleção: Apenas alterna a classe visual
-                musicItem.classList.toggle('selected-for-folder');
-            } else {
-                // Modo Padrão: Configura a fila e toca a música
-                if (!musicItem.dataset.src) {
-                    console.warn('Item de música clicado, mas sem fonte de áudio (dataset.src).');
-                    return;
-                }
-                setupQueueAndPlay(musicItem, musicListContainer);
+            // A nova lógica de navegação está nos `render` functions.
+            // Este listener agora só precisa se preocupar em tocar uma música
+            // quando um item clicável com source de música é encontrado.
+            if (musicItem.dataset.src) {
+                setupQueueAndPlay(musicItem, exploreContentContainer);
             }
         });
 
         closeExploreModalButton.addEventListener('click', () => {
+            navigationState = []; // Limpa o estado ao fechar
             exploreModal.classList.add('hidden');
             exploreModal.classList.remove('flex');
         });
