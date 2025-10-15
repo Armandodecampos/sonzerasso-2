@@ -200,14 +200,15 @@
         /* Estilos para o layout e barra de rolagem das listas de música */
         #explore-content-container,
         #folder-music-list-container {
-            scrollbar-width: 20px; /* Para Firefox */
+            scrollbar-width: thin; /* Para Firefox (não aceita px, 'thin' é a melhor opção) */
             scrollbar-color: #6b7280 #374151; /* Para Firefox (thumb track) */
         }
 
         /* Estilos da barra de rolagem para Chrome, Safari e Edge */
         #explore-content-container::-webkit-scrollbar,
         #folder-music-list-container::-webkit-scrollbar {
-            width: 20px;
+            width: 20px !important; /* Força a largura de 20px */
+            height: 20px !important; /* Garante a altura para scrollbars horizontais, se houver */
         }
 
         #explore-content-container::-webkit-scrollbar-track,
