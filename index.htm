@@ -1739,25 +1739,41 @@
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
 
-        // Etapa 1: Buscar apenas a lista de artistas
+        // Etapa 1: Buscar a lista COMPLETA de artistas com paginação
         async function fetchAndDisplayMusic() {
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
 
-            // Busca todos os artistas diretamente da tabela, com um limite alto para garantir que todos venham
-            const { data, error } = await supabase
-                .from('Musicas')
-                .select('"Nome - Artista"')
-                .limit(10000);
+            let allArtists = [];
+            let page = 0;
+            const pageSize = 1000; // O limite padrão do Supabase
 
-            if (error) {
-                console.error('Erro ao buscar artistas:', error);
-                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar artistas.</p>';
-                return;
+            while (true) {
+                const { data, error } = await supabase
+                    .from('Musicas')
+                    .select('"Nome - Artista"')
+                    .range(page * pageSize, (page + 1) * pageSize - 1);
+
+                if (error) {
+                    console.error('Erro ao buscar artistas:', error);
+                    exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar artistas.</p>';
+                    return;
+                }
+
+                if (data.length > 0) {
+                    const artistNames = data.map(item => item['Nome - Artista']);
+                    allArtists.push(...artistNames);
+                }
+
+                // Se a página retornou menos que o tamanho máximo, é a última página
+                if (data.length < pageSize) {
+                    break;
+                }
+
+                page++;
             }
 
-            // Processa a lista no lado do cliente para obter artistas únicos e ordenados
-            const artistNames = data.map(item => item['Nome - Artista']);
-            const uniqueArtists = [...new Set(artistNames)];
+            // Processa a lista completa para obter artistas únicos e ordenados
+            const uniqueArtists = [...new Set(allArtists)];
             artistListCache = uniqueArtists.sort();
             renderArtists(artistListCache);
         }
@@ -1777,7 +1793,7 @@
             });
         }
 
-        // Etapa 3: Buscar o conteúdo de um artista específico sob demanda
+        // Etapa 3: Buscar o conteúdo COMPLETO de um artista com paginação
         async function fetchAndDisplayArtistContent(artist) {
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
 
@@ -1787,25 +1803,42 @@
                 return;
             }
 
-            const { data: songs, error } = await supabase
-                .from('Musicas')
-                .select('*')
-                .filter('"Nome - Artista"', 'eq', artist);
+            let allSongs = [];
+            let page = 0;
+            const pageSize = 1000;
 
-            if (error) {
-                console.error(`Erro ao buscar músicas para ${artist}:`, error);
-                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar o conteúdo do artista.</p>';
-                return;
+            while (true) {
+                const { data, error } = await supabase
+                    .from('Musicas')
+                    .select('*')
+                    .filter('"Nome - Artista"', 'eq', artist)
+                    .range(page * pageSize, (page + 1) * pageSize - 1);
+
+                if (error) {
+                    console.error(`Erro ao buscar músicas para ${artist}:`, error);
+                    exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar o conteúdo do artista.</p>';
+                    return;
+                }
+
+                if (data.length > 0) {
+                    allSongs.push(...data);
+                }
+
+                if (data.length < pageSize) {
+                    break;
+                }
+
+                page++;
             }
 
-            if (!songs || songs.length === 0) {
+            if (allSongs.length === 0) {
                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhuma música encontrada para este artista.</p>';
                 return;
             }
 
-            // Armazena a lista de músicas no cache e renderiza
-            artistCache[artist] = songs;
-            renderArtistSongs(songs);
+            // Armazena a lista completa de músicas no cache e renderiza
+            artistCache[artist] = allSongs;
+            renderArtistSongs(allSongs);
         }
 
         // Renderiza a lista de todas as músicas de um artista
