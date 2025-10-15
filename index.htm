@@ -200,7 +200,6 @@
         /* Estilos para o layout e barra de rolagem das listas de música */
         #explore-content-container,
         #folder-music-list-container {
-            padding-bottom: 96px; /* Garante espaço para o music player. (equivale a pb-24) */
             scrollbar-width: thin; /* Para Firefox */
             scrollbar-color: #888 #f1f1f1; /* Para Firefox */
         }
@@ -554,7 +553,7 @@
     </div>
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
-    <div id="explore-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
+    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
         <header class="flex items-center p-4 bg-white shadow-md">
             <!-- Botão de Voltar (inicialmente oculto) -->
             <button id="explore-back-button" class="hidden mr-4 text-gray-600 hover:text-gray-900">
@@ -2695,7 +2694,7 @@
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
-    <div id="folder-content-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-40">
+    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-40">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
             <h2 id="folder-content-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h2>
             <button id="close-folder-content-modal" class="text-gray-500 hover:text-gray-700">
