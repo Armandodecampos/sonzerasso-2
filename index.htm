@@ -1743,8 +1743,10 @@
         async function fetchAndDisplayMusic() {
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
 
-            // Usando uma RPC para obter nomes de artistas distintos de forma eficiente
-            const { data, error } = await supabase.rpc('get_distinct_artists');
+            // Busca todos os artistas diretamente da tabela
+            const { data, error } = await supabase
+                .from('Musicas')
+                .select('"Nome - Artista"');
 
             if (error) {
                 console.error('Erro ao buscar artistas:', error);
@@ -1752,9 +1754,10 @@
                 return;
             }
 
-            // Armazena a lista de artistas no cache e renderiza
-            // Armazena a lista de artistas no cache e renderiza
-            artistListCache = data.map(item => item.artist_name).sort();
+            // Processa a lista no lado do cliente para obter artistas únicos e ordenados
+            const artistNames = data.map(item => item['Nome - Artista']);
+            const uniqueArtists = [...new Set(artistNames)];
+            artistListCache = uniqueArtists.sort();
             renderArtists(artistListCache);
         }
 
@@ -2622,6 +2625,7 @@
         window.renderApps = renderApps;
         window.fixedAppsMasterList = fixedAppsMasterList;
         window.renderArtistSongs = renderArtistSongs;
+        window.renderArtists = renderArtists;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
