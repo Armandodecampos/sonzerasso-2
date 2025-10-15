@@ -771,6 +771,7 @@
         const modalFolderSelect = document.getElementById('modal-folder-select');
         const cancelAddToFolderModalButton = document.getElementById('cancel-add-to-folder-modal-button');
         const confirmAddToFolderModalButton = document.getElementById('confirm-add-to-folder-modal-button');
+        const folderSearchInput = document.getElementById('folder-search-input'); // Novo campo de pesquisa
 
         // Referências do Player de Tela Cheia
         const fullscreenPlayer = document.getElementById('fullscreen-player');
@@ -1412,11 +1413,13 @@
         });
 
         function showDeleteConfirmationModal(id, type, name = '', extraData = {}) {
-            itemToDeleteInfo = { id, type, extraData }; // Armazena dados extras, como o folderId
+            itemToDeleteInfo = { id, type, extraData };
             const messageEl = document.getElementById('delete-confirm-message');
 
             if (type === 'song_from_folder') {
                 messageEl.innerHTML = `Tem certeza que deseja remover a música "<strong>${name}</strong>" desta pasta?`;
+            } else if (type === 'folder') {
+                messageEl.innerHTML = `Tem certeza que deseja excluir a pasta "<strong>${name}</strong>"? Todas as músicas contidas nela serão perdidas.`;
             } else if (type === 'custom_app_permanent') {
                 messageEl.innerHTML = `Tem certeza que deseja excluir permanentemente o aplicativo "<strong>${name}</strong>"? <br>Esta ação não pode ser desfeita.`;
             }
@@ -1449,17 +1452,30 @@
             if (!user) return;
 
             if (type === 'song_from_folder') {
-                const { error } = await supabase
-                    .from('musicas_salvas_usuario')
-                    .delete()
-                    .match({ id: id, user_id: user.id });
-
+                const { error } = await supabase.from('musicas_salvas_usuario').delete().match({ id: id, user_id: user.id });
                 if (error) {
                     console.error('Erro ao remover música da pasta:', error);
                     alert('Não foi possível remover a música.');
                 } else {
-                    // Recarrega o conteúdo da pasta para refletir a remoção
                     await fetchAndDisplayFolderContent(extraData.folderId);
+                }
+            } else if (type === 'folder') {
+                // Primeiro, deleta todas as músicas associadas à pasta
+                const { error: songError } = await supabase.from('musicas_salvas_usuario').delete().match({ pasta_id: id, user_id: user.id });
+                if (songError) {
+                    console.error('Erro ao remover músicas da pasta:', songError);
+                    alert('Não foi possível remover as músicas da pasta.');
+                    hideDeleteConfirmationModal();
+                    return;
+                }
+
+                // Depois, deleta a pasta
+                const { error: folderError } = await supabase.from('pastas').delete().match({ id: id, user_id: user.id });
+                if (folderError) {
+                    console.error('Erro ao excluir pasta:', folderError);
+                    alert('Não foi possível excluir a pasta.');
+                } else {
+                    await fetchAndRenderApps(user.id); // Atualiza a grade principal
                 }
             } else if (type === 'custom_app_permanent') {
                 // Lógica existente para deletar apps permanentemente...
@@ -1631,22 +1647,11 @@
                     if (isDragging) return;
 
                     if (item.isFolder) {
-                        // Ação para Pastas: Abrir o modal de conteúdo
-                        showFolderContentModal(item.id, item.title);
+                        // Ação para Pastas: Abrir o NOVO modal de ações
+                        showFolderActionModal(item.id, item.title);
                     } else {
-                        // Ação para Aplicativos
-                        const isFixed = item.isFixed;
-                        if (isFixed) {
-                            if (item.id === 'explore-app') {
-                                // Limpa o estado de navegação anterior
-                                navigationState = [];
-                                exploreModal.classList.remove('hidden');
-                                exploreModal.classList.add('flex');
-                                await fetchAndDisplayMusic(); // Isso irá renderizar a lista de artistas
-                            }
-                        } else {
-                            showAppActionBar(item);
-                        }
+                        // Ação para Aplicativos (lógica inalterada)
+                        showAppActionBar(item);
                     }
                 });
 
@@ -1757,6 +1762,14 @@
         let artistListCache = null; // Cache para a lista inicial de artistas
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
+
+        // --- NOVO: Referências do Modal de Ações da Pasta ---
+        const folderActionModal = document.getElementById('folder-action-modal');
+        const folderActionTitle = document.getElementById('folder-action-title');
+        const closeFolderActionModalBtn = document.getElementById('close-folder-action-modal');
+        const folderActionOpenBtn = document.getElementById('folder-action-open');
+        const folderActionEditBtn = document.getElementById('folder-action-edit');
+        const folderActionDeleteBtn = document.getElementById('folder-action-delete');
 
         // Etapa 1: Buscar a lista COMPLETA de artistas com paginação
         async function fetchAndDisplayMusic() {
@@ -2459,6 +2472,56 @@
 
 
         // --- FUNÇÕES DE CONTROLE DE REPRODUÇÃO E FILA ---
+        // --- NOVO: Lógica para o Modal de Ações da Pasta ---
+        // --- NOVO: Lógica de Pesquisa na Pasta ---
+        folderSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const musicItems = folderMusicListContainer.querySelectorAll('.music-item');
+
+            musicItems.forEach(item => {
+                const artist = item.querySelector('.music-artist-display').textContent.toLowerCase();
+                const title = item.querySelector('.music-title-display').textContent.toLowerCase();
+
+                if (artist.includes(searchTerm) || title.includes(searchTerm)) {
+                    item.style.display = 'flex'; // Mostra o item se corresponder
+                } else {
+                    item.style.display = 'none'; // Esconde o item se não corresponder
+                }
+            });
+        });
+
+        let currentFolderInfo = {};
+
+        function showFolderActionModal(id, title) {
+            currentFolderInfo = { id, title };
+            folderActionTitle.textContent = title;
+            folderActionModal.classList.remove('hidden');
+            folderActionModal.classList.add('flex');
+        }
+
+        function hideFolderActionModal() {
+            folderActionModal.classList.add('hidden');
+            folderActionModal.classList.remove('flex');
+            currentFolderInfo = {};
+        }
+
+        closeFolderActionModalBtn.addEventListener('click', hideFolderActionModal);
+
+        folderActionOpenBtn.addEventListener('click', () => {
+            showFolderContentModal(currentFolderInfo.id, currentFolderInfo.title);
+            hideFolderActionModal();
+        });
+
+        folderActionEditBtn.addEventListener('click', () => {
+            // Reutiliza o modal de adicionar/editar app
+            showAddAppModal({ id: currentFolderInfo.id, title: currentFolderInfo.title });
+            hideFolderActionModal();
+        });
+
+        folderActionDeleteBtn.addEventListener('click', () => {
+            showDeleteConfirmationModal(currentFolderInfo.id, 'folder', currentFolderInfo.title);
+            hideFolderActionModal();
+        });
 
         function playSongAtIndex(index) {
             if (index < 0 || index >= currentQueue.length) {
@@ -2702,20 +2765,47 @@
         window.renderArtistSongs = renderArtistSongs;
         window.renderArtists = renderArtists;
         window.showFolderContentModal = showFolderContentModal;
+        window.showFolderActionModal = showFolderActionModal;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
     <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-40">
-        <header class="flex items-center justify-between p-4 bg-gray-800 text-white shadow-md">
-            <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
-            <button id="close-folder-content-modal" class="text-gray-300 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
+                <button id="close-folder-content-modal" class="text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <input type="search" id="folder-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </header>
         <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto">
             <!-- As músicas da pasta serão inseridas aqui -->
+        </div>
+    </div>
+
+    <!-- NOVO: Modal de Ações da Pasta -->
+    <div id="folder-action-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
+                <button id="close-folder-action-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <button id="folder-action-open" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-blue-500 hover:bg-blue-600">
+                Abrir
+            </button>
+            <button id="folder-action-edit" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-yellow-500 hover:bg-yellow-600">
+                Editar
+            </button>
+            <button id="folder-action-delete" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-red-500 hover:bg-red-600">
+                Excluir
+            </button>
         </div>
     </div>
 
