@@ -1786,7 +1786,7 @@
             const { data: songs, error } = await supabase
                 .from('Musicas')
                 .select('*')
-                .eq('Nome - Artista', artist);
+                .filter('"Nome - Artista"', 'eq', artist);
 
             if (error) {
                 console.error(`Erro ao buscar músicas para ${artist}:`, error);
