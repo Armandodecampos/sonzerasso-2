@@ -498,25 +498,6 @@
                 <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
-            <!-- Novos campos para personalização -->
-            <div>
-                <label class="block text-sm font-medium text-left text-theme">Ícone</label>
-                <div id="icon-picker-container" class="mt-1 grid grid-cols-5 sm:grid-cols-8 gap-2 p-2 bg-white rounded-md border border-gray-300">
-                    <!-- Ícones serão injetados aqui via JS -->
-                </div>
-                <input type="hidden" id="app-icon-class-input">
-            </div>
-
-            <div class="flex space-x-4">
-                <div class="w-1/2">
-                    <label for="app-bg-color-input" class="block text-sm font-medium text-left text-theme">Cor de Fundo</label>
-                    <input type="color" id="app-bg-color-input" value="#333333" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="w-1/2">
-                    <label for="app-icon-color-input" class="block text-sm font-medium text-left text-theme">Cor do Ícone</label>
-                    <input type="color" id="app-icon-color-input" value="#FFFFFF" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm">
-                </div>
-            </div>
 
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="save-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
@@ -758,10 +739,10 @@
         const appTitleInput = document.getElementById('app-title-input');
         const saveAppButton = document.getElementById('save-app-button');
         const cancelAddAppButton = document.getElementById('cancel-add-app-button');
-        const iconPickerContainer = document.getElementById('icon-picker-container');
-        const appIconClassInput = document.getElementById('app-icon-class-input');
-        const appBgColorInput = document.getElementById('app-bg-color-input');
-        const appIconColorInput = document.getElementById('app-icon-color-input');
+        // const iconPickerContainer = document.getElementById('icon-picker-container'); // Removido
+        // const appIconClassInput = document.getElementById('app-icon-class-input'); // Removido
+        // const appBgColorInput = document.getElementById('app-bg-color-input'); // Removido
+        // const appIconColorInput = document.getElementById('app-icon-color-input'); // Removido
 
         // Referências da nova faixa de ações e seus botões
         const appActionBar = document.getElementById('app-action-bar');
@@ -1117,28 +1098,6 @@
         }
 
 
-        function renderIconPicker(selectedIconClass) {
-            iconPickerContainer.innerHTML = '';
-            availableIcons.forEach(iconClass => {
-                const iconEl = document.createElement('i');
-                iconEl.className = `${iconClass} icon-picker-item`;
-                if (iconClass === selectedIconClass) {
-                    iconEl.classList.add('selected');
-                }
-                iconEl.addEventListener('click', () => {
-                    // Remove selected from previous
-                    const currentSelected = iconPickerContainer.querySelector('.selected');
-                    if (currentSelected) {
-                        currentSelected.classList.remove('selected');
-                    }
-                    // Add selected to new
-                    iconEl.classList.add('selected');
-                    // Update hidden input
-                    appIconClassInput.value = iconClass;
-                });
-                iconPickerContainer.appendChild(iconEl);
-            });
-        }
 
         function showEditNoteModal(id, title, content, startDate, endDate, isFixed) {
             editingNoteId = id;
@@ -1452,12 +1411,12 @@
             }
         });
 
-        function showDeleteConfirmationModal(id, type, name = '') {
-            itemToDeleteInfo = { id, type };
+        function showDeleteConfirmationModal(id, type, name = '', extraData = {}) {
+            itemToDeleteInfo = { id, type, extraData }; // Armazena dados extras, como o folderId
             const messageEl = document.getElementById('delete-confirm-message');
 
-            if (type === 'note') {
-                messageEl.textContent = 'Tem a certeza que quer apagar esta nota?';
+            if (type === 'song_from_folder') {
+                messageEl.innerHTML = `Tem certeza que deseja remover a música "<strong>${name}</strong>" desta pasta?`;
             } else if (type === 'custom_app_permanent') {
                 messageEl.innerHTML = `Tem certeza que deseja excluir permanentemente o aplicativo "<strong>${name}</strong>"? <br>Esta ação não pode ser desfeita.`;
             }
@@ -1471,28 +1430,39 @@
             deleteConfirmModal.classList.remove('flex');
         }
 
+        // Listener para o clique no botão de remover música da pasta
+        folderMusicListContainer.addEventListener('click', (e) => {
+            const removeButton = e.target.closest('.remove-from-folder-btn');
+            if (removeButton) {
+                const songId = removeButton.dataset.songId;
+                const songTitle = removeButton.dataset.songTitle;
+                const folderId = removeButton.dataset.folderId;
+                showDeleteConfirmationModal(songId, 'song_from_folder', songTitle, { folderId });
+            }
+        });
+
         confirmDeleteButton.addEventListener('click', async () => {
             if (!itemToDeleteInfo) return;
 
-            const { id, type } = itemToDeleteInfo;
+            const { id, type, extraData } = itemToDeleteInfo;
             const user = (await supabase.auth.getUser()).data.user;
+            if (!user) return;
 
-            if (type === 'custom_app_permanent') {
-                if (user) {
-                    // 1. Delete from the database table
-                    await supabase.from('custom_apps').delete().match({ id: id, user_id: user.id });
+            if (type === 'song_from_folder') {
+                const { error } = await supabase
+                    .from('musicas_salvas_usuario')
+                    .delete()
+                    .match({ id: id, user_id: user.id });
 
-                    // 2. Remove from the 'removed_apps' list in preferences
-                    const { data } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
-                    const prefs = data?.preferences || {};
-                    if (prefs.removed_apps) {
-                        prefs.removed_apps = prefs.removed_apps.filter(appId => appId !== id);
-                        await saveUserPreferences(prefs);
-                    }
-
-                    // 3. Refresh the trash list
-                    await renderTrashList();
+                if (error) {
+                    console.error('Erro ao remover música da pasta:', error);
+                    alert('Não foi possível remover a música.');
+                } else {
+                    // Recarrega o conteúdo da pasta para refletir a remoção
+                    await fetchAndDisplayFolderContent(extraData.folderId);
                 }
+            } else if (type === 'custom_app_permanent') {
+                // Lógica existente para deletar apps permanentemente...
             }
             hideDeleteConfirmationModal();
         });
@@ -1645,25 +1615,27 @@
                 itemContainer.dataset.isFixed = item.isFixed;
                 itemContainer.dataset.isFolder = item.isFolder || false;
                 if (item.url) itemContainer.dataset.url = item.url;
-                if (item.icon_class) itemContainer.dataset.iconClass = item.icon_class;
-                if (item.bg_color) itemContainer.dataset.bgColor = item.bg_color;
-                if (item.icon_color) itemContainer.dataset.iconColor = item.icon_color;
 
-                const defaultIcon = item.isFolder ? 'fas fa-folder' : 'fas fa-link';
-                const iconClass = item.icon_class || defaultIcon;
-                const styleParts = [];
-                if (item.bg_color) styleParts.push(`background-color: ${item.bg_color}`);
-                const iconStyleParts = [];
-                if (item.icon_color) iconStyleParts.push(`color: ${item.icon_color}`);
-                const gridItemStyle = styleParts.join('; ');
-                const iconStyle = iconStyleParts.join('; ');
+                if (item.isFolder) {
+                    // Renderiza apenas o nome da pasta, sem ícone
+                    itemContainer.innerHTML = `<span class="grid-item-label text-theme noselect">${item.title}</span>`;
+                } else {
+                    // Renderização original para apps que não são pastas
+                    const iconClass = item.icon_class || 'fas fa-link';
+                    const styleParts = [];
+                    if (item.bg_color) styleParts.push(`background-color: ${item.bg_color}`);
+                    const iconStyleParts = [];
+                    if (item.icon_color) iconStyleParts.push(`color: ${item.icon_color}`);
+                    const gridItemStyle = styleParts.join('; ');
+                    const iconStyle = iconStyleParts.join('; ');
 
-                itemContainer.innerHTML = `
-                    <div class="grid-item" draggable="true" style="${gridItemStyle}">
-                        <i class="${iconClass} grid-item-icon" style="${iconStyle}"></i>
-                    </div>
-                    <span class="grid-item-label text-theme noselect">${item.title}</span>
-                `;
+                    itemContainer.innerHTML = `
+                        <div class="grid-item" draggable="true" style="${gridItemStyle}">
+                            <i class="${iconClass} grid-item-icon" style="${iconStyle}"></i>
+                        </div>
+                        <span class="grid-item-label text-theme noselect">${item.title}</span>
+                    `;
+                }
 
                 itemContainer.addEventListener('click', async () => {
                     if (isDragging) return;
@@ -1749,8 +1721,16 @@
                 musicInfo.appendChild(artistP);
                 musicInfo.appendChild(titleP);
                 musicInfo.appendChild(albumP);
-
                 musicItem.appendChild(musicInfo);
+
+                // Adiciona o botão de remover
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-from-folder-btn ml-4 px-3 py-1 text-lg text-red-500 hover:text-red-700 transition-colors';
+                removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                removeButton.dataset.songId = musica.id; // ID da entrada em 'musicas_salvas_usuario'
+                removeButton.dataset.folderId = folderId; // ID da pasta atual para poder recarregar
+                removeButton.dataset.songTitle = musica.musica_titulo; // Para a mensagem de confirmação
+                musicItem.appendChild(removeButton);
 
                 folderMusicListContainer.appendChild(musicItem);
             });
@@ -1913,9 +1893,9 @@
                     <p class="music-album-display text-xs">${song['Nome - Album'] || ''}</p>
                 </div>`;
 
-            const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors">+</button>`;
+            const addButton = `<button class="add-to-folder-plus-btn mr-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors">+</button>`;
 
-            musicItem.innerHTML = musicInfo + addButton;
+            musicItem.innerHTML = addButton + musicInfo;
 
             // Adiciona os data attributes ao botão também
             const buttonEl = musicItem.querySelector('.add-to-folder-plus-btn');
@@ -2164,30 +2144,13 @@
         function showAddAppModal(appData = null) {
             if (appData) { // Modo de Edição
                 addAppModal.dataset.editId = appData.id;
-                addAppModal.dataset.isFixed = appData.isFixed;
-                document.getElementById('add-app-title').textContent = 'Editar Aplicativo';
+                document.getElementById('add-app-title').textContent = 'Editar Pasta';
                 appTitleInput.value = appData.title;
 
-                // Como a URL não se aplica a pastas, a lógica de edição de URL é removida
-                // Se a edição de pastas precisar de campos diferentes, a lógica seria aqui
-
-                const selectedIcon = appData.icon_class || (appData.isFolder ? 'fas fa-folder' : 'fas fa-link');
-                appIconClassInput.value = selectedIcon;
-                appBgColorInput.value = appData.bg_color || '#333333';
-                appIconColorInput.value = appData.icon_color || '#FFFFFF';
-                renderIconPicker(selectedIcon);
-
-            } else { // Modo de Adição (agora, para criar pastas)
+            } else { // Modo de Adição
                 addAppModal.removeAttribute('data-edit-id');
-                addAppModal.removeAttribute('data-is-fixed');
                 document.getElementById('add-app-title').textContent = 'Criar Pasta';
                 appTitleInput.value = '';
-
-                const defaultIcon = 'fas fa-folder'; // O ícone padrão agora é de pasta
-                appIconClassInput.value = defaultIcon;
-                appBgColorInput.value = '#333333';
-                appIconColorInput.value = '#FFFFFF';
-                renderIconPicker(defaultIcon);
             }
             addAppModal.classList.remove('hidden');
             addAppModal.classList.add('flex');
@@ -2206,53 +2169,21 @@
             if (!user) return;
 
             const itemId = addAppModal.dataset.editId;
-            const isFixed = addAppModal.dataset.isFixed === 'true';
-
-            // Com a remoção do campo URL, o objeto agora representa uma pasta.
             const folderDetails = {
                 title: appTitleInput.value.trim(),
-                icon_class: appIconClassInput.value,
-                bg_color: appBgColorInput.value,
-                icon_color: appIconColorInput.value,
             };
 
-            if (isFixed) {
-                // A lógica para personalizar apps fixos permanece a mesma,
-                // apenas o nome da variável e o objeto foram ajustados.
-                const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
-                if (error && error.code !== 'PGRST116') {
-                    console.error("Erro ao buscar perfil:", error);
-                    return;
-                }
+            if (!folderDetails.title) {
+                console.error('O nome da pasta é obrigatório.');
+                return;
+            }
 
-                const prefs = data?.preferences || {};
-                if (!prefs.app_customizations) {
-                    prefs.app_customizations = {};
-                }
-                // Salva a personalização usando o ID do item fixo como chave
-                prefs.app_customizations[itemId] = {
-                    title: folderDetails.title,
-                    icon_class: folderDetails.icon_class,
-                    bg_color: folderDetails.bg_color,
-                    icon_color: folderDetails.icon_color,
-                };
-
-                await saveUserPreferences(prefs);
-
-            } else {
-                // Lógica para criar ou editar pastas personalizadas
-                if (!folderDetails.title) {
-                    console.error('O nome da pasta é obrigatório.');
-                    return;
-                }
-
-                if (itemId) { // Editar pasta existente
-                    const { error } = await supabase.from('pastas').update(folderDetails).match({ id: itemId, user_id: user.id });
-                    if (error) console.error('Erro ao atualizar pasta:', error);
-                } else { // Adicionar nova pasta
-                    const { error } = await supabase.from('pastas').insert({ ...folderDetails, user_id: user.id });
-                    if (error) console.error('Erro ao criar pasta:', error);
-                }
+            if (itemId) { // Editar pasta existente
+                const { error } = await supabase.from('pastas').update(folderDetails).match({ id: itemId, user_id: user.id });
+                if (error) console.error('Erro ao atualizar pasta:', error);
+            } else { // Adicionar nova pasta
+                const { error } = await supabase.from('pastas').insert({ ...folderDetails, user_id: user.id });
+                if (error) console.error('Erro ao criar pasta:', error);
             }
 
             await fetchAndRenderApps(user.id);
@@ -2780,6 +2711,7 @@
         window.fixedAppsMasterList = fixedAppsMasterList;
         window.renderArtistSongs = renderArtistSongs;
         window.renderArtists = renderArtists;
+        window.showFolderContentModal = showFolderContentModal;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
