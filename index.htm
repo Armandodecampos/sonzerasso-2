@@ -572,8 +572,15 @@
             </button>
         </header>
         <!-- Container para as diferentes visualizações -->
-        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto">
+        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
+        </div>
+        <!-- Rodapé fixo com o botão de música aleatória -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gray-800 shadow-lg">
+            <button id="play-random-song-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
+                <i class="fas fa-dice mr-3"></i>
+                Música Aleatória
+            </button>
         </div>
     </div>
 
@@ -831,6 +838,7 @@
         let currentQueue = [];
         let currentQueueIndex = -1;
         let repeatMode = 'none'; // 'none', 'repeat-all', 'repeat-one', 'shuffle'
+        let isRandomModeActive = false; // NOVA flag para o modo de reprodução aleatória contínua
 
         // --- LÓGICA DO MODO DE REPETIÇÃO ---
         const repeatModes = [
@@ -2491,10 +2499,12 @@
 
         // Lida com o que acontece quando uma música termina
         playerAudio.addEventListener('ended', () => {
-            if (repeatMode === 'repeat-one') {
+            if (isRandomModeActive) {
+                playRandomSong(); // Toca a próxima música aleatória
+            } else if (repeatMode === 'repeat-one') {
                 playSongAtIndex(currentQueueIndex); // Toca a mesma música novamente
             } else {
-                playNextSong(); // Se comporta como o botão "próxima" para os outros modos
+                playNextSong(); // Comportamento padrão para os outros modos
             }
         });
 
@@ -2535,6 +2545,7 @@
         }
 
         function setupQueueAndPlay(clickedItem, container) {
+            isRandomModeActive = false; // Desativa o modo aleatório ao tocar uma música de uma lista
             // Modificado para selecionar apenas itens de música que podem ser tocados (têm um data-src)
             const allMusicItems = container.querySelectorAll('.music-item[data-src]');
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
@@ -2685,6 +2696,66 @@
             // O Chrome exige que returnValue seja definido
             e.returnValue = '';
         });
+
+        let totalSongsCount = 0; // Cache para o número total de músicas
+
+        // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
+        async function playRandomSong() {
+            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
+
+            // Se a contagem total de músicas ainda não foi obtida, busca no banco
+            if (totalSongsCount === 0) {
+                const { count, error } = await supabase
+                    .from('Musicas')
+                    .select('*', { count: 'exact', head: true });
+
+                if (error) {
+                    console.error('Erro ao contar as músicas:', error);
+                    alert('Não foi possível obter o número total de músicas.');
+                    return;
+                }
+                totalSongsCount = count;
+            }
+
+            if (totalSongsCount === 0) {
+                alert('Nenhuma música encontrada no banco de dados.');
+                return;
+            }
+
+            // Gera um índice aleatório
+            const randomIndex = Math.floor(Math.random() * totalSongsCount);
+
+            // Busca apenas a música na posição aleatória
+            const { data: randomSong, error: fetchError } = await supabase
+                .from('Musicas')
+                .select('*')
+                .range(randomIndex, randomIndex)
+                .single();
+
+            if (fetchError || !randomSong) {
+                console.error('Erro ao buscar música aleatória:', fetchError);
+                alert('Não foi possível carregar uma música aleatória.');
+                return;
+            }
+
+            // Prepara os dados da música para o player
+            const songData = {
+                src: randomSong.Musica,
+                title: randomSong['Nome - Musica'],
+                artist: randomSong['Nome - Artista'],
+                albumArt: randomSong.Imagem,
+                album: randomSong['Nome - Album']
+            };
+
+            // Define a fila de reprodução com apenas a música aleatória e a toca
+            currentQueue = [songData];
+            playSongAtIndex(0);
+        }
+
+        // --- Event Listener para o novo botão ---
+        const playRandomSongButton = document.getElementById('play-random-song-button');
+        playRandomSongButton.addEventListener('click', playRandomSong);
+
 
         // Expõe a função para o Playwright
         window.toggleUI = toggleUI;
