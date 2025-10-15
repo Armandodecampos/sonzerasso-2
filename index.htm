@@ -195,6 +195,29 @@
             box-shadow: none !important;
             -webkit-tap-highlight-color: transparent !important;
         }
+
+        /* Estilos personalizados para a barra de rolagem */
+        #explore-content-container::-webkit-scrollbar,
+        #folder-music-list-container::-webkit-scrollbar {
+            width: 20px;
+        }
+
+        #explore-content-container::-webkit-scrollbar-track,
+        #folder-music-list-container::-webkit-scrollbar-track {
+            background-color: #f1f1f1; /* Um cinza claro para o fundo da trilha */
+        }
+
+        #explore-content-container::-webkit-scrollbar-thumb,
+        #folder-music-list-container::-webkit-scrollbar-thumb {
+            background-color: #888; /* Um cinza mais escuro para a barra */
+            border-radius: 10px;
+            border: 3px solid #f1f1f1; /* Adiciona um preenchimento ao redor da barra */
+        }
+
+        #explore-content-container::-webkit-scrollbar-thumb:hover,
+        #folder-music-list-container::-webkit-scrollbar-thumb:hover {
+            background-color: #555; /* Cor mais escura ao passar o mouse */
+        }
     </style>
 </head>
 <body>
@@ -540,7 +563,7 @@
             </button>
         </header>
         <!-- Container para as diferentes visualizações -->
-        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto">
+        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-24">
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
     </div>
@@ -2672,7 +2695,7 @@
                 </svg>
             </button>
         </header>
-        <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto">
+        <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto pb-24">
             <!-- As músicas da pasta serão inseridas aqui -->
         </div>
     </div>
