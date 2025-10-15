@@ -544,21 +544,26 @@
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
     <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
-        <header class="flex items-center p-4 bg-gray-800 text-white shadow-md">
-            <!-- Botão de Voltar (inicialmente oculto) -->
-            <button id="explore-back-button" class="hidden mr-4 text-gray-300 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <!-- Título Dinâmico -->
-            <h2 id="explore-title" class="text-2xl font-bold truncate">Explorar</h2>
-            <!-- Botão de Fechar (movido para a direita) -->
-            <button id="close-explore-modal" class="ml-auto text-gray-300 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <!-- Botão de Voltar (inicialmente oculto) -->
+                    <button id="explore-back-button" class="hidden mr-4 text-gray-300 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <!-- Título Dinâmico -->
+                    <h2 id="explore-title" class="text-2xl font-bold truncate">Explorar</h2>
+                </div>
+                <!-- Botão de Fechar (movido para a direita) -->
+                <button id="close-explore-modal" class="text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </header>
         <!-- Container para as diferentes visualizações -->
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
@@ -758,6 +763,7 @@
         const exploreTitle = document.getElementById('explore-title');
         const exploreBackButton = document.getElementById('explore-back-button');
         const exploreNavButton = document.getElementById('explore-nav-button'); // Novo botão na barra de navegação
+        const exploreSearchInput = document.getElementById('explore-search-input');
 
 
         // Referências do novo Modal de Conteúdo da Pasta
@@ -1762,6 +1768,33 @@
         let artistListCache = null; // Cache para a lista inicial de artistas
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
+
+        // --- LÓGICA DE PESQUISA DO EXPLORAR ---
+        exploreSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
+            const musicItems = exploreContentContainer.querySelectorAll('.music-item');
+
+            musicItems.forEach(item => {
+                const artistElement = item.querySelector('.music-artist-display');
+                const titleElement = item.querySelector('.music-title-display');
+
+                // Combina o texto do artista e do título para a pesquisa
+                let itemText = '';
+                if (artistElement) itemText += artistElement.textContent.toLowerCase();
+                if (titleElement) itemText += ' ' + titleElement.textContent.toLowerCase();
+
+                // Verifica se todos os termos da pesquisa estão no texto do item
+                const isMatch = searchTerms.every(term => itemText.includes(term));
+
+                if (isMatch) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
 
         // --- NOVO: Referências do Modal de Ações da Pasta ---
         const folderActionModal = document.getElementById('folder-action-modal');
