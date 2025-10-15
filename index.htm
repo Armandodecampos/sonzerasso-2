@@ -1743,10 +1743,11 @@
         async function fetchAndDisplayMusic() {
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
 
-            // Busca todos os artistas diretamente da tabela
+            // Busca todos os artistas diretamente da tabela, com um limite alto para garantir que todos venham
             const { data, error } = await supabase
                 .from('Musicas')
-                .select('"Nome - Artista"');
+                .select('"Nome - Artista"')
+                .limit(10000);
 
             if (error) {
                 console.error('Erro ao buscar artistas:', error);
