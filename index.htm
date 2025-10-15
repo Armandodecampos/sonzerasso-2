@@ -1616,26 +1616,16 @@
                 itemContainer.dataset.isFolder = item.isFolder || false;
                 if (item.url) itemContainer.dataset.url = item.url;
 
-                if (item.isFolder) {
-                    // Renderiza apenas o nome da pasta, sem ícone
-                    itemContainer.innerHTML = `<span class="grid-item-label text-theme noselect">${item.title}</span>`;
-                } else {
-                    // Renderização original para apps que não são pastas
-                    const iconClass = item.icon_class || 'fas fa-link';
-                    const styleParts = [];
-                    if (item.bg_color) styleParts.push(`background-color: ${item.bg_color}`);
-                    const iconStyleParts = [];
-                    if (item.icon_color) iconStyleParts.push(`color: ${item.icon_color}`);
-                    const gridItemStyle = styleParts.join('; ');
-                    const iconStyle = iconStyleParts.join('; ');
+                const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
+                const bgColor = item.isFolder ? '#333333' : (item.bg_color || '#333333');
+                const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
 
-                    itemContainer.innerHTML = `
-                        <div class="grid-item" draggable="true" style="${gridItemStyle}">
-                            <i class="${iconClass} grid-item-icon" style="${iconStyle}"></i>
-                        </div>
-                        <span class="grid-item-label text-theme noselect">${item.title}</span>
-                    `;
-                }
+                itemContainer.innerHTML = `
+                    <div class="grid-item" draggable="true" style="background-color: ${bgColor};">
+                        <i class="${iconClass} grid-item-icon" style="color: ${iconColor};"></i>
+                    </div>
+                    <span class="grid-item-label text-theme noselect">${item.title}</span>
+                `;
 
                 itemContainer.addEventListener('click', async () => {
                     if (isDragging) return;
@@ -1893,9 +1883,9 @@
                     <p class="music-album-display text-xs">${song['Nome - Album'] || ''}</p>
                 </div>`;
 
-            const addButton = `<button class="add-to-folder-plus-btn mr-4 px-3 py-1 text-lg font-bold text-indigo-600 hover:text-indigo-800 transition-colors">+</button>`;
+            const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"><i class="fas fa-plus"></i></button>`;
 
-            musicItem.innerHTML = addButton + musicInfo;
+            musicItem.innerHTML = musicInfo + addButton;
 
             // Adiciona os data attributes ao botão também
             const buttonEl = musicItem.querySelector('.add-to-folder-plus-btn');
