@@ -933,6 +933,61 @@
 
         // --- FUNÇÕES DE INICIALIZAÇÃO E UI ---
 
+        let totalSongsCount = 0; // Cache para o número total de músicas
+
+        // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
+        async function playRandomSong() {
+            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
+
+            // Se a contagem total de músicas ainda não foi obtida, busca no banco
+            if (totalSongsCount === 0) {
+                const { count, error } = await supabase
+                    .from('Musicas')
+                    .select('*', { count: 'exact', head: true });
+
+                if (error) {
+                    console.error('Erro ao contar as músicas:', error);
+                    alert('Não foi possível obter o número total de músicas.');
+                    return;
+                }
+                totalSongsCount = count;
+            }
+
+            if (totalSongsCount === 0) {
+                alert('Nenhuma música encontrada no banco de dados.');
+                return;
+            }
+
+            // Gera um índice aleatório
+            const randomIndex = Math.floor(Math.random() * totalSongsCount);
+
+            // Busca apenas a música na posição aleatória
+            const { data: randomSong, error: fetchError } = await supabase
+                .from('Musicas')
+                .select('*')
+                .range(randomIndex, randomIndex)
+                .single();
+
+            if (fetchError || !randomSong) {
+                console.error('Erro ao buscar música aleatória:', fetchError);
+                alert('Não foi possível carregar uma música aleatória.');
+                return;
+            }
+
+            // Prepara os dados da música para o player
+            const songData = {
+                src: randomSong.Musica,
+                title: randomSong['Nome - Musica'],
+                artist: randomSong['Nome - Artista'],
+                albumArt: randomSong.Imagem,
+                album: randomSong['Nome - Album']
+            };
+
+            // Define a fila de reprodução com apenas a música aleatória e a toca
+            currentQueue = [songData];
+            playSongAtIndex(0);
+        }
+
         // Função para carregar os dados do perfil logado
         async function loadUserProfile(user) {
             const { data: profileData, error } = await supabase
@@ -2760,6 +2815,9 @@
 
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
+
+                    // Toca uma música aleatória ao iniciar
+                    playRandomSong();
                 }
             } else { // Sem sessão ou o usuário saiu
                 isAppInitialized = false; // Reinicia a flag
@@ -2786,60 +2844,6 @@
             e.returnValue = '';
         });
 
-        let totalSongsCount = 0; // Cache para o número total de músicas
-
-        // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
-        async function playRandomSong() {
-            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
-
-            // Se a contagem total de músicas ainda não foi obtida, busca no banco
-            if (totalSongsCount === 0) {
-                const { count, error } = await supabase
-                    .from('Musicas')
-                    .select('*', { count: 'exact', head: true });
-
-                if (error) {
-                    console.error('Erro ao contar as músicas:', error);
-                    alert('Não foi possível obter o número total de músicas.');
-                    return;
-                }
-                totalSongsCount = count;
-            }
-
-            if (totalSongsCount === 0) {
-                alert('Nenhuma música encontrada no banco de dados.');
-                return;
-            }
-
-            // Gera um índice aleatório
-            const randomIndex = Math.floor(Math.random() * totalSongsCount);
-
-            // Busca apenas a música na posição aleatória
-            const { data: randomSong, error: fetchError } = await supabase
-                .from('Musicas')
-                .select('*')
-                .range(randomIndex, randomIndex)
-                .single();
-
-            if (fetchError || !randomSong) {
-                console.error('Erro ao buscar música aleatória:', fetchError);
-                alert('Não foi possível carregar uma música aleatória.');
-                return;
-            }
-
-            // Prepara os dados da música para o player
-            const songData = {
-                src: randomSong.Musica,
-                title: randomSong['Nome - Musica'],
-                artist: randomSong['Nome - Artista'],
-                albumArt: randomSong.Imagem,
-                album: randomSong['Nome - Album']
-            };
-
-            // Define a fila de reprodução com apenas a música aleatória e a toca
-            currentQueue = [songData];
-            playSongAtIndex(0);
-        }
 
         // --- Event Listener para o novo botão ---
         const playRandomSongButton = document.getElementById('play-random-song-button');
@@ -2855,6 +2859,7 @@
         window.showFolderContentModal = showFolderContentModal;
         window.showFolderActionModal = showFolderActionModal;
         window.fetchAndRenderApps = fetchAndRenderApps;
+        window.playRandomSong = playRandomSong;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
