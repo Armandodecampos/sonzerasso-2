@@ -2659,9 +2659,13 @@
         // O listener de clique do player foi consolidado acima para evitar redundância.
 
         closeExploreModalButton.addEventListener('click', () => {
-            navigationState = []; // Limpa o estado ao fechar
             exploreModal.classList.add('hidden');
             exploreModal.classList.remove('flex');
+
+            // Redefine o estado do modal para a próxima abertura
+            exploreSearchInput.value = '';
+            navigationState = [];
+            updateExploreView(); // Garante que o título e o conteúdo voltem ao padrão
         });
 
         editAppButton.addEventListener('click', () => {
@@ -2850,6 +2854,7 @@
         window.renderArtists = renderArtists;
         window.showFolderContentModal = showFolderContentModal;
         window.showFolderActionModal = showFolderActionModal;
+        window.fetchAndRenderApps = fetchAndRenderApps;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
