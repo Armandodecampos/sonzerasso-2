@@ -1769,30 +1769,65 @@
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
 
-        // --- LÓGICA DE PESQUISA DO EXPLORAR ---
+        // --- LÓGICA DE PESQUISA DO EXPLORAR (Refatorada com Debounce) ---
+
+        // Função Debounce para otimizar a chamada de funções que ocorrem repetidamente
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        // A função que executa a busca unificada
+        async function performUnifiedSearch(searchTerm) {
+            // 1. Atualiza a UI para o estado de busca
+            exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
+            exploreTitle.textContent = `Resultados para: "${searchTerm}"`;
+            exploreBackButton.classList.add('hidden'); // Esconde o botão voltar durante a busca
+            navigationState = [{ view: 'search' }]; // Define um estado de busca para evitar navegação conflitante
+
+            // 2. Formata o termo de busca para a consulta ILIKE
+            const searchPattern = `%${searchTerm.replace(/ /g, '%')}%`;
+
+            // 3. Executa a busca no Supabase nas três colunas
+            const { data, error } = await supabase
+                .from('Musicas')
+                .select('*')
+                .or(`"Nome - Musica".ilike.${searchPattern},"Nome - Artista".ilike.${searchPattern},"Nome - Album".ilike.${searchPattern}`)
+                .limit(100); // Limita os resultados para performance
+
+            if (error) {
+                console.error('Erro na busca unificada:', error);
+                exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao realizar a busca.</p>';
+                return;
+            }
+
+            // 4. Renderiza os resultados
+            if (data && data.length > 0) {
+                exploreContentContainer.innerHTML = ''; // Limpa o spinner
+                data.forEach(song => renderSongItem(song));
+            } else {
+                exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum resultado encontrado.</p>';
+            }
+        }
+
+        // Handler da busca com debounce
+        const debouncedSearch = debounce(async (searchTerm) => {
+            if (searchTerm.length > 2) {
+                await performUnifiedSearch(searchTerm);
+            } else if (searchTerm.length === 0) {
+                // Se a busca for limpa, volta para a visão inicial de artistas
+                navigationState = [];
+                updateExploreView();
+            }
+        }, 300); // Aguarda 300ms após o usuário parar de digitar
+
         exploreSearchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
-            const musicItems = exploreContentContainer.querySelectorAll('.music-item');
-
-            musicItems.forEach(item => {
-                const artistElement = item.querySelector('.music-artist-display');
-                const titleElement = item.querySelector('.music-title-display');
-
-                // Combina o texto do artista e do título para a pesquisa
-                let itemText = '';
-                if (artistElement) itemText += artistElement.textContent.toLowerCase();
-                if (titleElement) itemText += ' ' + titleElement.textContent.toLowerCase();
-
-                // Verifica se todos os termos da pesquisa estão no texto do item
-                const isMatch = searchTerms.every(term => itemText.includes(term));
-
-                if (isMatch) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+            const searchTerm = e.target.value.trim();
+            debouncedSearch(searchTerm);
         });
 
 
@@ -1909,7 +1944,16 @@
         // Renderiza a lista de todas as músicas de um artista
         function renderArtistSongs(songs) {
             exploreContentContainer.innerHTML = '';
-            songs.forEach(song => renderSongItem(song));
+            songs.forEach(song => {
+                // Adiciona o nome do artista ao objeto da música antes de renderizar
+                if (!song['Nome - Artista']) {
+                    const currentState = navigationState[navigationState.length - 1];
+                    if (currentState && currentState.view === 'songsByArtist') {
+                        song['Nome - Artista'] = currentState.artist;
+                    }
+                }
+                renderSongItem(song);
+            });
         }
 
         // Função auxiliar para criar um item de música
@@ -1925,6 +1969,7 @@
 
             const musicInfo = `
                 <div class="music-info flex-grow">
+                    <p class="music-artist-display">${song['Nome - Artista'] || 'Artista Desconhecido'}</p>
                     <p class="music-title-display">${song['Nome - Musica'] || 'Título Desconhecido'}</p>
                     <p class="music-album-display text-xs">${song['Nome - Album'] || ''}</p>
                 </div>`;
