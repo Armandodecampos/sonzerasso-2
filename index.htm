@@ -544,26 +544,31 @@
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
     <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
-        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <!-- Botão de Voltar (inicialmente oculto) -->
-                    <button id="explore-back-button" class="hidden mr-4 text-gray-300 hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <!-- Título Dinâmico -->
-                    <h2 id="explore-title" class="text-2xl font-bold truncate">Explorar</h2>
-                </div>
-                <!-- Botão de Fechar (movido para a direita) -->
+        <header class="flex items-center justify-between p-4 bg-gray-800 text-white shadow-md">
+            <div class="flex items-center">
+                <!-- Botão de Voltar (inicialmente oculto) -->
+                <button id="explore-back-button" class="hidden mr-4 text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <!-- Título Dinâmico -->
+                <h2 id="explore-title" class="text-2xl font-bold truncate">Explorar</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- Ícone de Pesquisa -->
+                <button id="explore-search-button" class="text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                <!-- Botão de Fechar -->
                 <button id="close-explore-modal" class="text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </header>
         <!-- Container para as diferentes visualizações -->
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
@@ -575,6 +580,24 @@
                 <i class="fas fa-dice mr-3"></i>
                 Música Aleatória
             </button>
+        </div>
+    </div>
+
+    <!-- NOVO: Modal de Pesquisa -->
+    <div id="search-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-50">
+        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold truncate">Pesquisar Músicas</h2>
+                <button id="close-search-modal" class="text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <input type="search" id="search-input-field" placeholder="Artista, música ou álbum..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </header>
+        <div id="search-results-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- Resultados da pesquisa serão inseridos aqui -->
         </div>
     </div>
 
@@ -763,7 +786,13 @@
         const exploreTitle = document.getElementById('explore-title');
         const exploreBackButton = document.getElementById('explore-back-button');
         const exploreNavButton = document.getElementById('explore-nav-button'); // Novo botão na barra de navegação
-        const exploreSearchInput = document.getElementById('explore-search-input');
+        const exploreSearchButton = document.getElementById('explore-search-button');
+
+        // Referências do Modal de Pesquisa
+        const searchModal = document.getElementById('search-modal');
+        const closeSearchModalButton = document.getElementById('close-search-modal');
+        const searchInputField = document.getElementById('search-input-field');
+        const searchResultsContainer = document.getElementById('search-results-container');
 
 
         // Referências do novo Modal de Conteúdo da Pasta
@@ -1769,33 +1798,6 @@
         let artistCache = {}; // Cache para os dados dos artistas já carregados
         let navigationState = []; // Pilha para gerenciar o estado da navegação
 
-        // --- LÓGICA DE PESQUISA DO EXPLORAR ---
-        exploreSearchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
-            const musicItems = exploreContentContainer.querySelectorAll('.music-item');
-
-            musicItems.forEach(item => {
-                const artistElement = item.querySelector('.music-artist-display');
-                const titleElement = item.querySelector('.music-title-display');
-
-                // Combina o texto do artista e do título para a pesquisa
-                let itemText = '';
-                if (artistElement) itemText += artistElement.textContent.toLowerCase();
-                if (titleElement) itemText += ' ' + titleElement.textContent.toLowerCase();
-
-                // Verifica se todos os termos da pesquisa estão no texto do item
-                const isMatch = searchTerms.every(term => itemText.includes(term));
-
-                if (isMatch) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-
-
         // --- NOVO: Referências do Modal de Ações da Pasta ---
         const folderActionModal = document.getElementById('folder-action-modal');
         const folderActionTitle = document.getElementById('folder-action-title');
@@ -2420,6 +2422,104 @@
         exploreBackButton.addEventListener('click', () => {
             navigationState.pop();
             updateExploreView();
+        });
+
+        // --- LÓGICA DO MODAL DE PESQUISA ---
+        exploreSearchButton.addEventListener('click', () => {
+            searchModal.classList.remove('hidden');
+            searchModal.classList.add('flex');
+            searchInputField.focus();
+        });
+
+        closeSearchModalButton.addEventListener('click', () => {
+            searchModal.classList.add('hidden');
+            searchModal.classList.remove('flex');
+            searchInputField.value = '';
+            searchResultsContainer.innerHTML = '';
+        });
+
+        async function performSearch(query) {
+            if (query.length < 2) {
+                searchResultsContainer.innerHTML = '';
+                return;
+            }
+
+            searchResultsContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
+
+            const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 0);
+
+            // Lógica de pesquisa melhorada
+            let queryBuilder = supabase.from('Musicas').select('*');
+
+            searchTerms.forEach(term => {
+                queryBuilder = queryBuilder.or(`"Nome - Artista".ilike.%${term}%, "Nome - Musica".ilike.%${term}%, "Nome - Album".ilike.%${term}%`);
+            });
+
+            const { data, error } = await queryBuilder.limit(100);
+
+            if (error) {
+                console.error('Erro na pesquisa:', error);
+                searchResultsContainer.innerHTML = '<p class="text-center text-red-500">Erro ao realizar a pesquisa.</p>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                searchResultsContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum resultado encontrado.</p>';
+                return;
+            }
+
+            searchResultsContainer.innerHTML = '';
+            data.forEach(song => {
+                const musicItem = document.createElement('div');
+                musicItem.className = 'music-item';
+                musicItem.dataset.src = song.Musica;
+                musicItem.dataset.title = song['Nome - Musica'];
+                musicItem.dataset.artist = song['Nome - Artista'];
+                musicItem.dataset.albumArt = song.Imagem;
+                musicItem.dataset.album = song['Nome - Album'];
+
+                const musicInfo = `
+                    <div class="music-info flex-grow">
+                        <p class="font-bold text-gray-800">${song['Nome - Artista'] || 'Artista Desconhecido'}</p>
+                        <p class="text-sm text-gray-700">${song['Nome - Musica'] || 'Título Desconhecido'}</p>
+                        <p class="text-xs italic text-gray-600">${song['Nome - Album'] || ''}</p>
+                    </div>`;
+
+                const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"><i class="fas fa-plus"></i></button>`;
+
+                musicItem.innerHTML = musicInfo + addButton;
+
+                const buttonEl = musicItem.querySelector('.add-to-folder-plus-btn');
+                Object.keys(musicItem.dataset).forEach(key => {
+                    buttonEl.dataset[key] = musicItem.dataset[key];
+                });
+
+                searchResultsContainer.appendChild(musicItem);
+            });
+        }
+
+        searchInputField.addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+
+        // Event listener para os resultados da pesquisa
+        searchResultsContainer.addEventListener('click', (e) => {
+            const musicItem = e.target.closest('.music-item');
+            if (!musicItem) return;
+
+            if (e.target.closest('.add-to-folder-plus-btn')) {
+                // Lógica para adicionar à pasta (reutiliza a existente)
+                const button = e.target.closest('.add-to-folder-plus-btn');
+                songDataForModal = { ...button.dataset };
+
+                // Abre o modal de adicionar à pasta
+                addToFolderModal.classList.remove('hidden');
+                addToFolderModal.classList.add('flex');
+                // A lógica de preenchimento do seletor de pastas já existe no listener do 'add-to-folder-plus-btn'
+            } else if (musicItem.dataset.src) {
+                // Lógica para tocar a música
+                setupQueueAndPlay(musicItem, searchResultsContainer);
+            }
         });
 
 
