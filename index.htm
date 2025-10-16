@@ -797,10 +797,14 @@
 
         // --- LÓGICA DOS BOTÕES DE NAVEGAÇÃO ---
 
-        function playNextSong() {
-            // NOVO: Se estiver no modo aleatório, o "próximo" busca outra música aleatória
+        async function playNextSong() {
             if (isRandomModeActive) {
-                playRandomSong();
+                const nextIndex = currentQueueIndex + 1;
+                if (nextIndex < currentQueue.length) {
+                    playSongAtIndex(nextIndex);
+                } else {
+                    await fetchAndPlayRandomSong(true); // true para adicionar à fila
+                }
                 return;
             }
 
@@ -825,16 +829,6 @@
         nextBtn.addEventListener('click', playNextSong);
 
         prevBtn.addEventListener('click', () => {
-            // NOVO: Se estiver no modo aleatório, volta para a música anterior no histórico
-            if (isRandomModeActive) {
-                if (playbackHistory.length > 0) {
-                    const previousSong = playbackHistory.pop();
-                    currentQueue = [previousSong]; // Define a fila apenas com a música do histórico
-                    playSongAtIndex(0);
-                }
-                return;
-            }
-
             if (currentQueue.length > 0 && currentQueueIndex > 0) {
                 playSongAtIndex(currentQueueIndex - 1);
             }
@@ -852,12 +846,10 @@
         let currentQueueIndex = -1;
         let repeatMode = 'none'; // 'none', 'repeat-all', 'repeat-one', 'shuffle'
         let isRandomModeActive = false; // NOVA flag para o modo de reprodução aleatória contínua
-        let playbackHistory = []; // NOVO: Histórico para o modo aleatório
-        const MAX_HISTORY_SIZE = 20; // NOVO: Limite para o histórico
 
         // --- LÓGICA DO MODO DE REPETIÇÃO ---
         const repeatModes = [
-            { mode: 'none', icon: 'fa-random' },
+            { mode: 'none', icon: 'fa-arrow-right' }, // Ícone para tocar a fila uma vez
             { mode: 'repeat-all', icon: 'fa-redo-alt' },
             { mode: 'repeat-one', icon: 'fa-retweet' },
             { mode: 'shuffle', icon: 'fa-random' }
@@ -872,9 +864,9 @@
             const icon = repeatModeBtn.querySelector('i');
             icon.className = `fas ${nextMode.icon}`;
 
-            // Lógica para o modo 'repeat-one' vs 'repeat-all' com o mesmo ícone
+            // Adiciona um destaque visual apenas para o modo 'repeat-one'
             if (repeatMode === 'repeat-one') {
-                icon.classList.add('text-indigo-400'); // Destaca o ícone para 'repeat-one'
+                icon.classList.add('text-indigo-400');
             } else {
                 icon.classList.remove('text-indigo-400');
             }
@@ -1799,7 +1791,7 @@
             };
         }
 
-        // A função que executa a busca unificada (com lógica avançada)
+        // A função que executa a busca unificada (com lógica avançada usando RPC)
         async function performUnifiedSearch(searchTerm) {
             // 1. Atualiza a UI para o estado de busca
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
@@ -1807,28 +1799,20 @@
             exploreBackButton.classList.add('hidden');
             navigationState = [{ view: 'search' }];
 
-            // 2. Divide o termo de busca em palavras e prepara a consulta
-            const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
-            let query = supabase.from('Musicas').select('*');
-
-            // 3. Adiciona uma cláusula 'and' para cada palavra pesquisada
-            searchWords.forEach(word => {
-                const pattern = `%${word}%`;
-                query = query.or(`"Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern}`);
+            // 2. Chama a função RPC 'search_songs'
+            const { data, error } = await supabase.rpc('search_songs', {
+                search_term: searchTerm
             });
 
-            // 4. Executa a busca final
-            const { data, error } = await query.limit(100);
-
             if (error) {
-                console.error('Erro na busca avançada:', error);
+                console.error('Erro na busca com RPC:', error);
                 exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao realizar a busca.</p>';
                 return;
             }
 
-            // 4. Renderiza os resultados
+            // 3. Renderiza os resultados
+            exploreContentContainer.innerHTML = ''; // Limpa o container antes de renderizar
             if (data && data.length > 0) {
-                exploreContentContainer.innerHTML = '';
                 data.forEach(song => renderSongItem(song));
             } else {
                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum resultado encontrado.</p>';
@@ -2566,12 +2550,11 @@
 
         // Lida com o que acontece quando uma música termina
         playerAudio.addEventListener('ended', () => {
-            if (isRandomModeActive) {
-                playRandomSong(); // Toca a próxima música aleatória
-            } else if (repeatMode === 'repeat-one') {
+            // A função playNextSong já contém a lógica para o modo aleatório.
+            if (repeatMode === 'repeat-one') {
                 playSongAtIndex(currentQueueIndex); // Toca a mesma música novamente
             } else {
-                playNextSong(); // Comportamento padrão para os outros modos
+                playNextSong(); // Comportamento para todos os outros modos, incluindo o aleatório.
             }
         });
 
@@ -2639,6 +2622,15 @@
             hideFolderActionModal();
         });
 
+        // NOVO: Função para atualizar a visibilidade dos controles do player
+        function updatePlayerUIVisibility() {
+            if (isRandomModeActive) {
+                repeatModeBtn.classList.add('hidden');
+            } else {
+                repeatModeBtn.classList.remove('hidden');
+            }
+        }
+
         function playSongAtIndex(index) {
             if (index < 0 || index >= currentQueue.length) {
                 console.error("Índice da fila fora do limite.");
@@ -2663,7 +2655,16 @@
 
         function setupQueueAndPlay(clickedItem, container) {
             isRandomModeActive = false;
-            playbackHistory = []; // Limpa o histórico ao sair do modo aleatório
+            updatePlayerUIVisibility(); // Garante que os controles estejam visíveis
+
+            // Define o modo aleatório (shuffle) como padrão ao tocar de uma lista
+            repeatMode = 'shuffle';
+            const shuffleMode = repeatModes.find(m => m.mode === 'shuffle');
+            if (shuffleMode) {
+                const icon = repeatModeBtn.querySelector('i');
+                icon.className = `fas ${shuffleMode.icon}`;
+                icon.classList.remove('text-indigo-400'); // Garante que não tenha o destaque de 'repeat-one'
+            }
 
             const allMusicItems = container.querySelectorAll('.music-item[data-src]');
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
@@ -2808,19 +2809,12 @@
         let totalSongsCount = 0; // Cache para o número total de músicas
 
         // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
-        async function playRandomSong() {
-            isRandomModeActive = true;
-
-            // Antes de buscar uma nova música, salva a atual no histórico
-            if (currentQueue.length > 0 && currentQueueIndex !== -1) {
-                const currentSong = currentQueue[currentQueueIndex];
-                if (currentSong) {
-                    playbackHistory.push(currentSong);
-                    // Garante que o histórico não exceda o tamanho máximo
-                    if (playbackHistory.length > MAX_HISTORY_SIZE) {
-                        playbackHistory.shift(); // Remove a música mais antiga
-                    }
-                }
+        async function fetchAndPlayRandomSong(addToQueue = false) {
+            if (!addToQueue) {
+                isRandomModeActive = true;
+                updatePlayerUIVisibility();
+                currentQueue = []; // Limpa a fila ao iniciar um novo modo aleatório
+                currentQueueIndex = -1;
             }
 
             if (totalSongsCount === 0) {
@@ -2862,13 +2856,13 @@
                 album: randomSong['Nome - Album']
             };
 
-            currentQueue = [songData];
-            playSongAtIndex(0);
+            currentQueue.push(songData);
+            playSongAtIndex(currentQueue.length - 1);
         }
 
         // --- Event Listener para o novo botão ---
         const playRandomSongButton = document.getElementById('play-random-song-button');
-        playRandomSongButton.addEventListener('click', playRandomSong);
+        playRandomSongButton.addEventListener('click', () => fetchAndPlayRandomSong(false));
 
 
         // Expõe a função para o Playwright
@@ -2880,8 +2874,10 @@
         window.showFolderContentModal = showFolderContentModal;
         window.showFolderActionModal = showFolderActionModal;
         window.fetchAndRenderApps = fetchAndRenderApps;
-        window.playRandomSong = playRandomSong;
-        window.playbackHistory = playbackHistory;
+        window.playRandomSong = fetchAndPlayRandomSong; // Renomeado
+        window.performUnifiedSearch = performUnifiedSearch;
+        window.renderSongItem = renderSongItem;
+        window.playSongAtIndex = playSongAtIndex;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
