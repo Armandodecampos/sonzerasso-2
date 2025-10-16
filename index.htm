@@ -798,28 +798,20 @@
         // --- LÓGICA DOS BOTÕES DE NAVEGAÇÃO ---
 
         function playNextSong() {
-            if (currentQueue.length === 0) return;
-
-            if (repeatMode === 'shuffle') {
-                let randomIndex;
-                do {
-                    randomIndex = Math.floor(Math.random() * currentQueue.length);
-                } while (currentQueue.length > 1 && randomIndex === currentQueueIndex);
-                playSongAtIndex(randomIndex);
-            } else {
-                const nextIndex = currentQueueIndex + 1;
-                if (nextIndex < currentQueue.length) {
-                    playSongAtIndex(nextIndex);
-                } else if (repeatMode === 'repeat-all') {
-                    playSongAtIndex(0); // Volta ao início
-                }
+            const nextIndex = currentQueueIndex + 1;
+            if (nextIndex < currentQueue.length) {
+                playSongAtIndex(nextIndex);
+            } else if (isRandomModeActive) {
+                playRandomSong(); // Busca uma nova música aleatória e a adiciona à fila
+            } else if (repeatMode === 'repeat-all') {
+                playSongAtIndex(0);
             }
         }
 
         nextBtn.addEventListener('click', playNextSong);
 
         prevBtn.addEventListener('click', () => {
-            if (currentQueue.length > 0 && currentQueueIndex > 0) {
+            if (currentQueueIndex > 0) {
                 playSongAtIndex(currentQueueIndex - 1);
             }
         });
@@ -939,42 +931,24 @@
         async function playRandomSong() {
             isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
 
-            // Se a contagem total de músicas ainda não foi obtida, busca no banco
             if (totalSongsCount === 0) {
                 const { count, error } = await supabase
                     .from('Musicas')
                     .select('*', { count: 'exact', head: true });
-
-                if (error) {
-                    console.error('Erro ao contar as músicas:', error);
-                    alert('Não foi possível obter o número total de músicas.');
-                    return;
-                }
+                if (error) { console.error('Erro ao contar as músicas:', error); return; }
                 totalSongsCount = count;
             }
+            if (totalSongsCount === 0) { return; }
 
-            if (totalSongsCount === 0) {
-                alert('Nenhuma música encontrada no banco de dados.');
-                return;
-            }
-
-            // Gera um índice aleatório
             const randomIndex = Math.floor(Math.random() * totalSongsCount);
-
-            // Busca apenas a música na posição aleatória
             const { data: randomSong, error: fetchError } = await supabase
                 .from('Musicas')
                 .select('*')
                 .range(randomIndex, randomIndex)
                 .single();
 
-            if (fetchError || !randomSong) {
-                console.error('Erro ao buscar música aleatória:', fetchError);
-                alert('Não foi possível carregar uma música aleatória.');
-                return;
-            }
+            if (fetchError || !randomSong) { console.error('Erro ao buscar música aleatória:', fetchError); return; }
 
-            // Prepara os dados da música para o player
             const songData = {
                 src: randomSong.Musica,
                 title: randomSong['Nome - Musica'],
@@ -983,9 +957,9 @@
                 album: randomSong['Nome - Album']
             };
 
-            // Define a fila de reprodução com apenas a música aleatória e a toca
-            currentQueue = [songData];
-            playSongAtIndex(0);
+            // Adiciona a nova música ao final da fila e a toca
+            currentQueue.push(songData);
+            playSongAtIndex(currentQueue.length - 1);
         }
 
         // Função para carregar os dados do perfil logado
@@ -2699,13 +2673,13 @@
         }
 
         function setupQueueAndPlay(clickedItem, container) {
-            isRandomModeActive = false; // Desativa o modo aleatório ao tocar uma música de uma lista
-            // Modificado para selecionar apenas itens de música que podem ser tocados (têm um data-src)
+            isRandomModeActive = false;
             const allMusicItems = container.querySelectorAll('.music-item[data-src]');
+
+            // Reinicia a fila com a lista atual
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
 
             const clickedIndex = Array.from(allMusicItems).findIndex(item => item === clickedItem);
-
             if (clickedIndex !== -1) {
                 playSongAtIndex(clickedIndex);
             }
@@ -2817,6 +2791,7 @@
                     fetchAndRenderApps(session.user.id);
 
                     // Toca uma música aleatória ao iniciar
+                    currentQueue = []; // Limpa a fila antes de começar
                     playRandomSong();
                 }
             } else { // Sem sessão ou o usuário saiu
@@ -2843,12 +2818,6 @@
             // O Chrome exige que returnValue seja definido
             e.returnValue = '';
         });
-
-
-        // --- Event Listener para o novo botão ---
-        const playRandomSongButton = document.getElementById('play-random-song-button');
-        playRandomSongButton.addEventListener('click', playRandomSong);
-
 
         // Expõe a função para o Playwright
         window.toggleUI = toggleUI;
