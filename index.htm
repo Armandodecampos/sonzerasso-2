@@ -1962,7 +1962,9 @@
         // Função auxiliar para criar um item de música
         function renderSongItem(song) {
             const musicItem = document.createElement('div');
-            musicItem.className = 'music-item';
+            // Adicionado 'flex items-center' para alinhar o botão à direita
+            musicItem.className = 'music-item flex items-center';
+
             // Preenche os data attributes para o player
             musicItem.dataset.src = song.Musica;
             musicItem.dataset.title = song['Nome - Musica'];
@@ -1977,11 +1979,12 @@
                     <p class="music-album-display text-xs">${song['Nome - Album'] || ''}</p>
                 </div>`;
 
+            // Estilo do botão de adicionar padronizado para corresponder ao de excluir
             const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"><i class="fas fa-plus"></i></button>`;
 
             musicItem.innerHTML = musicInfo + addButton;
 
-            // Adiciona os data attributes ao botão também
+            // Adiciona os data attributes ao botão também, crucial para a delegação de eventos
             const buttonEl = musicItem.querySelector('.add-to-folder-plus-btn');
             Object.keys(musicItem.dataset).forEach(key => {
                 buttonEl.dataset[key] = musicItem.dataset[key];
@@ -2007,17 +2010,21 @@
 
         let songDataForModal = null; // Armazena os dados da música para o modal
 
-        // --- LÓGICA DO NOVO MODAL "ADICIONAR À PASTA" ---
+        // --- LÓGICA DO NOVO MODAL "ADICIONAR À PASTA" (E PLAYER) ---
 
+        // Listener de eventos consolidado para o container de conteúdo do Explorar
         exploreContentContainer.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('add-to-folder-plus-btn')) {
-                const button = e.target;
-                songDataForModal = { ...button.dataset }; // Armazena os dados da música
+            const addButton = e.target.closest('.add-to-folder-plus-btn');
+            const musicItem = e.target.closest('.music-item');
+
+            // Prioridade 1: O botão de adicionar foi clicado?
+            if (addButton) {
+                songDataForModal = { ...addButton.dataset }; // Armazena os dados da música do botão
 
                 // Mostra o modal e busca as pastas
                 addToFolderModal.classList.remove('hidden');
                 addToFolderModal.classList.add('flex');
-
+                confirmAddToFolderModalButton.disabled = false; // Garante que o botão esteja habilitado
                 modalFolderSelect.innerHTML = '<option>Carregando pastas...</option>';
 
                 const { data: { user } } = await supabase.auth.getUser();
@@ -2054,6 +2061,16 @@
                 } else {
                     modalFolderSelect.innerHTML = '<option value="">Nenhuma pasta criada</option>';
                     confirmAddToFolderModalButton.disabled = true;
+                }
+                return; // Impede que o clique no botão também toque a música
+            }
+
+            // Prioridade 2: O item de música foi clicado (mas não o botão de adicionar)?
+            if (musicItem) {
+                 // A navegação de artista (sem data-src) é tratada em 'renderArtists'
+                 // Este listener agora só precisa tocar a música se houver uma fonte.
+                if (musicItem.dataset.src) {
+                    setupQueueAndPlay(musicItem, exploreContentContainer);
                 }
             }
         });
@@ -2639,21 +2656,7 @@
             }
         }
 
-        // --- NOVO EVENT LISTENER PARA O PLAYER DE MÚSICA ---
-        exploreContentContainer.addEventListener('click', (e) => {
-             const musicItem = e.target.closest('.music-item');
-            // Ignora o clique se não for num item de música ou se o clique foi no botão '+'
-            if (!musicItem || e.target.classList.contains('add-to-folder-plus-btn')) {
-                return;
-            }
-
-            // A nova lógica de navegação está nos `render` functions.
-            // Este listener agora só precisa se preocupar em tocar uma música
-            // quando um item clicável com source de música é encontrado.
-            if (musicItem.dataset.src) {
-                setupQueueAndPlay(musicItem, exploreContentContainer);
-            }
-        });
+        // O listener de clique do player foi consolidado acima para evitar redundância.
 
         closeExploreModalButton.addEventListener('click', () => {
             navigationState = []; // Limpa o estado ao fechar
