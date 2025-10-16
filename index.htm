@@ -798,6 +798,12 @@
         // --- LÓGICA DOS BOTÕES DE NAVEGAÇÃO ---
 
         function playNextSong() {
+            // NOVO: Se estiver no modo aleatório, o "próximo" busca outra música aleatória
+            if (isRandomModeActive) {
+                playRandomSong();
+                return;
+            }
+
             if (currentQueue.length === 0) return;
 
             if (repeatMode === 'shuffle') {
@@ -811,7 +817,7 @@
                 if (nextIndex < currentQueue.length) {
                     playSongAtIndex(nextIndex);
                 } else if (repeatMode === 'repeat-all') {
-                    playSongAtIndex(0); // Volta ao início
+                    playSongAtIndex(0);
                 }
             }
         }
@@ -819,6 +825,16 @@
         nextBtn.addEventListener('click', playNextSong);
 
         prevBtn.addEventListener('click', () => {
+            // NOVO: Se estiver no modo aleatório, volta para a música anterior no histórico
+            if (isRandomModeActive) {
+                if (playbackHistory.length > 0) {
+                    const previousSong = playbackHistory.pop();
+                    currentQueue = [previousSong]; // Define a fila apenas com a música do histórico
+                    playSongAtIndex(0);
+                }
+                return;
+            }
+
             if (currentQueue.length > 0 && currentQueueIndex > 0) {
                 playSongAtIndex(currentQueueIndex - 1);
             }
@@ -836,6 +852,8 @@
         let currentQueueIndex = -1;
         let repeatMode = 'none'; // 'none', 'repeat-all', 'repeat-one', 'shuffle'
         let isRandomModeActive = false; // NOVA flag para o modo de reprodução aleatória contínua
+        let playbackHistory = []; // NOVO: Histórico para o modo aleatório
+        const MAX_HISTORY_SIZE = 20; // NOVO: Limite para o histórico
 
         // --- LÓGICA DO MODO DE REPETIÇÃO ---
         const repeatModes = [
@@ -2644,8 +2662,9 @@
         }
 
         function setupQueueAndPlay(clickedItem, container) {
-            isRandomModeActive = false; // Desativa o modo aleatório ao tocar uma música de uma lista
-            // Modificado para selecionar apenas itens de música que podem ser tocados (têm um data-src)
+            isRandomModeActive = false;
+            playbackHistory = []; // Limpa o histórico ao sair do modo aleatório
+
             const allMusicItems = container.querySelectorAll('.music-item[data-src]');
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
 
@@ -2790,9 +2809,20 @@
 
         // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
         async function playRandomSong() {
-            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
+            isRandomModeActive = true;
 
-            // Se a contagem total de músicas ainda não foi obtida, busca no banco
+            // Antes de buscar uma nova música, salva a atual no histórico
+            if (currentQueue.length > 0 && currentQueueIndex !== -1) {
+                const currentSong = currentQueue[currentQueueIndex];
+                if (currentSong) {
+                    playbackHistory.push(currentSong);
+                    // Garante que o histórico não exceda o tamanho máximo
+                    if (playbackHistory.length > MAX_HISTORY_SIZE) {
+                        playbackHistory.shift(); // Remove a música mais antiga
+                    }
+                }
+            }
+
             if (totalSongsCount === 0) {
                 const { count, error } = await supabase
                     .from('Musicas')
@@ -2811,10 +2841,7 @@
                 return;
             }
 
-            // Gera um índice aleatório
             const randomIndex = Math.floor(Math.random() * totalSongsCount);
-
-            // Busca apenas a música na posição aleatória
             const { data: randomSong, error: fetchError } = await supabase
                 .from('Musicas')
                 .select('*')
@@ -2827,7 +2854,6 @@
                 return;
             }
 
-            // Prepara os dados da música para o player
             const songData = {
                 src: randomSong.Musica,
                 title: randomSong['Nome - Musica'],
@@ -2836,7 +2862,6 @@
                 album: randomSong['Nome - Album']
             };
 
-            // Define a fila de reprodução com apenas a música aleatória e a toca
             currentQueue = [songData];
             playSongAtIndex(0);
         }
@@ -2855,6 +2880,8 @@
         window.showFolderContentModal = showFolderContentModal;
         window.showFolderActionModal = showFolderActionModal;
         window.fetchAndRenderApps = fetchAndRenderApps;
+        window.playRandomSong = playRandomSong;
+        window.playbackHistory = playbackHistory;
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
