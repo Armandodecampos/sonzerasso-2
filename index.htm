@@ -327,7 +327,7 @@
         </div>
 
         <!-- Nova Barra de Navegação Inferior -->
-        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 bg-gray-800 shadow-lg flex items-center justify-center p-2 z-40"> <!-- Posição ajustada para ficar acima do player -->
+        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: #383838;"> <!-- Posição ajustada para ficar acima do player -->
             <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
                 <i class="fas fa-compass mr-3"></i>
                 Explorar
@@ -544,7 +544,7 @@
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
     <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
-        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
+        <header class="p-4 text-white shadow-md space-y-4" style="background-color: #383838;">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <!-- Botão de Voltar (inicialmente oculto) -->
@@ -570,7 +570,7 @@
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
         <!-- Rodapé fixo com o botão de música aleatória -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gray-800 shadow-lg">
+        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: #383838;">
             <button id="play-random-song-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
                 <i class="fas fa-dice mr-3"></i>
                 Música Aleatória
@@ -579,7 +579,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 shadow-lg z-50 cursor-pointer">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 text-white p-4 shadow-lg z-[51] transform translate-y-full transition-transform duration-300 ease-in-out cursor-pointer" style="background-color: #383838;">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -798,20 +798,28 @@
         // --- LÓGICA DOS BOTÕES DE NAVEGAÇÃO ---
 
         function playNextSong() {
-            const nextIndex = currentQueueIndex + 1;
-            if (nextIndex < currentQueue.length) {
-                playSongAtIndex(nextIndex);
-            } else if (isRandomModeActive) {
-                playRandomSong(); // Busca uma nova música aleatória e a adiciona à fila
-            } else if (repeatMode === 'repeat-all') {
-                playSongAtIndex(0);
+            if (currentQueue.length === 0) return;
+
+            if (repeatMode === 'shuffle') {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * currentQueue.length);
+                } while (currentQueue.length > 1 && randomIndex === currentQueueIndex);
+                playSongAtIndex(randomIndex);
+            } else {
+                const nextIndex = currentQueueIndex + 1;
+                if (nextIndex < currentQueue.length) {
+                    playSongAtIndex(nextIndex);
+                } else if (repeatMode === 'repeat-all') {
+                    playSongAtIndex(0); // Volta ao início
+                }
             }
         }
 
         nextBtn.addEventListener('click', playNextSong);
 
         prevBtn.addEventListener('click', () => {
-            if (currentQueueIndex > 0) {
+            if (currentQueue.length > 0 && currentQueueIndex > 0) {
                 playSongAtIndex(currentQueueIndex - 1);
             }
         });
@@ -837,21 +845,35 @@
             { mode: 'shuffle', icon: 'fa-random' }
         ];
 
-        repeatModeBtn.addEventListener('click', () => {
-            const currentModeIndex = repeatModes.findIndex(m => m.mode === repeatMode);
-            const nextMode = repeatModes[(currentModeIndex + 1) % repeatModes.length];
-            repeatMode = nextMode.mode;
+        function updateRepeatModeButton() {
+            const currentMode = repeatModes.find(m => m.mode === repeatMode);
+            if (!currentMode) return;
 
-            // Atualiza o ícone
             const icon = repeatModeBtn.querySelector('i');
-            icon.className = `fas ${nextMode.icon}`;
+            icon.className = `fas ${currentMode.icon}`;
 
-            // Lógica para o modo 'repeat-one' vs 'repeat-all' com o mesmo ícone
             if (repeatMode === 'repeat-one') {
-                icon.classList.add('text-indigo-400'); // Destaca o ícone para 'repeat-one'
+                icon.classList.add('text-indigo-400');
             } else {
                 icon.classList.remove('text-indigo-400');
             }
+
+            // Oculta/mostra o botão de repetição dependendo do modo
+            repeatModeBtn.style.display = isRandomModeActive ? 'none' : 'block';
+        }
+
+        repeatModeBtn.addEventListener('click', () => {
+            let currentModeIndex = repeatModes.findIndex(m => m.mode === repeatMode);
+            let nextMode;
+
+            do {
+                currentModeIndex = (currentModeIndex + 1) % repeatModes.length;
+                nextMode = repeatModes[currentModeIndex];
+                // Pula a opção 'repeat-all' se estiver no modo de música aleatória contínua
+            } while (isRandomModeActive && nextMode.mode === 'repeat-all');
+
+            repeatMode = nextMode.mode;
+            updateRepeatModeButton();
         });
 
         const MUSIC_PAGE_SIZE = 50; // Usado no loop de busca
@@ -925,43 +947,6 @@
 
         // --- FUNÇÕES DE INICIALIZAÇÃO E UI ---
 
-        let totalSongsCount = 0; // Cache para o número total de músicas
-
-        // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
-        async function playRandomSong() {
-            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
-
-            if (totalSongsCount === 0) {
-                const { count, error } = await supabase
-                    .from('Musicas')
-                    .select('*', { count: 'exact', head: true });
-                if (error) { console.error('Erro ao contar as músicas:', error); return; }
-                totalSongsCount = count;
-            }
-            if (totalSongsCount === 0) { return; }
-
-            const randomIndex = Math.floor(Math.random() * totalSongsCount);
-            const { data: randomSong, error: fetchError } = await supabase
-                .from('Musicas')
-                .select('*')
-                .range(randomIndex, randomIndex)
-                .single();
-
-            if (fetchError || !randomSong) { console.error('Erro ao buscar música aleatória:', fetchError); return; }
-
-            const songData = {
-                src: randomSong.Musica,
-                title: randomSong['Nome - Musica'],
-                artist: randomSong['Nome - Artista'],
-                albumArt: randomSong.Imagem,
-                album: randomSong['Nome - Album']
-            };
-
-            // Adiciona a nova música ao final da fila e a toca
-            currentQueue.push(songData);
-            playSongAtIndex(currentQueue.length - 1);
-        }
-
         // Função para carregar os dados do perfil logado
         async function loadUserProfile(user) {
             const { data: profileData, error } = await supabase
@@ -1004,6 +989,11 @@
                 document.body.classList.remove('bg-gray-100');
 
                 hideAppActionBar();
+
+                 // Toca uma música aleatória SE a app estiver a ser inicializada
+                if (!isAppInitialized) {
+                    playRandomSong();
+                }
 
             } else {
                 // Mostra o contentor do Login e esconde a App
@@ -2526,6 +2516,8 @@
             fullscreenSongTitle.textContent = playerSongTitle.textContent;
             fullscreenArtistName.textContent = playerArtistName.textContent;
 
+            updateRepeatModeButton(); // Garante que o botão de repetir esteja no estado correto
+
             fullscreenPlayer.classList.remove('hidden');
             fullscreenPlayer.classList.add('flex');
         });
@@ -2670,17 +2662,21 @@
 
             playerAudio.src = song.src;
             playerAudio.play();
+
+            // Garante que o player esteja visível
+            musicPlayer.classList.add('player-visible');
         }
 
         function setupQueueAndPlay(clickedItem, container) {
-            isRandomModeActive = false;
+            isRandomModeActive = false; // Desativa o modo aleatório ao tocar uma música de uma lista
+            // Modificado para selecionar apenas itens de música que podem ser tocados (têm um data-src)
             const allMusicItems = container.querySelectorAll('.music-item[data-src]');
-
-            // Reinicia a fila com a lista atual
             currentQueue = Array.from(allMusicItems).map(item => ({...item.dataset}));
 
             const clickedIndex = Array.from(allMusicItems).findIndex(item => item === clickedItem);
+
             if (clickedIndex !== -1) {
+                repeatMode = 'shuffle'; // Define o modo aleatório como padrão
                 playSongAtIndex(clickedIndex);
             }
         }
@@ -2789,10 +2785,6 @@
 
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
-
-                    // Toca uma música aleatória ao iniciar
-                    currentQueue = []; // Limpa a fila antes de começar
-                    playRandomSong();
                 }
             } else { // Sem sessão ou o usuário saiu
                 isAppInitialized = false; // Reinicia a flag
@@ -2819,6 +2811,67 @@
             e.returnValue = '';
         });
 
+        let totalSongsCount = 0; // Cache para o número total de músicas
+
+        // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
+        async function playRandomSong() {
+            isRandomModeActive = true; // Ativa o modo de reprodução contínua aleatória
+            updateRepeatModeButton(); // Atualiza a UI dos botões
+
+            // Se a contagem total de músicas ainda não foi obtida, busca no banco
+            if (totalSongsCount === 0) {
+                const { count, error } = await supabase
+                    .from('Musicas')
+                    .select('*', { count: 'exact', head: true });
+
+                if (error) {
+                    console.error('Erro ao contar as músicas:', error);
+                    alert('Não foi possível obter o número total de músicas.');
+                    return;
+                }
+                totalSongsCount = count;
+            }
+
+            if (totalSongsCount === 0) {
+                alert('Nenhuma música encontrada no banco de dados.');
+                return;
+            }
+
+            // Gera um índice aleatório
+            const randomIndex = Math.floor(Math.random() * totalSongsCount);
+
+            // Busca apenas a música na posição aleatória
+            const { data: randomSong, error: fetchError } = await supabase
+                .from('Musicas')
+                .select('*')
+                .range(randomIndex, randomIndex)
+                .single();
+
+            if (fetchError || !randomSong) {
+                console.error('Erro ao buscar música aleatória:', fetchError);
+                alert('Não foi possível carregar uma música aleatória.');
+                return;
+            }
+
+            // Prepara os dados da música para o player
+            const songData = {
+                src: randomSong.Musica,
+                title: randomSong['Nome - Musica'],
+                artist: randomSong['Nome - Artista'],
+                albumArt: randomSong.Imagem,
+                album: randomSong['Nome - Album']
+            };
+
+            // Define a fila de reprodução com apenas a música aleatória e a toca
+            currentQueue = [songData];
+            playSongAtIndex(0);
+        }
+
+        // --- Event Listener para o novo botão ---
+        const playRandomSongButton = document.getElementById('play-random-song-button');
+        playRandomSongButton.addEventListener('click', playRandomSong);
+
+
         // Expõe a função para o Playwright
         window.toggleUI = toggleUI;
         window.renderApps = renderApps;
@@ -2828,12 +2881,12 @@
         window.showFolderContentModal = showFolderContentModal;
         window.showFolderActionModal = showFolderActionModal;
         window.fetchAndRenderApps = fetchAndRenderApps;
-        window.playRandomSong = playRandomSong;
+        window.playRandomSong = playRandomSong; // Expor para teste
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
     <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-40">
-        <header class="p-4 bg-gray-800 text-white shadow-md space-y-4">
+        <header class="p-4 text-white shadow-md space-y-4" style="background-color: #383838;">
             <div class="flex items-center justify-between">
                 <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
                 <button id="close-folder-content-modal" class="text-gray-300 hover:text-white">
@@ -2873,7 +2926,7 @@
     </div>
 
     <!-- NOVO: Player de Música em Tela Cheia -->
-    <div id="fullscreen-player" class="fixed inset-0 bg-black text-white hidden flex-col items-center justify-center p-4 z-[80]">
+    <div id="fullscreen-player" class="fixed inset-0 text-white hidden flex-col items-center justify-center p-4 z-[80]" style="background-color: #383838;">
         <!-- Botão de Fechar -->
         <button id="close-fullscreen-player" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
 
