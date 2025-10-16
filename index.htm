@@ -1781,33 +1781,36 @@
             };
         }
 
-        // A função que executa a busca unificada
+        // A função que executa a busca unificada (com lógica avançada)
         async function performUnifiedSearch(searchTerm) {
             // 1. Atualiza a UI para o estado de busca
             exploreContentContainer.innerHTML = `<div class="text-center text-gray-500 p-4"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
             exploreTitle.textContent = `Resultados para: "${searchTerm}"`;
-            exploreBackButton.classList.add('hidden'); // Esconde o botão voltar durante a busca
-            navigationState = [{ view: 'search' }]; // Define um estado de busca para evitar navegação conflitante
+            exploreBackButton.classList.add('hidden');
+            navigationState = [{ view: 'search' }];
 
-            // 2. Formata o termo de busca para a consulta ILIKE
-            const searchPattern = `%${searchTerm.replace(/ /g, '%')}%`;
+            // 2. Divide o termo de busca em palavras e prepara a consulta
+            const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
+            let query = supabase.from('Musicas').select('*');
 
-            // 3. Executa a busca no Supabase nas três colunas
-            const { data, error } = await supabase
-                .from('Musicas')
-                .select('*')
-                .or(`"Nome - Musica".ilike.${searchPattern},"Nome - Artista".ilike.${searchPattern},"Nome - Album".ilike.${searchPattern}`)
-                .limit(100); // Limita os resultados para performance
+            // 3. Adiciona uma cláusula 'and' para cada palavra pesquisada
+            searchWords.forEach(word => {
+                const pattern = `%${word}%`;
+                query = query.or(`"Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern}`);
+            });
+
+            // 4. Executa a busca final
+            const { data, error } = await query.limit(100);
 
             if (error) {
-                console.error('Erro na busca unificada:', error);
+                console.error('Erro na busca avançada:', error);
                 exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao realizar a busca.</p>';
                 return;
             }
 
             // 4. Renderiza os resultados
             if (data && data.length > 0) {
-                exploreContentContainer.innerHTML = ''; // Limpa o spinner
+                exploreContentContainer.innerHTML = '';
                 data.forEach(song => renderSongItem(song));
             } else {
                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum resultado encontrado.</p>';
