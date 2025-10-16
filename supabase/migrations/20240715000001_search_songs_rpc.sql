@@ -22,11 +22,11 @@ BEGIN
         -- Adicionar a condição OR para cada palavra nos três campos
         query := query || format(
             '(
-                "Nome - Musica" ILIKE ''%%%s%%'' OR
-                "Nome - Artista" ILIKE ''%%%s%%'' OR
-                "Nome - Album" ILIKE ''%%%s%%''
+                "Nome - Musica" ILIKE %L OR
+                "Nome - Artista" ILIKE %L OR
+                "Nome - Album" ILIKE %L
             )',
-            word, word, word
+            '%' || word || '%', '%' || word || '%', '%' || word || '%'
         );
     END LOOP;
 
