@@ -523,7 +523,7 @@
     </div>
 
     <!-- NOVO: Modal para Adicionar Música à Pasta -->
-    <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[70]">
+    <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[90]">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
             <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
             <div class="relative">
@@ -793,6 +793,10 @@
         const volumeSlider = document.getElementById('volume-slider');
         const addToFolderFullscreenBtn = document.getElementById('add-to-folder-fullscreen-btn');
 
+        // Referências da Notificação
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationMessage = document.getElementById('notification-message');
+
         // --- NOVA LÓGICA DE REPRODUÇÃO E HISTÓRICO ---
         let currentQueue = [];
         let currentQueueIndex = -1;
@@ -1035,6 +1039,36 @@
             }
         }
 
+        // --- FUNÇÃO DE NOTIFICAÇÃO PERSONALIZADA ---
+        function showNotification(message, type = 'success') {
+            notificationMessage.textContent = message;
+
+            // Remove classes de cor antigas e adiciona a nova
+            notificationModal.classList.remove('bg-green-500', 'bg-red-500');
+            if (type === 'success') {
+                notificationModal.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                notificationModal.classList.add('bg-red-500');
+            }
+
+            // Mostra o modal com animação
+            notificationModal.classList.remove('hidden');
+            setTimeout(() => {
+                notificationModal.classList.add('opacity-100', 'translate-y-0');
+                notificationModal.classList.remove('opacity-0', '-translate-y-5');
+            }, 10);
+
+
+            // Esconde o modal após 3 segundos
+            setTimeout(() => {
+                notificationModal.classList.add('opacity-0', '-translate-y-5');
+                notificationModal.classList.remove('opacity-100', 'translate-y-0');
+                setTimeout(() => {
+                    notificationModal.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
         // Função para exibir o modal de espera com a contagem regressiva
         function showWaitModal(seconds) {
             let timeLeft = seconds;
@@ -1182,7 +1216,7 @@
             const password = passwordInput.value;
 
             if (!email || !password) {
-                alert("Por favor, insira o email e a senha.");
+                showNotification("Por favor, insira o email e a senha.", 'error');
                 return;
             }
 
@@ -1190,7 +1224,7 @@
 
             if (error) {
                 console.error(error);
-                alert(`Erro no login: ${error.message}`);
+                showNotification(`Erro no login: ${error.message}`, 'error');
             }
         });
 
@@ -1212,7 +1246,7 @@
         resetPasswordButton.addEventListener('click', async () => {
             const email = emailInput.value;
             if (!email) {
-                alert("Por favor, insira seu email no campo correspondente para redefinir a senha.");
+                showNotification("Por favor, insira seu email no campo correspondente.", 'error');
                 return;
             }
             const redirectToUrl = `${window.location.origin}${window.location.pathname}`;
@@ -1228,7 +1262,7 @@
                     const waitTime = waitTimeMatch ? parseInt(waitTimeMatch[1]) : 60;
                     showWaitModal(waitTime);
                 } else {
-                    alert(`Erro ao redefinir senha: ${error.message}`);
+                    showNotification(`Erro ao redefinir senha: ${error.message}`, 'error');
                 }
             } else {
                 resetEmailDisplay.textContent = email;
@@ -1496,8 +1530,9 @@
                 const { error } = await supabase.from('musicas_salvas_usuario').delete().match({ id: id, user_id: user.id });
                 if (error) {
                     console.error('Erro ao remover música da pasta:', error);
-                    alert('Não foi possível remover a música.');
+                    showNotification('Não foi possível remover a música.', 'error');
                 } else {
+                    showNotification('Música removida com sucesso!');
                     await fetchAndDisplayFolderContent(extraData.folderId);
                 }
             } else if (type === 'folder') {
@@ -1505,7 +1540,7 @@
                 const { error: songError } = await supabase.from('musicas_salvas_usuario').delete().match({ pasta_id: id, user_id: user.id });
                 if (songError) {
                     console.error('Erro ao remover músicas da pasta:', songError);
-                    alert('Não foi possível remover as músicas da pasta.');
+                    showNotification('Não foi possível remover as músicas da pasta.', 'error');
                     hideDeleteConfirmationModal();
                     return;
                 }
@@ -1514,8 +1549,9 @@
                 const { error: folderError } = await supabase.from('pastas').delete().match({ id: id, user_id: user.id });
                 if (folderError) {
                     console.error('Erro ao excluir pasta:', folderError);
-                    alert('Não foi possível excluir a pasta.');
+                    showNotification('Não foi possível excluir a pasta.', 'error');
                 } else {
+                    showNotification('Pasta excluída com sucesso!');
                     await fetchAndRenderApps(user.id); // Atualiza a grade principal
                 }
             } else if (type === 'custom_app_permanent') {
@@ -2120,13 +2156,13 @@
         confirmAddToFolderModalButton.addEventListener('click', async () => {
             const selectedFolderId = modalFolderSelect.value;
             if (!songDataForModal || !selectedFolderId) {
-                alert('Por favor, selecione uma pasta.');
+                showNotification('Por favor, selecione uma pasta.', 'error');
                 return;
             }
 
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                alert('Usuário não autenticado.');
+                showNotification('Usuário não autenticado.', 'error');
                 return;
             }
 
@@ -2139,12 +2175,12 @@
 
             if (fetchError) {
                 console.error('Erro ao verificar música existente:', fetchError);
-                alert('Ocorreu um erro. Tente novamente.');
+                showNotification('Ocorreu um erro. Tente novamente.', 'error');
                 return;
             }
 
             if (existingSongs && existingSongs.length > 0) {
-                alert('Esta música já está nesta pasta.');
+                showNotification('Esta música já está nesta pasta.', 'error');
                 return;
             }
 
@@ -2165,9 +2201,9 @@
 
             if (insertError) {
                 console.error('Erro ao salvar música:', insertError);
-                alert('Não foi possível adicionar a música.');
+                showNotification('Não foi possível adicionar a música.', 'error');
             } else {
-                alert('Música adicionada com sucesso!');
+                showNotification('Música adicionada com sucesso!');
                 localStorage.setItem('lastSelectedFolderId', selectedFolderId); // Salva a escolha
                 cancelAddToFolderModalButton.click(); // Fecha o modal
             }
@@ -2826,14 +2862,14 @@
 
                 if (error) {
                     console.error('Erro ao contar as músicas:', error);
-                    alert('Não foi possível obter o número total de músicas.');
+                    showNotification('Não foi possível obter o número total de músicas.', 'error');
                     return;
                 }
                 totalSongsCount = count;
             }
 
             if (totalSongsCount === 0) {
-                alert('Nenhuma música encontrada no banco de dados.');
+                showNotification('Nenhuma música encontrada no banco de dados.', 'error');
                 return;
             }
 
@@ -2849,7 +2885,7 @@
 
             if (fetchError || !randomSong) {
                 console.error('Erro ao buscar música aleatória:', fetchError);
-                alert('Não foi possível carregar uma música aleatória.');
+                showNotification('Não foi possível carregar uma música aleatória.', 'error');
                 return;
             }
 
@@ -2888,6 +2924,7 @@
         window.fetchAndRenderApps = fetchAndRenderApps;
         window.playRandomSong = playRandomSong; // Expor para teste
         window.playSong = playSong;
+        window.showNotification = showNotification; // Expor para teste
 
         // Funções expostas adicionalmente para verificação
         window.showMainApp = () => {
@@ -3006,12 +3043,17 @@
                 </div>
             </div>
             <!-- Botão de Adicionar à Pasta (Centralizado) -->
-            <div class="w-full text-center mt-6">
-                <button id="add-to-folder-fullscreen-btn" class="text-2xl text-gray-400 hover:text-white">
-                    <i class="fas fa-plus-circle"></i>
+            <div class="w-full flex justify-center mt-6">
+                <button id="add-to-folder-fullscreen-btn" class="w-16 h-16 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+                    <i class="fas fa-plus-circle text-2xl"></i>
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- NOVO: Modal de Notificação Personalizado -->
+    <div id="notification-modal" class="fixed top-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl hidden transform transition-all duration-300 ease-in-out z-[100]">
+        <p id="notification-message"></p>
     </div>
 </body>
 </html>
