@@ -142,10 +142,7 @@
             @apply text-sm text-gray-700;
         }
 
-        /* Estilos para o player de música */
-        #music-player.player-visible {
-            transform: translateY(0);
-        }
+        /* Estilos para o player de música (a visibilidade agora é controlada por 'hidden') */
         /* Estilos para o App de Receitas */
         .recipe-item {
             @apply bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 cursor-pointer flex flex-col;
@@ -579,7 +576,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 text-white p-4 shadow-lg z-50 transform translate-y-full cursor-pointer" style="background-color: #141414;">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 text-white p-4 shadow-lg z-50 hidden cursor-pointer" style="background-color: #141414;">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -794,6 +791,7 @@
         const nextBtn = document.getElementById('next-btn');
         const repeatModeBtn = document.getElementById('repeat-mode-btn');
         const volumeSlider = document.getElementById('volume-slider');
+        const addToFolderFullscreenBtn = document.getElementById('add-to-folder-fullscreen-btn');
 
         // --- NOVA LÓGICA DE REPRODUÇÃO E HISTÓRICO ---
         let currentQueue = [];
@@ -819,7 +817,7 @@
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
             playerAudio.play();
-            musicPlayer.classList.add('player-visible');
+            musicPlayer.classList.remove('hidden');
         }
 
         async function playNextSong() {
@@ -2048,6 +2046,48 @@
         let songDataForModal = null; // Armazena os dados da música para o modal
 
         // --- LÓGICA DO NOVO MODAL "ADICIONAR À PASTA" (E PLAYER) ---
+        async function openAddToFolderModal(songData) {
+            songDataForModal = songData;
+
+            addToFolderModal.classList.remove('hidden');
+            addToFolderModal.classList.add('flex');
+            confirmAddToFolderModalButton.disabled = false;
+            modalFolderSelect.innerHTML = '<option>Carregando pastas...</option>';
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                modalFolderSelect.innerHTML = '<option>Erro: Usuário não encontrado</option>';
+                return;
+            }
+
+            const { data: folders, error } = await supabase
+                .from('pastas')
+                .select('id, title')
+                .eq('user_id', user.id);
+
+            if (error) {
+                console.error('Erro ao buscar pastas:', error);
+                modalFolderSelect.innerHTML = '<option>Erro ao carregar pastas</option>';
+                return;
+            }
+
+            modalFolderSelect.innerHTML = '';
+            if (folders && folders.length > 0) {
+                folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.id;
+                    option.textContent = folder.title;
+                    modalFolderSelect.appendChild(option);
+                });
+                const lastFolderId = localStorage.getItem('lastSelectedFolderId');
+                if (lastFolderId) {
+                    modalFolderSelect.value = lastFolderId;
+                }
+            } else {
+                modalFolderSelect.innerHTML = '<option value="">Nenhuma pasta criada</option>';
+                confirmAddToFolderModalButton.disabled = true;
+            }
+        }
 
         // Listener de eventos consolidado para o container de conteúdo do Explorar
         exploreContentContainer.addEventListener('click', async (e) => {
@@ -2056,49 +2096,7 @@
 
             // Prioridade 1: O botão de adicionar foi clicado?
             if (addButton) {
-                songDataForModal = { ...addButton.dataset }; // Armazena os dados da música do botão
-
-                // Mostra o modal e busca as pastas
-                addToFolderModal.classList.remove('hidden');
-                addToFolderModal.classList.add('flex');
-                confirmAddToFolderModalButton.disabled = false; // Garante que o botão esteja habilitado
-                modalFolderSelect.innerHTML = '<option>Carregando pastas...</option>';
-
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    modalFolderSelect.innerHTML = '<option>Erro: Usuário não encontrado</option>';
-                    return;
-                }
-
-                const { data: folders, error } = await supabase
-                    .from('pastas')
-                    .select('id, title')
-                    .eq('user_id', user.id);
-
-                if (error) {
-                    console.error('Erro ao buscar pastas:', error);
-                    modalFolderSelect.innerHTML = '<option>Erro ao carregar pastas</option>';
-                    return;
-                }
-
-                modalFolderSelect.innerHTML = ''; // Limpa o "carregando"
-                if (folders && folders.length > 0) {
-                    folders.forEach(folder => {
-                        const option = document.createElement('option');
-                        option.value = folder.id;
-                        option.textContent = folder.title;
-                        modalFolderSelect.appendChild(option);
-                    });
-
-                    // Pré-seleciona a última pasta escolhida
-                    const lastFolderId = localStorage.getItem('lastSelectedFolderId');
-                    if (lastFolderId) {
-                        modalFolderSelect.value = lastFolderId;
-                    }
-                } else {
-                    modalFolderSelect.innerHTML = '<option value="">Nenhuma pasta criada</option>';
-                    confirmAddToFolderModalButton.disabled = true;
-                }
+                openAddToFolderModal({ ...addButton.dataset });
                 return; // Impede que o clique no botão também toque a música
             }
 
@@ -2872,6 +2870,12 @@
         const playRandomSongButton = document.getElementById('play-random-song-button');
         playRandomSongButton.addEventListener('click', playRandomSong);
 
+        addToFolderFullscreenBtn.addEventListener('click', () => {
+            if (currentSong) {
+                openAddToFolderModal(currentSong);
+            }
+        });
+
 
         // Expõe a função para o Playwright
         window.toggleUI = toggleUI;
@@ -2883,6 +2887,35 @@
         window.showFolderActionModal = showFolderActionModal;
         window.fetchAndRenderApps = fetchAndRenderApps;
         window.playRandomSong = playRandomSong; // Expor para teste
+        window.playSong = playSong;
+
+        // Funções expostas adicionalmente para verificação
+        window.showMainApp = () => {
+            if (!isAppInitialized) {
+                const mockUser = { id: 'mock-id', email: 'test@test.com' };
+                loadUserProfile(mockUser);
+                loadUserPreferences();
+                toggleUI(true);
+                // playRandomSong(); // Removido para testes controlados
+                isAppInitialized = true;
+                fetchAndRenderApps(mockUser.id);
+            }
+        };
+        window.renderFoldersForAdd = (folders) => {
+            modalFolderSelect.innerHTML = '';
+            if (folders && folders.length > 0) {
+                folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.id;
+                    option.textContent = folder.nome;
+                    modalFolderSelect.appendChild(option);
+                });
+                confirmAddToFolderModalButton.disabled = false;
+            } else {
+                modalFolderSelect.innerHTML = '<option value="">Nenhuma pasta criada</option>';
+                confirmAddToFolderModalButton.disabled = true;
+            }
+        };
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
@@ -2971,6 +3004,12 @@
                     <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     <i class="fas fa-volume-up text-gray-400"></i>
                 </div>
+            </div>
+            <!-- Botão de Adicionar à Pasta (Centralizado) -->
+            <div class="w-full text-center mt-6">
+                <button id="add-to-folder-fullscreen-btn" class="text-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-plus-circle"></i>
+                </button>
             </div>
         </div>
     </div>
