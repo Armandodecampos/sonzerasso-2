@@ -2,7 +2,7 @@ import re
 from playwright.sync_api import Page, expect, sync_playwright
 import os
 
-def test_final_features(page: Page):
+def test_final_changes(page: Page):
     """
     Verifica de forma focada as últimas alterações solicitadas:
     1. O título da pesquisa não tem prefixo.
@@ -35,7 +35,7 @@ def test_final_features(page: Page):
     search_input = page.locator("#explore-search-input")
     explore_title = page.locator("#explore-title")
 
-    search_term = "night"
+    search_term = "love"
     search_input.fill(search_term)
     page.wait_for_timeout(500)
 
@@ -47,6 +47,8 @@ def test_final_features(page: Page):
 
     # --- 2. TESTE DA ANIMAÇÃO REMOVIDA ---
     print("\n--- Verificando a remoção da animação ---")
+    # A verificação é que o leitor não tem as classes de transição.
+    # O teste já verifica se o player está visível, o que confirma que a lógica de visibilidade está correta.
     player_classes = music_player.get_attribute("class")
     assert "transition-transform" not in player_classes
     print("✅ Animação do leitor removida.")
@@ -90,7 +92,7 @@ if __name__ == "__main__":
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         try:
-            test_final_features(page)
+            test_final_changes(page)
             print("\n✅ Todos os testes passaram!")
         except Exception as e:
             print(f"\n❌ Teste falhou: {e}")
