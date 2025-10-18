@@ -801,7 +801,6 @@
         let currentQueue = [];
         let currentQueueIndex = -1;
         let currentSong = null; // Armazena a música atual
-        let skipTimeoutId = null; // Guarda o ID do temporizador para pular a música
         let historyPast = [];   // Armazena as músicas já tocadas
         let historyFuture = []; // Armazena as músicas "puladas" com o botão "anterior"
         let repeatMode = 'none';
@@ -821,46 +820,9 @@
             fullscreenSongTitle.textContent = playerSongTitle.textContent;
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
-
-            // Limpa qualquer timeout anterior para evitar pulos indesejados
-            if (skipTimeoutId) {
-                clearTimeout(skipTimeoutId);
-            }
-
-            // Define um timeout de 20 segundos para pular a música se ela não carregar
-            skipTimeoutId = setTimeout(() => {
-                showNotification('A música demorou muito para carregar e foi pulada.', 'error');
-                playNextSong();
-            }, 20000); // 20 segundos
-
             playerAudio.play();
             musicPlayer.classList.remove('hidden');
-
-            // --- Integração com a Media Session API ---
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: songData.title || 'Música desconhecida',
-                    artist: songData.artist || 'Artista desconhecido',
-                    album: songData.album || '',
-                    artwork: [
-                        { src: songData.albumArt || 'https://placehold.co/96x96', sizes: '96x96', type: 'image/png' },
-                        { src: songData.albumArt || 'https://placehold.co/128x128', sizes: '128x128', type: 'image/png' },
-                        { src: songData.albumArt || 'https://placehold.co/192x192', sizes: '192x192', type: 'image/png' },
-                        { src: songData.albumArt || 'https://placehold.co/256x256', sizes: '256x256', type: 'image/png' },
-                        { src: songData.albumArt || 'https://placehold.co/384x384', sizes: '384x384', type: 'image/png' },
-                        { src: songData.albumArt || 'https://placehold.co/512x512', sizes: '512x512', type: 'image/png' },
-                    ]
-                });
-            }
         }
-
-        // Quando a música finalmente começa a tocar, cancela o timeout de pulo
-        playerAudio.addEventListener('playing', () => {
-            if (skipTimeoutId) {
-                clearTimeout(skipTimeoutId);
-                skipTimeoutId = null;
-            }
-        });
 
         async function playNextSong() {
             if (isRandomModeActive) {
@@ -949,14 +911,6 @@
         const playerSongTitle = document.getElementById('player-song-title');
         const playerArtistName = document.getElementById('player-artist-name');
         const playerAudio = document.getElementById('player-audio');
-
-        // --- Configuração dos Action Handlers da Media Session API ---
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.setActionHandler('play', () => playerAudio.play());
-            navigator.mediaSession.setActionHandler('pause', () => playerAudio.pause());
-            navigator.mediaSession.setActionHandler('previoustrack', playPreviousSong);
-            navigator.mediaSession.setActionHandler('nexttrack', playNextSong);
-        }
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
@@ -2674,32 +2628,6 @@
             }
         });
 
-        // Tenta recarregar a música se ocorrer um erro durante a reprodução
-        playerAudio.addEventListener('error', (e) => {
-            console.error("Erro no player de áudio:", e);
-
-            // Verifica se a música já estava tocando
-            const currentTime = playerAudio.currentTime;
-            if (currentTime > 0) {
-                showNotification('Erro na reprodução. Tentando recarregar...', 'error');
-
-                // Salva a posição e a fonte
-                const lastSrc = playerAudio.src;
-
-                // Define um listener para continuar a reprodução após o recarregamento
-                const canPlayHandler = () => {
-                    playerAudio.currentTime = currentTime; // Volta para onde estava
-                    playerAudio.play();
-                    // Remove o listener para não ser chamado múltiplas vezes
-                    playerAudio.removeEventListener('canplay', canPlayHandler);
-                };
-                playerAudio.addEventListener('canplay', canPlayHandler);
-
-                // Recarrega a fonte do áudio
-                playerAudio.load(); // O `load` reiniciará o processo de carregamento da `src` atual
-            }
-        });
-
         // Permite clicar na barra de progresso para pular para um ponto da música
         progressBarContainer.addEventListener('click', (e) => {
             const width = progressBarContainer.clientWidth;
@@ -2874,7 +2802,7 @@
                     toggleUI(true);
 
                     // Toca uma música aleatória apenas na primeira inicialização
-                    // playRandomSong(); // Comentado temporariamente para depuração do login
+                    playRandomSong();
 
                     isAppInitialized = true;
 
