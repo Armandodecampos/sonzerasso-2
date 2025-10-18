@@ -801,6 +801,7 @@
         let currentQueue = [];
         let currentQueueIndex = -1;
         let currentSong = null; // Armazena a música atual
+        let skipTimeoutId = null; // Guarda o ID do temporizador para pular a música
         let historyPast = [];   // Armazena as músicas já tocadas
         let historyFuture = []; // Armazena as músicas "puladas" com o botão "anterior"
         let repeatMode = 'none';
@@ -820,9 +821,29 @@
             fullscreenSongTitle.textContent = playerSongTitle.textContent;
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
+
+            // Limpa qualquer timeout anterior para evitar pulos indesejados
+            if (skipTimeoutId) {
+                clearTimeout(skipTimeoutId);
+            }
+
+            // Define um timeout de 20 segundos para pular a música se ela não carregar
+            skipTimeoutId = setTimeout(() => {
+                showNotification('A música demorou muito para carregar e foi pulada.', 'error');
+                playNextSong();
+            }, 20000); // 20 segundos
+
             playerAudio.play();
             musicPlayer.classList.remove('hidden');
         }
+
+        // Quando a música finalmente começa a tocar, cancela o timeout de pulo
+        playerAudio.addEventListener('playing', () => {
+            if (skipTimeoutId) {
+                clearTimeout(skipTimeoutId);
+                skipTimeoutId = null;
+            }
+        });
 
         async function playNextSong() {
             if (isRandomModeActive) {
@@ -2625,6 +2646,32 @@
                 playSong(currentSong); // Toca a mesma música novamente
             } else {
                 playNextSong(); // Comportamento padrão para os outros modos
+            }
+        });
+
+        // Tenta recarregar a música se ocorrer um erro durante a reprodução
+        playerAudio.addEventListener('error', (e) => {
+            console.error("Erro no player de áudio:", e);
+
+            // Verifica se a música já estava tocando
+            const currentTime = playerAudio.currentTime;
+            if (currentTime > 0) {
+                showNotification('Erro na reprodução. Tentando recarregar...', 'error');
+
+                // Salva a posição e a fonte
+                const lastSrc = playerAudio.src;
+
+                // Define um listener para continuar a reprodução após o recarregamento
+                const canPlayHandler = () => {
+                    playerAudio.currentTime = currentTime; // Volta para onde estava
+                    playerAudio.play();
+                    // Remove o listener para não ser chamado múltiplas vezes
+                    playerAudio.removeEventListener('canplay', canPlayHandler);
+                };
+                playerAudio.addEventListener('canplay', canPlayHandler);
+
+                // Recarrega a fonte do áudio
+                playerAudio.load(); // O `load` reiniciará o processo de carregamento da `src` atual
             }
         });
 
