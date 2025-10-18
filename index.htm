@@ -854,14 +854,6 @@
             }
         }
 
-        // --- Configuração dos Action Handlers da Media Session API ---
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.setActionHandler('play', () => playerAudio.play());
-            navigator.mediaSession.setActionHandler('pause', () => playerAudio.pause());
-            navigator.mediaSession.setActionHandler('previoustrack', playPreviousSong);
-            navigator.mediaSession.setActionHandler('nexttrack', playNextSong);
-        }
-
         // Quando a música finalmente começa a tocar, cancela o timeout de pulo
         playerAudio.addEventListener('playing', () => {
             if (skipTimeoutId) {
@@ -957,6 +949,14 @@
         const playerSongTitle = document.getElementById('player-song-title');
         const playerArtistName = document.getElementById('player-artist-name');
         const playerAudio = document.getElementById('player-audio');
+
+        // --- Configuração dos Action Handlers da Media Session API ---
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => playerAudio.play());
+            navigator.mediaSession.setActionHandler('pause', () => playerAudio.pause());
+            navigator.mediaSession.setActionHandler('previoustrack', playPreviousSong);
+            navigator.mediaSession.setActionHandler('nexttrack', playNextSong);
+        }
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
