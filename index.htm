@@ -11,14 +11,18 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         :root {
-            --text-primary: #1f2937; /* Default: Tailwind gray-800 */
+            --cor-primaria: #FFFFFF;
+            --cor-secundaria: #F3F4F6;
+            --cor-texto: #1f2937;
+            --cor-destaque: #4f46e5;
         }
         body {
             font-family: 'Inter', sans-serif;
-            @apply bg-gray-100;
+            background-color: var(--cor-secundaria);
+            color: var(--cor-texto);
         }
         .text-theme {
-            color: var(--text-primary);
+            color: var(--cor-texto);
         }
         .shopping-list-item {
             @apply flex items-center justify-between p-3 border-b border-gray-200;
@@ -55,7 +59,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
         }
         /* NOVO: Estilo para o ícone do app selecionado */
@@ -68,7 +72,7 @@
             color: white;
         }
         .grid-item-label {
-            @apply font-semibold text-gray-700 text-base text-left; /* Texto maior e alinhado à esquerda */
+            @apply font-semibold text-base text-left; /* Cor removida, herdará de .text-theme */
             flex-grow: 1; /* Permite que o texto ocupe o espaço restante */
             margin-top: 0;
         }
@@ -133,13 +137,13 @@
             @apply flex-grow;
         }
         .music-artist-display {
-            @apply font-bold text-gray-800;
+            @apply font-bold;
         }
         .music-album-display {
-            @apply italic text-gray-600;
+            @apply italic text-gray-500; /* Mantém um cinza mais claro para diferenciação */
         }
         .music-title-display {
-            @apply text-sm text-gray-700;
+            @apply text-sm;
         }
 
         /* Estilos para o player de música (a visibilidade agora é controlada por 'hidden') */
@@ -210,19 +214,28 @@
 
         #explore-content-container::-webkit-scrollbar-track,
         #folder-music-list-container::-webkit-scrollbar-track {
-            background-color: #374151; /* Cor de fundo escura (cinza-700) */
+            background-color: var(--cor-secundaria);
         }
 
         #explore-content-container::-webkit-scrollbar-thumb,
         #folder-music-list-container::-webkit-scrollbar-thumb {
-            background-color: #6b7280; /* Cor do "polegar" (cinza-500) */
-            border-radius: 0; /* Remove o arredondamento para um polegar quadrado */
-            border: none; /* Remove a borda para garantir a forma exata */
+            background-color: var(--cor-destaque);
+            border-radius: 0;
+            border: none;
         }
 
         #explore-content-container::-webkit-scrollbar-thumb:hover,
         #folder-music-list-container::-webkit-scrollbar-thumb:hover {
-            background-color: #9ca3af; /* Cor do "polegar" ao passar o mouse (cinza-400) */
+            filter: brightness(1.2);
+        }
+        /* Estilos para o Toggle Switch */
+        input:checked ~ .dot {
+            transform: translateX(100%);
+            background-color: var(--cor-destaque);
+        }
+        input:checked ~ .block {
+             background-color: var(--cor-destaque);
+             opacity: 0.5;
         }
     </style>
 </head>
@@ -262,7 +275,7 @@
 
             <!-- Formulário de Nova Senha (inicialmente escondido) -->
             <div id="new-password-container" class="hidden space-y-6 bg-white p-6 rounded-xl shadow-lg">
-                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-300 focus:outline-none transition-all">
+                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -287,14 +300,14 @@
     <!-- Nova tela do usuário logado -->
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
-        <div id="main-header" class="fixed top-0 left-0 right-0 bg-white p-4 shadow-md z-40 h-24 flex items-center">
+        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="flex items-center space-x-4 p-2 rounded-full transition-all duration-200 focus:outline-none">
                 <img id="user-avatar-logged-in" src="https://placehold.co/100x100/A0A0A0/FFFFFF?text=P" alt="Profile" class="w-12 h-12 rounded-full object-cover">
                 <p id="user-email-display" class="text-xl font-bold text-theme noselect"></p>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out">
+                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-destaque);">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -312,7 +325,7 @@
                 <button id="delete-app-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-red-500 hover:bg-red-600">
                     <span id="delete-app-text">Remover</span>
                 </button>
-                <button id="close-app-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors mt-2">
+                <button id="close-app-modal-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors mt-2 hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Fechar
                 </button>
             </div>
@@ -324,8 +337,8 @@
         </div>
 
         <!-- Nova Barra de Navegação Inferior -->
-        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: #141414;"> <!-- Posição ajustada para ficar acima do player -->
-            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
+        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-primaria);"> <!-- Posição ajustada para ficar acima do player -->
+            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-compass mr-3"></i>
                 Explorar
             </button>
@@ -334,7 +347,7 @@
 
     <!-- Modal para opções do perfil -->
     <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -343,13 +356,13 @@
                 </button>
             </div>
             <h3 class="text-2xl font-bold text-theme">Opções do Perfil</h3>
-            <button id="edit-profile-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="edit-profile-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Editar Perfil
             </button>
-            <button id="change-password-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Trocar Senha
             </button>
-            <button id="settings-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Configurações
             </button>
             <button id="logout-button" class="w-full px-4 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors">
@@ -360,7 +373,7 @@
 
     <!-- Novo Modal para editar perfil -->
     <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-edit-profile-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -408,11 +421,11 @@
 
     <!-- Modal para confirmação de exclusão -->
     <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Confirmar Exclusão</h3>
             <p id="delete-confirm-message" class="text-theme">Tem certeza que deseja excluir este item da lista?</p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-delete-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-delete-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-delete-button" class="px-6 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Excluir</button>
             </div>
         </div>
@@ -424,7 +437,7 @@
             <h3 class="text-xl font-bold text-theme">Confirmar Ação</h3>
             <p id="move-item-confirm-message" class="text-theme"></p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-move-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
+                <button id="cancel-move-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90 transition-colors" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-move-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Confirmar</button>
             </div>
         </div>
@@ -432,7 +445,7 @@
 
     <!-- Modal para Configurações de Papel de Parede -->
     <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-settings-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -443,35 +456,37 @@
             <h3 class="text-2xl font-bold text-theme">Personalizar Aparência</h3>
 
             <div class="relative">
-                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Cor do Cabeçalho</label>
-                <input type="color" id="header-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
+                <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
+                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800">
+                    <option value="default">Padrão</option>
+                    <option value="dark">Escuro</option>
+                    <option value="light">Claro</option>
+                    <option value="rose">Rosa</option>
+                    <option value="sepia">Sépia</option>
+                </select>
             </div>
 
-            <div class="relative">
-                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Cor do Papel de Parede</label>
-                <input type="color" id="wallpaper-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
-            </div>
-
-            <div class="relative">
-                <label for="text-color-input" class="block text-sm font-medium text-left text-theme">Cor do Texto</label>
-                <input type="color" id="text-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#1f2937">
-            </div>
-
-            <div>
-                <label for="wallpaper-upload" class="block text-sm font-medium text-left text-theme">Carregar Imagem de Fundo</label>
-                <input type="file" id="wallpaper-upload" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mt-1"/>
-                <p id="wallpaper-upload-message" class="text-sm font-medium p-2 rounded-lg" style="display: none;"></p>
+            <!-- Novo Toggle Switch para Pular Música Automaticamente -->
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-sm font-medium text-left text-theme">Pular música se não carregar</span>
+                <label for="auto-skip-toggle" class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="auto-skip-toggle" class="sr-only">
+                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                    </div>
+                </label>
             </div>
 
             <button id="remove-wallpaper-button" class="w-full px-4 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors">
-                Remover Personalização
+                Restaurar Padrão
             </button>
 
             <div class="flex justify-between space-x-4 pt-4">
-                <button id="cancel-settings-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+                <button id="cancel-settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
-                <button id="save-settings-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                <button id="save-settings-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Salvar
                 </button>
             </div>
@@ -480,8 +495,8 @@
 
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
-    <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[60]">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
+    <div id="add-app-modal" class="fixed inset-0 hidden flex-col z-[60]" style="background-color: var(--cor-secundaria);">
+        <header class="flex items-center justify-between p-4 shadow-md" style="background-color: var(--cor-primaria);">
             <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
             <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -489,7 +504,7 @@
                 </svg>
             </button>
         </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4 overflow-y-auto">
+        <div class="flex flex-col p-4 flex-grow space-y-4 overflow-y-auto">
             <div class="relative">
                 <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Nome da Pasta</label>
                 <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -497,10 +512,10 @@
 
 
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="save-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                <button id="save-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Criar Pasta
                 </button>
-                <button id="cancel-add-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+                <button id="cancel-add-app-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
             </div>
@@ -509,22 +524,22 @@
 
     <!-- Novo Modal para Editar Nome de App Fixo -->
     <div id="edit-fixed-app-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 id="edit-fixed-app-title" class="text-2xl font-bold text-center text-theme">Editar Nome</h3>
             <div class="relative">
                 <label for="fixed-app-name-input" class="block text-sm font-medium text-left text-theme">Novo Nome</label>
                 <input type="text" id="fixed-app-name-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Salvar</button>
+                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Salvar</button>
             </div>
         </div>
     </div>
 
     <!-- NOVO: Modal para Adicionar Música à Pasta -->
     <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[90]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
             <div class="relative">
                 <label for="modal-folder-select" class="block text-sm font-medium text-left text-theme">Selecione a Pasta</label>
@@ -533,15 +548,15 @@
                 </select>
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Adicionar</button>
+                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Adicionar</button>
             </div>
         </div>
     </div>
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
-    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
-        <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
+    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-50" style="background-color: var(--cor-secundaria);">
+        <header class="p-4 shadow-md space-y-4 text-theme" style="background-color: var(--cor-primaria);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <!-- Botão de Voltar (inicialmente oculto) -->
@@ -560,15 +575,15 @@
                     </svg>
                 </button>
             </div>
-            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
         <!-- Rodapé fixo com o botão de música aleatória -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: #141414;">
-            <button id="play-random-song-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
+        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-primaria);">
+            <button id="play-random-song-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-dice mr-3"></i>
                 Música Aleatória
             </button>
@@ -576,7 +591,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 text-white p-4 shadow-lg z-50 hidden cursor-pointer" style="background-color: #141414;">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 hidden cursor-pointer text-theme" style="background-color: var(--cor-primaria);">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -638,7 +653,7 @@
             </div>
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="save-edit-price-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Salvar</button>
-                <button id="cancel-edit-price-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-edit-price-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
             </div>
         </div>
     </div>
@@ -666,6 +681,40 @@
 
         // Configura o cliente do Supabase
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- DEFINIÇÕES DE TEMA ---
+        const themes = {
+            'default': {
+                corPrimaria: '#FFFFFF',
+                corSecundaria: '#F3F4F6',
+                corTexto: '#1f2937',
+                corDestaque: '#ffaa00'
+            },
+            'dark': {
+                corPrimaria: '#1a1a1a',
+                corSecundaria: '#2a2a2a',
+                corTexto: '#f0f0f0',
+                corDestaque: '#ffaa00'
+            },
+            'light': {
+                corPrimaria: '#ffffff',
+                corSecundaria: '#f0f8ff',
+                corTexto: '#000000',
+                corDestaque: '#007bff'
+            },
+            'rose': {
+                corPrimaria: '#fdf2f8',
+                corSecundaria: '#fff0f5',
+                corTexto: '#831843',
+                corDestaque: '#e11d48'
+            },
+            'sepia': {
+                corPrimaria: '#f1e9db',
+                corSecundaria: '#e3dace',
+                corTexto: '#433422',
+                corDestaque: '#8c5a2b'
+            }
+        };
 
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
         const mainContainer = document.getElementById('main-container');
@@ -726,11 +775,14 @@
         const headerColorInput = document.getElementById('header-color-input');
         const wallpaperColorInput = document.getElementById('wallpaper-color-input');
         const textColorInput = document.getElementById('text-color-input');
+        const accentColorInput = document.getElementById('accent-color-input');
         const wallpaperUploadInput = document.getElementById('wallpaper-upload');
         const wallpaperUploadMessage = document.getElementById('wallpaper-upload-message');
         const removeWallpaperButton = document.getElementById('remove-wallpaper-button');
         const saveSettingsButton = document.getElementById('save-settings-button');
         const cancelSettingsButton = document.getElementById('cancel-settings-button');
+        const autoSkipToggle = document.getElementById('auto-skip-toggle');
+        const themeSelect = document.getElementById('theme-select');
         const buttonGridContainer = document.getElementById('button-grid-container');
         const mainHeader = document.getElementById('main-header');
 
@@ -805,8 +857,14 @@
         let historyFuture = []; // Armazena as músicas "puladas" com o botão "anterior"
         let repeatMode = 'none';
         let isRandomModeActive = false;
+        let autoSkipTimeout = null;
 
         function playSong(songData, fromHistory = false) {
+            if (autoSkipTimeout) {
+                clearTimeout(autoSkipTimeout);
+                autoSkipTimeout = null;
+            }
+
             if (currentSong && !fromHistory) {
                 historyPast.push(currentSong);
                 historyFuture = [];
@@ -822,6 +880,13 @@
             playerAudio.src = songData.src;
             playerAudio.play();
             musicPlayer.classList.remove('hidden');
+
+            if (currentUserPreferences.autoSkip !== false) {
+                autoSkipTimeout = setTimeout(() => {
+                    showNotification('A música demorou para carregar e foi pulada.', 'error');
+                    playNextSong();
+                }, 20000);
+            }
         }
 
         async function playNextSong() {
@@ -923,6 +988,7 @@
         let customAppsSubscription = null;
         let isDragging = false;
         let tempPreferences = {}; // State for settings modal
+        let currentUserPreferences = {}; // Armazena as preferências carregadas
         let isAppInitialized = false;
 
         const availableIcons = [
@@ -1089,42 +1155,17 @@
 
         // --- FUNÇÕES DE PAPEL DE PAREDE E APARÊNCIA ---
 
-        // Aplica as preferências salvas (papel de parede e cor do cabeçalho)
-        function applyPreferences(preferences) {
-            // Estilos padrão
-            const defaultWallpaperStyles = {
-                backgroundImage: 'none',
-                backgroundColor: '', // Reverte para o padrão do CSS
-                backgroundSize: '',
-                backgroundPosition: '',
-                backgroundRepeat: ''
-            };
-            const defaultHeaderColor = ''; // Branco padrão do CSS
+        // Aplica as preferências salvas (agora baseadas em temas)
+        function applyPreferences(prefs) {
+            currentUserPreferences = prefs || {};
+            const themeName = prefs?.theme || 'default';
+            const selectedTheme = themes[themeName] || themes['default'];
 
-            // Aplica papel de parede
-            const wallpaperPrefs = preferences?.wallpaper;
-            if (wallpaperPrefs) {
-                if (wallpaperPrefs.type === 'color') {
-                    loggedInAppContainer.style.backgroundColor = wallpaperPrefs.value;
-                    loggedInAppContainer.style.backgroundImage = 'none';
-                } else if (wallpaperPrefs.type === 'image') {
-                    loggedInAppContainer.style.backgroundImage = `url(${wallpaperPrefs.value})`;
-                    loggedInAppContainer.style.backgroundSize = 'cover';
-                    loggedInAppContainer.style.backgroundPosition = 'center';
-                    loggedInAppContainer.style.backgroundRepeat = 'no-repeat';
-                }
-            } else {
-                Object.assign(loggedInAppContainer.style, defaultWallpaperStyles);
-            }
-
-            // Aplica cor do cabeçalho e da faixa de ações
-            const headerColor = preferences?.headerColor || defaultHeaderColor;
-            mainHeader.style.backgroundColor = headerColor;
-            appActionBar.style.backgroundColor = headerColor;
-
-            // Aplica cor do texto apenas à área logada, não aos modais
-            const textColor = preferences?.textColor || '#1f2937'; // Default to gray-800
-            loggedInAppContainer.style.setProperty('--text-primary', textColor);
+            const root = document.documentElement;
+            root.style.setProperty('--cor-primaria', selectedTheme.corPrimaria);
+            root.style.setProperty('--cor-secundaria', selectedTheme.corSecundaria);
+            root.style.setProperty('--cor-texto', selectedTheme.corTexto);
+            root.style.setProperty('--cor-destaque', selectedTheme.corDestaque);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1155,21 +1196,14 @@
 
             if (error && error.code !== 'PGRST116') {
                 console.error('Erro ao carregar preferências:', error);
-                applyPreferences(null); // Aplica defaults em caso de erro
+                applyPreferences(null);
             } else if (data && data.preferences) {
                 applyPreferences(data.preferences);
-                // Define os valores iniciais dos seletores de cor
-                if (data.preferences.headerColor) {
-                    headerColorInput.value = data.preferences.headerColor;
-                }
-                if (data.preferences.wallpaper?.type === 'color') {
-                    wallpaperColorInput.value = data.preferences.wallpaper.value;
-                }
-                if (data.preferences.textColor) {
-                    textColorInput.value = data.preferences.textColor;
-                }
+                // Sincroniza o dropdown do tema com as preferências carregadas
+                themeSelect.value = data.preferences.theme || 'default';
             } else {
-                applyPreferences(null); // Nenhuma preferência salva, aplica defaults
+                applyPreferences(null);
+                themeSelect.value = 'default';
             }
         }
 
@@ -1575,23 +1609,18 @@
 
         // Opens the modal and prepares the temporary state for editing
         settingsButton.addEventListener('click', async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
-
-            // Store a deep copy of current preferences to edit and potentially save later
-            tempPreferences = JSON.parse(JSON.stringify((error || !data) ? {} : data.preferences || {}));
-
-            // Set input values based on the loaded preferences
-            headerColorInput.value = tempPreferences.headerColor || '#FFFFFF';
-            wallpaperColorInput.value = (tempPreferences.wallpaper?.type === 'color' ? tempPreferences.wallpaper.value : '#FFFFFF');
-            textColorInput.value = tempPreferences.textColor || '#1f2937';
+            // 1. Show modal with default values immediately
+            tempPreferences = { ...currentUserPreferences };
+            themeSelect.value = currentUserPreferences.theme || 'default';
+            autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
 
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
             settingsModal.classList.remove('hidden');
             settingsModal.classList.add('flex');
+
+            // A inicialização agora usa currentUserPreferences, que é carregado
+            // no login, então não é mais necessário buscar novamente aqui.
         });
 
         // Save the changes made in the modal
@@ -1611,79 +1640,23 @@
             closeSettingsModal();
         });
 
-        // Live preview for header color
-        headerColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            mainHeader.style.backgroundColor = color;
-            appActionBar.style.backgroundColor = color; // Sincroniza a cor da faixa de ações
-            tempPreferences.headerColor = color; // Update temp state
+        // Live preview for theme selection
+        themeSelect.addEventListener('change', (e) => {
+            const selectedThemeName = e.target.value;
+            tempPreferences.theme = selectedThemeName;
+            // Aplica o tema selecionado para a pré-visualização ao vivo
+            applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
         });
 
-        // Live preview for wallpaper color
-        wallpaperColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            loggedInAppContainer.style.backgroundColor = color;
-            loggedInAppContainer.style.backgroundImage = 'none';
-            // Update temp state to reflect color selection
-            tempPreferences.wallpaper = { type: 'color', value: color };
-        });
-
-        textColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            loggedInAppContainer.style.setProperty('--text-primary', color);
-            tempPreferences.textColor = color; // Update temp state
-        });
-
-        // Handle image upload: updates temp state, but doesn't save permanently yet
-        wallpaperUploadInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                wallpaperUploadMessage.textContent = 'Usuário não encontrado.';
-                wallpaperUploadMessage.style.display = 'block';
-                return;
-            }
-
-            wallpaperUploadMessage.textContent = 'Carregando imagem...';
-            wallpaperUploadMessage.style.display = 'block';
-            wallpaperUploadMessage.classList.remove('text-red-700', 'text-green-700');
-
-            const filePath = `${user.id}/${file.name}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('wallpapers')
-                .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-            if (uploadError) {
-                wallpaperUploadMessage.textContent = `Erro no upload: ${uploadError.message}`;
-                wallpaperUploadMessage.classList.add('text-red-700');
-                console.error(uploadError);
-                return;
-            }
-
-            const { data } = supabase.storage.from('wallpapers').getPublicUrl(filePath);
-            const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
-
-            // Update temp state with new image wallpaper
-            tempPreferences.wallpaper = { type: 'image', value: publicUrl };
-
-            // Apply the change for live preview
-            applyPreferences(tempPreferences);
-
-            wallpaperUploadMessage.textContent = 'Imagem carregada! Clique em Salvar.';
-            wallpaperUploadMessage.classList.add('text-green-700');
-            wallpaperUploadInput.value = '';
+        autoSkipToggle.addEventListener('change', (e) => {
+            tempPreferences.autoSkip = e.target.checked;
         });
 
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
-            tempPreferences = {};
-            applyPreferences(null); // Visually reset to defaults
-            wallpaperColorInput.value = '#FFFFFF';
-            headerColorInput.value = '#FFFFFF';
-            textColorInput.value = '#1f2937';
+            tempPreferences.theme = 'default';
+            themeSelect.value = 'default';
+            applyPreferences({ ...tempPreferences });
         });
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
@@ -1710,11 +1683,13 @@
                 if (item.url) itemContainer.dataset.url = item.url;
 
                 const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
-                const bgColor = item.isFolder ? '#333333' : (item.bg_color || '#333333');
                 const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
+                const bgStyle = item.isFolder
+                    ? `background-color: var(--cor-destaque);`
+                    : `background-color: ${item.bg_color || '#333333'};`;
 
                 itemContainer.innerHTML = `
-                    <div class="grid-item" draggable="true" style="background-color: ${bgColor};">
+                    <div class="grid-item" draggable="true" style="${bgStyle}">
                         <i class="${iconClass} grid-item-icon" style="color: ${iconColor};"></i>
                     </div>
                     <span class="grid-item-label text-theme noselect">${item.title}</span>
@@ -1776,18 +1751,18 @@
 
                 // Cria os elementos de UI com os dados da cópia
                 const musicInfo = document.createElement('div');
-                musicInfo.className = 'music-info flex-grow';
+                musicInfo.className = 'music-info flex-grow text-theme'; // Aplica a cor do tema aqui
 
                 const artistP = document.createElement('p');
-                artistP.className = 'music-artist-display font-bold text-gray-800';
+                artistP.className = 'music-artist-display font-bold'; // Cor removida
                 artistP.textContent = musica.musica_artista || 'Artista Desconhecido';
 
                 const albumP = document.createElement('p');
-                albumP.className = 'music-album-display italic text-gray-600';
+                albumP.className = 'music-album-display italic text-gray-500'; // Mantém cinza claro
                 albumP.textContent = musica.musica_album || '';
 
                 const titleP = document.createElement('p');
-                titleP.className = 'music-title-display text-sm text-gray-700';
+                titleP.className = 'music-title-display text-sm'; // Cor removida
                 titleP.textContent = musica.musica_titulo || 'Título Desconhecido';
 
                 musicInfo.appendChild(artistP);
@@ -2581,6 +2556,13 @@
         });
 
         // Sincronização dos controles personalizados
+        playerAudio.addEventListener('playing', () => {
+            if (autoSkipTimeout) {
+                clearTimeout(autoSkipTimeout);
+                autoSkipTimeout = null;
+            }
+        });
+
         playPauseBtn.addEventListener('click', () => {
             if (playerAudio.paused) {
                 playerAudio.play();
@@ -2914,6 +2896,7 @@
 
 
         // Expõe a função para o Playwright
+        window.applyPreferences = applyPreferences;
         window.toggleUI = toggleUI;
         window.renderApps = renderApps;
         window.fixedAppsMasterList = fixedAppsMasterList;
@@ -2927,6 +2910,7 @@
         window.showNotification = showNotification; // Expor para teste
 
         // Funções expostas adicionalmente para verificação
+        window.showDeleteConfirmationModal = showDeleteConfirmationModal;
         window.showMainApp = () => {
             if (!isAppInitialized) {
                 const mockUser = { id: 'mock-id', email: 'test@test.com' };
@@ -2956,7 +2940,7 @@
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
-    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-40">
+    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-40" style="background-color: var(--cor-secundaria);">
         <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
             <div class="flex items-center justify-between">
                 <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
@@ -2975,7 +2959,7 @@
 
     <!-- NOVO: Modal de Ações da Pasta -->
     <div id="folder-action-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
                 <button id="close-folder-action-modal" class="text-gray-500 hover:text-white">
@@ -2997,9 +2981,9 @@
     </div>
 
     <!-- NOVO: Player de Música em Tela Cheia -->
-    <div id="fullscreen-player" class="fixed inset-0 text-white hidden flex-col items-center justify-center p-4 z-[80]" style="background-color: #141414;">
+    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center justify-center p-4 z-[80] text-theme" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
-        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
+        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-3xl">&times;</button>
 
         <div class="w-full max-w-md text-center">
             <!-- Arte do Álbum -->
@@ -3007,44 +2991,44 @@
 
             <!-- Informações da Música -->
             <h2 id="fullscreen-song-title" class="text-3xl font-bold">Nome da Música</h2>
-            <p id="fullscreen-artist-name" class="text-lg text-gray-400 mb-6">Nome do Artista</p>
+            <p id="fullscreen-artist-name" class="text-lg opacity-70 mb-6">Nome do Artista</p>
 
             <!-- Barra de Progresso -->
-            <div id="progress-bar-container" class="w-full bg-gray-700 rounded-full h-2.5 mb-2 cursor-pointer">
-                <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%"></div>
+            <div id="progress-bar-container" class="w-full rounded-full h-2.5 mb-2 cursor-pointer" style="background-color: var(--cor-secundaria); opacity: 0.5;">
+                <div id="progress-bar" class="h-2.5 rounded-full" style="width: 0%; background-color: var(--cor-destaque);"></div>
             </div>
-            <div class="flex justify-between text-sm text-gray-400 mb-6">
+            <div class="flex justify-between text-sm opacity-70 mb-6">
                 <span id="current-time">0:00</span>
                 <span id="duration">0:00</span>
             </div>
 
             <!-- Controles -->
-            <div class="flex items-center justify-center space-x-8">
-                <button id="prev-btn" class="text-3xl text-gray-400 hover:text-white">
+            <div class="flex items-center justify-center space-x-8 text-theme">
+                <button id="prev-btn" class="text-3xl opacity-70 hover:opacity-100 transition-opacity">
                     <i class="fas fa-step-backward"></i>
                 </button>
                 <button id="play-pause-btn" class="text-5xl">
                     <i class="fas fa-play"></i>
                 </button>
-                <button id="next-btn" class="text-3xl text-gray-400 hover:text-white">
+                <button id="next-btn" class="text-3xl opacity-70 hover:opacity-100 transition-opacity">
                     <i class="fas fa-step-forward"></i>
                 </button>
             </div>
 
             <!-- Controles Adicionais (Volume e Modo de Repetição) -->
-            <div class="w-full max-w-sm mx-auto mt-6 flex items-center justify-between space-x-4">
-                <button id="repeat-mode-btn" class="text-xl text-gray-400 hover:text-white" data-mode="none">
+            <div class="w-full max-w-sm mx-auto mt-6 flex items-center justify-between space-x-4 text-theme">
+                <button id="repeat-mode-btn" class="text-xl opacity-70 hover:opacity-100 transition-opacity" data-mode="none">
                     <i class="fas fa-random"></i> <!-- Ícone inicial, pode mudar -->
                 </button>
-                <div class="flex items-center flex-grow space-x-2">
-                    <i class="fas fa-volume-down text-gray-400"></i>
-                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                    <i class="fas fa-volume-up text-gray-400"></i>
+                <div class="flex items-center flex-grow space-x-2 opacity-70">
+                    <i class="fas fa-volume-down"></i>
+                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 rounded-lg appearance-none cursor-pointer" style="background-color: var(--cor-secundaria);">
+                    <i class="fas fa-volume-up"></i>
                 </div>
             </div>
             <!-- Botão de Adicionar à Pasta (Centralizado) -->
-            <div class="w-full flex justify-center mt-6">
-                <button id="add-to-folder-fullscreen-btn" class="w-16 h-16 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+            <div class="w-full flex justify-center mt-6 text-theme">
+                <button id="add-to-folder-fullscreen-btn" class="w-16 h-16 flex items-center justify-center rounded-full opacity-70 hover:opacity-100 transition-opacity">
                     <i class="fas fa-plus-circle text-2xl"></i>
                 </button>
             </div>
@@ -3052,7 +3036,7 @@
     </div>
 
     <!-- NOVO: Modal de Notificação Personalizado -->
-    <div id="notification-modal" class="fixed top-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl hidden transform transition-all duration-300 ease-in-out z-[100]">
+    <div id="notification-modal" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl hidden transform transition-all duration-300 ease-in-out z-[100]">
         <p id="notification-message"></p>
     </div>
 </body>
