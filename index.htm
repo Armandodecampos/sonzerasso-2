@@ -463,7 +463,28 @@
                     <option value="light">Claro</option>
                     <option value="rose">Rosa</option>
                     <option value="sepia">Sépia</option>
+                    <option value="custom">Personalizado</option>
                 </select>
+            </div>
+
+            <!-- Novo container para as cores personalizadas -->
+            <div id="custom-colors-container" class="hidden space-y-2 pt-4 text-left">
+                <div class="flex items-center justify-between">
+                    <label for="custom-primary-color" class="text-sm font-medium text-theme">Cor Primária</label>
+                    <input type="color" id="custom-primary-color" value="#FFFFFF">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="custom-secondary-color" class="text-sm font-medium text-theme">Cor Secundária</label>
+                    <input type="color" id="custom-secondary-color" value="#F3F4F6">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="custom-text-color" class="text-sm font-medium text-theme">Cor do Texto</label>
+                    <input type="color" id="custom-text-color" value="#1f2937">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="custom-accent-color" class="text-sm font-medium text-theme">Cor de Destaque</label>
+                    <input type="color" id="custom-accent-color" value="#4f46e5">
+                </div>
             </div>
 
             <!-- Novo Toggle Switch para Pular Música Automaticamente -->
@@ -1178,17 +1199,27 @@
 
         // --- FUNÇÕES DE PAPEL DE PAREDE E APARÊNCIA ---
 
-        // Aplica as preferências salvas (agora baseadas em temas)
-        function applyPreferences(prefs) {
-            currentUserPreferences = prefs || {};
+        // Aplica as preferências de tema à UI
+        function applyPreferences(prefs, isInitialLoad = false) {
+            // Se for o carregamento inicial, atualiza o estado global
+            if (isInitialLoad) {
+                currentUserPreferences = JSON.parse(JSON.stringify(prefs || {}));
+            }
+
             const themeName = prefs?.theme || 'default';
-            const selectedTheme = themes[themeName] || themes['default'];
+            let themeColors;
+
+            if (themeName === 'custom' && prefs.customColors) {
+                themeColors = prefs.customColors;
+            } else {
+                themeColors = themes[themeName] || themes['default'];
+            }
 
             const root = document.documentElement;
-            root.style.setProperty('--cor-primaria', selectedTheme.corPrimaria);
-            root.style.setProperty('--cor-secundaria', selectedTheme.corSecundaria);
-            root.style.setProperty('--cor-texto', selectedTheme.corTexto);
-            root.style.setProperty('--cor-destaque', selectedTheme.corDestaque);
+            root.style.setProperty('--cor-primaria', themeColors.corPrimaria);
+            root.style.setProperty('--cor-secundaria', themeColors.corSecundaria);
+            root.style.setProperty('--cor-texto', themeColors.corTexto);
+            root.style.setProperty('--cor-destaque', themeColors.corDestaque);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1219,13 +1250,13 @@
 
             if (error && error.code !== 'PGRST116') {
                 console.error('Erro ao carregar preferências:', error);
-                applyPreferences(null);
+                applyPreferences(null, true);
             } else if (data && data.preferences) {
-                applyPreferences(data.preferences);
+                applyPreferences(data.preferences, true);
                 // Sincroniza o dropdown do tema com as preferências carregadas
                 themeSelect.value = data.preferences.theme || 'default';
             } else {
-                applyPreferences(null);
+                applyPreferences(null, true);
                 themeSelect.value = 'default';
             }
         }
@@ -1637,6 +1668,20 @@
             themeSelect.value = currentUserPreferences.theme || 'default';
             autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
 
+            // Mostra ou esconde os seletores de cores personalizadas
+            if (themeSelect.value === 'custom') {
+                customColorsContainer.classList.remove('hidden');
+                // Preenche os seletores com as cores salvas
+                if (currentUserPreferences.customColors) {
+                    customPrimaryColorInput.value = currentUserPreferences.customColors.corPrimaria;
+                    customSecondaryColorInput.value = currentUserPreferences.customColors.corSecundaria;
+                    customTextColorInput.value = currentUserPreferences.customColors.corTexto;
+                    customAccentColorInput.value = currentUserPreferences.customColors.corDestaque;
+                }
+            } else {
+                customColorsContainer.classList.add('hidden');
+            }
+
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
             settingsModal.classList.remove('hidden');
@@ -1649,31 +1694,72 @@
         // Save the changes made in the modal
         saveSettingsButton.addEventListener('click', async () => {
             await saveUserPreferences(tempPreferences);
+            // Após salvar, atualiza o estado global para corresponder ao estado salvo
+            currentUserPreferences = JSON.parse(JSON.stringify(tempPreferences));
             closeSettingsModal();
         });
 
         // Discard changes and revert to how it was before opening the modal
-        cancelSettingsButton.addEventListener('click', async () => {
-            await loadUserPreferences(); // Easiest way to revert to saved state
+        cancelSettingsButton.addEventListener('click', () => {
+            // Reverte para as preferências salvas globalmente
+            applyPreferences(currentUserPreferences);
             closeSettingsModal();
         });
 
-        closeSettingsModalButton.addEventListener('click', async () => {
-            await loadUserPreferences(); // Also treat 'X' as a cancel action
+        closeSettingsModalButton.addEventListener('click', () => {
+            // Também trata 'X' como uma ação de cancelar
+            applyPreferences(currentUserPreferences);
             closeSettingsModal();
         });
+
+        // --- NOVO: Referências para os seletores de cor personalizados ---
+        const customColorsContainer = document.getElementById('custom-colors-container');
+        const customPrimaryColorInput = document.getElementById('custom-primary-color');
+        const customSecondaryColorInput = document.getElementById('custom-secondary-color');
+        const customTextColorInput = document.getElementById('custom-text-color');
+        const customAccentColorInput = document.getElementById('custom-accent-color');
 
         // Live preview for theme selection
         themeSelect.addEventListener('change', (e) => {
             const selectedThemeName = e.target.value;
             tempPreferences.theme = selectedThemeName;
-            // Aplica o tema selecionado para a pré-visualização ao vivo
-            applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
+
+            if (selectedThemeName === 'custom') {
+                customColorsContainer.classList.remove('hidden');
+                // Inicializa as cores personalizadas se não existirem
+                if (!tempPreferences.customColors) {
+                    tempPreferences.customColors = {
+                        corPrimaria: '#FFFFFF',
+                        corSecundaria: '#F3F4F6',
+                        corTexto: '#1f2937',
+                        corDestaque: '#4f46e5'
+                    };
+                }
+                 // Aplica as cores personalizadas salvas
+                applyPreferences({ ...currentUserPreferences, theme: 'custom', customColors: tempPreferences.customColors });
+            } else {
+                customColorsContainer.classList.add('hidden');
+                 // Aplica o tema pré-definido
+                applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
+            }
         });
 
         autoSkipToggle.addEventListener('change', (e) => {
             tempPreferences.autoSkip = e.target.checked;
         });
+
+        // --- NOVO: Listeners para a visualização em tempo real das cores personalizadas ---
+        function handleCustomColorChange(e, colorKey) {
+            if (tempPreferences.theme === 'custom' && tempPreferences.customColors) {
+                tempPreferences.customColors[colorKey] = e.target.value;
+                applyPreferences(tempPreferences);
+            }
+        }
+
+        customPrimaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corPrimaria'));
+        customSecondaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corSecundaria'));
+        customTextColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corTexto'));
+        customAccentColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corDestaque'));
 
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
