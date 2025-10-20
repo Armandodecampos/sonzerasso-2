@@ -59,7 +59,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
         }
         /* NOVO: Estilo para o ícone do app selecionado */
@@ -72,7 +72,7 @@
             color: white;
         }
         .grid-item-label {
-            @apply font-semibold text-gray-700 text-base text-left; /* Texto maior e alinhado à esquerda */
+            @apply font-semibold text-base text-left; /* Cor removida, herdará de .text-theme */
             flex-grow: 1; /* Permite que o texto ocupe o espaço restante */
             margin-top: 0;
         }
@@ -275,7 +275,7 @@
 
             <!-- Formulário de Nova Senha (inicialmente escondido) -->
             <div id="new-password-container" class="hidden space-y-6 bg-white p-6 rounded-xl shadow-lg">
-                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-300 focus:outline-none transition-all">
+                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -300,7 +300,7 @@
     <!-- Nova tela do usuário logado -->
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
-        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-md z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
+        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="flex items-center space-x-4 p-2 rounded-full transition-all duration-200 focus:outline-none">
                 <img id="user-avatar-logged-in" src="https://placehold.co/100x100/A0A0A0/FFFFFF?text=P" alt="Profile" class="w-12 h-12 rounded-full object-cover">
                 <p id="user-email-display" class="text-xl font-bold text-theme noselect"></p>
@@ -325,7 +325,7 @@
                 <button id="delete-app-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-red-500 hover:bg-red-600">
                     <span id="delete-app-text">Remover</span>
                 </button>
-                <button id="close-app-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors mt-2">
+                <button id="close-app-modal-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors mt-2 hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Fechar
                 </button>
             </div>
@@ -356,13 +356,13 @@
                 </button>
             </div>
             <h3 class="text-2xl font-bold text-theme">Opções do Perfil</h3>
-            <button id="edit-profile-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="edit-profile-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Editar Perfil
             </button>
-            <button id="change-password-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Trocar Senha
             </button>
-            <button id="settings-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+            <button id="settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Configurações
             </button>
             <button id="logout-button" class="w-full px-4 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors">
@@ -425,7 +425,7 @@
             <h3 class="text-xl font-bold text-theme">Confirmar Exclusão</h3>
             <p id="delete-confirm-message" class="text-theme">Tem certeza que deseja excluir este item da lista?</p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-delete-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-delete-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-delete-button" class="px-6 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Excluir</button>
             </div>
         </div>
@@ -437,7 +437,7 @@
             <h3 class="text-xl font-bold text-theme">Confirmar Ação</h3>
             <p id="move-item-confirm-message" class="text-theme"></p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-move-button" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
+                <button id="cancel-move-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90 transition-colors" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-move-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Confirmar</button>
             </div>
         </div>
@@ -483,7 +483,7 @@
             </button>
 
             <div class="flex justify-between space-x-4 pt-4">
-                <button id="cancel-settings-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+                <button id="cancel-settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
                 <button id="save-settings-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
@@ -515,7 +515,7 @@
                 <button id="save-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Criar Pasta
                 </button>
-                <button id="cancel-add-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
+                <button id="cancel-add-app-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
             </div>
@@ -531,7 +531,7 @@
                 <input type="text" id="fixed-app-name-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Salvar</button>
             </div>
         </div>
@@ -548,7 +548,7 @@
                 </select>
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Adicionar</button>
             </div>
         </div>
@@ -653,7 +653,7 @@
             </div>
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="save-edit-price-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Salvar</button>
-                <button id="cancel-edit-price-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-edit-price-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
             </div>
         </div>
     </div>
@@ -2909,6 +2909,7 @@
         window.showNotification = showNotification; // Expor para teste
 
         // Funções expostas adicionalmente para verificação
+        window.showDeleteConfirmationModal = showDeleteConfirmationModal;
         window.showMainApp = () => {
             if (!isAppInitialized) {
                 const mockUser = { id: 'mock-id', email: 'test@test.com' };
