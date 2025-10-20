@@ -881,6 +881,29 @@
             playerAudio.play();
             musicPlayer.classList.remove('hidden');
 
+            // --- INTEGRAÇÃO COM MEDIA SESSION API ---
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: songData.title || 'Música desconhecida',
+                    artist: songData.artist || 'Artista desconhecido',
+                    album: songData.album || '',
+                    artwork: [
+                        { src: songData.albumArt || 'https://placehold.co/96x96', sizes: '96x96', type: 'image/png' },
+                        { src: songData.albumArt || 'https://placehold.co/128x128', sizes: '128x128', type: 'image/png' },
+                        { src: songData.albumArt || 'https://placehold.co/192x192', sizes: '192x192', type: 'image/png' },
+                        { src: songData.albumArt || 'https://placehold.co/256x256', sizes: '256x256', type: 'image/png' },
+                        { src: songData.albumArt || 'https://placehold.co/384x384', sizes: '384x384', type: 'image/png' },
+                        { src: songData.albumArt || 'https://placehold.co/512x512', sizes: '512x512', type: 'image/png' },
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => playerAudio.play());
+                navigator.mediaSession.setActionHandler('pause', () => playerAudio.pause());
+                navigator.mediaSession.setActionHandler('previoustrack', playPreviousSong);
+                navigator.mediaSession.setActionHandler('nexttrack', playNextSong);
+            }
+            // --- FIM DA INTEGRAÇÃO ---
+
             if (currentUserPreferences.autoSkip !== false) {
                 autoSkipTimeout = setTimeout(() => {
                     showNotification('A música demorou para carregar e foi pulada.', 'error');
