@@ -456,23 +456,14 @@
             <h3 class="text-2xl font-bold text-theme">Personalizar Aparência</h3>
 
             <div class="relative">
-                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Fundo Principal</label>
-                <input type="color" id="header-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
-            </div>
-
-            <div class="relative">
-                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Fundo Secundário</label>
-                <input type="color" id="wallpaper-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#F3F4F6">
-            </div>
-
-            <div class="relative">
-                <label for="text-color-input" class="block text-sm font-medium text-left text-theme">Cor do Texto</label>
-                <input type="color" id="text-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#1f2937">
-            </div>
-
-            <div class="relative">
-                <label for="accent-color-input" class="block text-sm font-medium text-left text-theme">Cor de Destaque</label>
-                <input type="color" id="accent-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#4f46e5">
+                <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
+                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800">
+                    <option value="default">Padrão</option>
+                    <option value="dark">Escuro</option>
+                    <option value="light">Claro</option>
+                    <option value="rose">Rosa</option>
+                    <option value="sepia">Sépia</option>
+                </select>
             </div>
 
             <!-- Novo Toggle Switch para Pular Música Automaticamente -->
@@ -691,6 +682,40 @@
         // Configura o cliente do Supabase
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- DEFINIÇÕES DE TEMA ---
+        const themes = {
+            'default': {
+                corPrimaria: '#FFFFFF',
+                corSecundaria: '#F3F4F6',
+                corTexto: '#1f2937',
+                corDestaque: '#4f46e5'
+            },
+            'dark': {
+                corPrimaria: '#1a1a1a',
+                corSecundaria: '#2a2a2a',
+                corTexto: '#f0f0f0',
+                corDestaque: '#34d399'
+            },
+            'light': {
+                corPrimaria: '#ffffff',
+                corSecundaria: '#f0f8ff',
+                corTexto: '#000000',
+                corDestaque: '#007bff'
+            },
+            'rose': {
+                corPrimaria: '#fdf2f8',
+                corSecundaria: '#fff0f5',
+                corTexto: '#831843',
+                corDestaque: '#e11d48'
+            },
+            'sepia': {
+                corPrimaria: '#f1e9db',
+                corSecundaria: '#e3dace',
+                corTexto: '#433422',
+                corDestaque: '#8c5a2b'
+            }
+        };
+
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
         const mainContainer = document.getElementById('main-container');
         const app = document.getElementById('app');
@@ -757,6 +782,7 @@
         const saveSettingsButton = document.getElementById('save-settings-button');
         const cancelSettingsButton = document.getElementById('cancel-settings-button');
         const autoSkipToggle = document.getElementById('auto-skip-toggle');
+        const themeSelect = document.getElementById('theme-select');
         const buttonGridContainer = document.getElementById('button-grid-container');
         const mainHeader = document.getElementById('main-header');
 
@@ -1129,20 +1155,17 @@
 
         // --- FUNÇÕES DE PAPEL DE PAREDE E APARÊNCIA ---
 
-        // Aplica as preferências salvas (papel de parede e cor do cabeçalho)
-        function applyPreferences(preferences) {
-            currentUserPreferences = preferences || {}; // Armazena as preferências globalmente
+        // Aplica as preferências salvas (agora baseadas em temas)
+        function applyPreferences(prefs) {
+            currentUserPreferences = prefs || {};
+            const themeName = prefs?.theme || 'default';
+            const selectedTheme = themes[themeName] || themes['default'];
+
             const root = document.documentElement;
-
-            const corPrimaria = preferences?.corPrimaria || '#FFFFFF';
-            const corSecundaria = preferences?.corSecundaria || '#F3F4F6';
-            const corTexto = preferences?.corTexto || '#1f2937';
-            const corDestaque = preferences?.corDestaque || '#4f46e5';
-
-            root.style.setProperty('--cor-primaria', corPrimaria);
-            root.style.setProperty('--cor-secundaria', corSecundaria);
-            root.style.setProperty('--cor-texto', corTexto);
-            root.style.setProperty('--cor-destaque', corDestaque);
+            root.style.setProperty('--cor-primaria', selectedTheme.corPrimaria);
+            root.style.setProperty('--cor-secundaria', selectedTheme.corSecundaria);
+            root.style.setProperty('--cor-texto', selectedTheme.corTexto);
+            root.style.setProperty('--cor-destaque', selectedTheme.corDestaque);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1176,13 +1199,11 @@
                 applyPreferences(null);
             } else if (data && data.preferences) {
                 applyPreferences(data.preferences);
-                // Sincroniza os inputs do modal com as preferências carregadas
-                headerColorInput.value = data.preferences.corPrimaria || '#FFFFFF';
-                wallpaperColorInput.value = data.preferences.corSecundaria || '#F3F4F6';
-                textColorInput.value = data.preferences.corTexto || '#1f2937';
-                accentColorInput.value = data.preferences.corDestaque || '#4f46e5';
+                // Sincroniza o dropdown do tema com as preferências carregadas
+                themeSelect.value = data.preferences.theme || 'default';
             } else {
                 applyPreferences(null);
+                themeSelect.value = 'default';
             }
         }
 
@@ -1589,35 +1610,17 @@
         // Opens the modal and prepares the temporary state for editing
         settingsButton.addEventListener('click', async () => {
             // 1. Show modal with default values immediately
-            tempPreferences = {};
-            headerColorInput.value = '#FFFFFF';
-            wallpaperColorInput.value = '#F3F4F6';
-            textColorInput.value = '#1f2937';
-            accentColorInput.value = '#4f46e5';
-            autoSkipToggle.checked = true; // Default is true now
+            tempPreferences = { ...currentUserPreferences };
+            themeSelect.value = currentUserPreferences.theme || 'default';
+            autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
 
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
             settingsModal.classList.remove('hidden');
             settingsModal.classList.add('flex');
 
-            // 2. Then, try to load user preferences and override defaults
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return; // If no user, we're done, defaults are shown
-
-            const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
-
-            if (data && data.preferences) {
-                // Store a deep copy of current preferences to edit and potentially save later
-                tempPreferences = JSON.parse(JSON.stringify(data.preferences));
-
-                // Set input values based on the loaded preferences
-                headerColorInput.value = tempPreferences.corPrimaria || '#FFFFFF';
-                wallpaperColorInput.value = tempPreferences.corSecundaria || '#F3F4F6';
-                textColorInput.value = tempPreferences.corTexto || '#1f2937';
-                accentColorInput.value = tempPreferences.corDestaque || '#4f46e5';
-                autoSkipToggle.checked = tempPreferences.autoSkip !== false;
-            }
+            // A inicialização agora usa currentUserPreferences, que é carregado
+            // no login, então não é mais necessário buscar novamente aqui.
         });
 
         // Save the changes made in the modal
@@ -1637,30 +1640,12 @@
             closeSettingsModal();
         });
 
-        // Live preview for header color
-        headerColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            document.documentElement.style.setProperty('--cor-primaria', color);
-            tempPreferences.corPrimaria = color;
-        });
-
-        // Live preview for wallpaper color
-        wallpaperColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            document.documentElement.style.setProperty('--cor-secundaria', color);
-            tempPreferences.corSecundaria = color;
-        });
-
-        textColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            document.documentElement.style.setProperty('--cor-texto', color);
-            tempPreferences.corTexto = color;
-        });
-
-        accentColorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            document.documentElement.style.setProperty('--cor-destaque', color);
-            tempPreferences.corDestaque = color;
+        // Live preview for theme selection
+        themeSelect.addEventListener('change', (e) => {
+            const selectedThemeName = e.target.value;
+            tempPreferences.theme = selectedThemeName;
+            // Aplica o tema selecionado para a pré-visualização ao vivo
+            applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
         });
 
         autoSkipToggle.addEventListener('change', (e) => {
@@ -1669,14 +1654,9 @@
 
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
-            tempPreferences = {}; // Limpa as preferências temporárias
-            applyPreferences(null); // Aplica as cores padrão visualmente
-
-            // Redefine os valores dos inputs de cor para os padrões
-            headerColorInput.value = '#FFFFFF';
-            wallpaperColorInput.value = '#F3F4F6';
-            textColorInput.value = '#1f2937';
-            accentColorInput.value = '#4f46e5';
+            tempPreferences.theme = 'default';
+            themeSelect.value = 'default';
+            applyPreferences({ ...tempPreferences });
         });
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
