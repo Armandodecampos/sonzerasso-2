@@ -237,6 +237,21 @@
              background-color: var(--cor-destaque);
              opacity: 0.5;
         }
+        /* Estilos para os novos botões do player */
+        .player-button {
+            background-color: #ffffff;
+            color: #000000;
+            border-radius: 9999px; /* Efeito de botão redondo */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .player-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -3091,7 +3106,9 @@
     <!-- NOVO: Player de Música em Tela Cheia -->
     <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center justify-center p-4 z-[80] text-theme" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
-        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-3xl">&times;</button>
+        <button id="close-fullscreen-player" class="player-button absolute top-4 right-4 w-12 h-12">
+            <i class="fas fa-times text-xl"></i>
+        </button>
 
         <div class="w-full max-w-md text-center">
             <!-- Arte do Álbum -->
@@ -3111,33 +3128,30 @@
             </div>
 
             <!-- Controles -->
-            <div class="flex items-center justify-center space-x-8">
-                <button id="prev-btn" class="text-3xl text-gray-400 hover:text-white">
-                    <i class="fas fa-step-backward"></i>
+            <div class="flex items-center justify-center space-x-6">
+                <button id="prev-btn" class="player-button w-16 h-16">
+                    <i class="fas fa-step-backward text-2xl"></i>
                 </button>
-                <button id="play-pause-btn" class="text-5xl">
-                    <i class="fas fa-play"></i>
+                <button id="play-pause-btn" class="player-button w-20 h-20">
+                    <i class="fas fa-play text-3xl"></i>
                 </button>
-                <button id="next-btn" class="text-3xl text-gray-400 hover:text-white">
-                    <i class="fas fa-step-forward"></i>
+                <button id="next-btn" class="player-button w-16 h-16">
+                    <i class="fas fa-step-forward text-2xl"></i>
                 </button>
             </div>
 
             <!-- Controles Adicionais (Volume e Modo de Repetição) -->
-            <div class="w-full max-w-sm mx-auto mt-6 flex items-center justify-between space-x-4">
-                <button id="repeat-mode-btn" class="text-xl text-gray-400 hover:text-white" data-mode="none">
-                    <i class="fas fa-random"></i> <!-- Ícone inicial, pode mudar -->
+            <div class="w-full max-w-sm mx-auto mt-8 flex items-center justify-between space-x-4">
+                <button id="repeat-mode-btn" class="player-button w-12 h-12" data-mode="none">
+                    <i class="fas fa-random text-lg"></i>
                 </button>
                 <div class="flex items-center flex-grow space-x-2">
                     <i class="fas fa-volume-down text-gray-400"></i>
                     <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     <i class="fas fa-volume-up text-gray-400"></i>
                 </div>
-            </div>
-            <!-- Botão de Adicionar à Pasta (Centralizado) -->
-            <div class="w-full flex justify-center mt-6">
-                <button id="add-to-folder-fullscreen-btn" class="w-16 h-16 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
-                    <i class="fas fa-plus-circle text-2xl"></i>
+                 <button id="add-to-folder-fullscreen-btn" class="player-button w-12 h-12">
+                    <i class="fas fa-plus text-lg"></i>
                 </button>
             </div>
         </div>
