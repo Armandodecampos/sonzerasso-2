@@ -137,13 +137,13 @@
             @apply flex-grow;
         }
         .music-artist-display {
-            @apply font-bold text-gray-800;
+            @apply font-bold;
         }
         .music-album-display {
-            @apply italic text-gray-600;
+            @apply italic text-gray-500; /* Mantém um cinza mais claro para diferenciação */
         }
         .music-title-display {
-            @apply text-sm text-gray-700;
+            @apply text-sm;
         }
 
         /* Estilos para o player de música (a visibilidade agora é controlada por 'hidden') */
@@ -337,7 +337,7 @@
         </div>
 
         <!-- Nova Barra de Navegação Inferior -->
-        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: #141414;"> <!-- Posição ajustada para ficar acima do player -->
+        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-primaria);"> <!-- Posição ajustada para ficar acima do player -->
             <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-compass mr-3"></i>
                 Explorar
@@ -565,7 +565,7 @@
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
     <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-50" style="background-color: var(--cor-secundaria);">
-        <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
+        <header class="p-4 shadow-md space-y-4 text-theme" style="background-color: var(--cor-primaria);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <!-- Botão de Voltar (inicialmente oculto) -->
@@ -584,15 +584,15 @@
                     </svg>
                 </button>
             </div>
-            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
         <!-- Rodapé fixo com o botão de música aleatória -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: #141414;">
-            <button id="play-random-song-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
+        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-primaria);">
+            <button id="play-random-song-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-dice mr-3"></i>
                 Música Aleatória
             </button>
@@ -600,7 +600,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 text-white p-4 shadow-lg z-50 hidden cursor-pointer" style="background-color: #141414;">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 hidden cursor-pointer text-theme" style="background-color: var(--cor-primaria);">
         <div class="flex items-center">
             <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -1703,11 +1703,13 @@
                 if (item.url) itemContainer.dataset.url = item.url;
 
                 const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
-                const bgColor = item.isFolder ? '#333333' : (item.bg_color || '#333333');
                 const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
+                const bgStyle = item.isFolder
+                    ? `background-color: var(--cor-destaque);`
+                    : `background-color: ${item.bg_color || '#333333'};`;
 
                 itemContainer.innerHTML = `
-                    <div class="grid-item" draggable="true" style="background-color: ${bgColor};">
+                    <div class="grid-item" draggable="true" style="${bgStyle}">
                         <i class="${iconClass} grid-item-icon" style="color: ${iconColor};"></i>
                     </div>
                     <span class="grid-item-label text-theme noselect">${item.title}</span>
@@ -1769,18 +1771,18 @@
 
                 // Cria os elementos de UI com os dados da cópia
                 const musicInfo = document.createElement('div');
-                musicInfo.className = 'music-info flex-grow';
+                musicInfo.className = 'music-info flex-grow text-theme'; // Aplica a cor do tema aqui
 
                 const artistP = document.createElement('p');
-                artistP.className = 'music-artist-display font-bold text-gray-800';
+                artistP.className = 'music-artist-display font-bold'; // Cor removida
                 artistP.textContent = musica.musica_artista || 'Artista Desconhecido';
 
                 const albumP = document.createElement('p');
-                albumP.className = 'music-album-display italic text-gray-600';
+                albumP.className = 'music-album-display italic text-gray-500'; // Mantém cinza claro
                 albumP.textContent = musica.musica_album || '';
 
                 const titleP = document.createElement('p');
-                titleP.className = 'music-title-display text-sm text-gray-700';
+                titleP.className = 'music-title-display text-sm'; // Cor removida
                 titleP.textContent = musica.musica_titulo || 'Título Desconhecido';
 
                 musicInfo.appendChild(artistP);
@@ -2997,9 +2999,9 @@
     </div>
 
     <!-- NOVO: Player de Música em Tela Cheia -->
-    <div id="fullscreen-player" class="fixed inset-0 text-white hidden flex-col items-center justify-center p-4 z-[80]" style="background-color: #141414;">
+    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center justify-center p-4 z-[80] text-theme" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
-        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
+        <button id="close-fullscreen-player" class="absolute top-4 right-4 text-3xl">&times;</button>
 
         <div class="w-full max-w-md text-center">
             <!-- Arte do Álbum -->
