@@ -1611,17 +1611,6 @@
             deleteConfirmModal.classList.remove('flex');
         }
 
-        // Listener para o clique no botão de remover música da pasta
-        folderMusicListContainer.addEventListener('click', (e) => {
-            const removeButton = e.target.closest('.remove-from-folder-btn');
-            if (removeButton) {
-                const songId = removeButton.dataset.songId;
-                const songTitle = removeButton.dataset.songTitle;
-                const folderId = removeButton.dataset.folderId;
-                showDeleteConfirmationModal(songId, 'song_from_folder', songTitle, { folderId });
-            }
-        });
-
         confirmDeleteButton.addEventListener('click', async () => {
             if (!itemToDeleteInfo) return;
 
@@ -1840,12 +1829,11 @@
         async function fetchAndDisplayFolderContent(folderId) {
             folderMusicListContainer.innerHTML = '<p class="text-center text-gray-500">Carregando músicas...</p>';
 
-            // Busca as músicas diretamente da nova tabela de cópias
             const { data: musicas, error } = await supabase
                 .from('musicas_salvas_usuario')
                 .select('*')
                 .eq('pasta_id', folderId)
-                .order('created_at', { ascending: true }); // Opcional: ordena pela data em que foram salvas
+                .order('created_at', { ascending: true });
 
             if (error) {
                 console.error('Erro ao buscar músicas salvas:', error);
@@ -1858,14 +1846,13 @@
                 return;
             }
 
-            folderMusicListContainer.innerHTML = ''; // Limpa a mensagem de "Carregando"
+            folderMusicListContainer.innerHTML = '';
 
-            // Renderiza as músicas salvas
             musicas.forEach(musica => {
                 const musicItem = document.createElement('div');
-                musicItem.className = 'music-item flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-200 transition-colors duration-200';
+                musicItem.className = 'music-item flex items-center';
 
-                // Popula o dataset com os dados da cópia para o player funcionar
+                // Popula o dataset para o leitor de música
                 musicItem.dataset.id = musica.id;
                 musicItem.dataset.src = musica.musica_url;
                 musicItem.dataset.title = musica.musica_titulo;
@@ -1873,36 +1860,38 @@
                 musicItem.dataset.albumArt = musica.imagem_url;
                 musicItem.dataset.album = musica.musica_album;
 
-                // Cria os elementos de UI com os dados da cópia
-                const musicInfo = document.createElement('div');
-                musicInfo.className = 'music-info flex-grow text-theme'; // Aplica a cor do tema aqui
+                const musicInfo = `
+                    <div class="music-info flex-grow text-theme">
+                        <p class="music-artist-display font-bold">${musica.musica_artista || 'Artista Desconhecido'}</p>
+                        <p class="music-title-display text-sm">${musica.musica_titulo || 'Título Desconhecido'}</p>
+                        <p class="music-album-display italic text-gray-500">${musica.musica_album || ''}</p>
+                    </div>`;
 
-                const artistP = document.createElement('p');
-                artistP.className = 'music-artist-display font-bold'; // Cor removida
-                artistP.textContent = musica.musica_artista || 'Artista Desconhecido';
+                // Botão para adicionar a outra pasta
+                const addButton = `
+                    <button
+                        class="add-to-another-folder-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"
+                        data-src="${musica.musica_url}"
+                        data-title="${musica.musica_titulo}"
+                        data-artist="${musica.musica_artista}"
+                        data-album-art="${musica.imagem_url || ''}"
+                        data-album="${musica.musica_album || ''}"
+                    >
+                        <i class="fas fa-plus"></i>
+                    </button>`;
 
-                const albumP = document.createElement('p');
-                albumP.className = 'music-album-display italic text-gray-500'; // Mantém cinza claro
-                albumP.textContent = musica.musica_album || '';
+                // Botão para remover da pasta atual
+                const removeButton = `
+                    <button
+                        class="remove-from-folder-btn ml-2 px-3 py-1 text-lg text-red-500 hover:text-red-700 transition-colors"
+                        data-song-id="${musica.id}"
+                        data-folder-id="${folderId}"
+                        data-song-title="${musica.musica_titulo}"
+                    >
+                        <i class="fas fa-trash-alt"></i>
+                    </button>`;
 
-                const titleP = document.createElement('p');
-                titleP.className = 'music-title-display text-sm'; // Cor removida
-                titleP.textContent = musica.musica_titulo || 'Título Desconhecido';
-
-                musicInfo.appendChild(artistP);
-                musicInfo.appendChild(titleP);
-                musicInfo.appendChild(albumP);
-                musicItem.appendChild(musicInfo);
-
-                // Adiciona o botão de remover
-                const removeButton = document.createElement('button');
-                removeButton.className = 'remove-from-folder-btn ml-4 px-3 py-1 text-lg text-red-500 hover:text-red-700 transition-colors';
-                removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                removeButton.dataset.songId = musica.id; // ID da entrada em 'musicas_salvas_usuario'
-                removeButton.dataset.folderId = folderId; // ID da pasta atual para poder recarregar
-                removeButton.dataset.songTitle = musica.musica_titulo; // Para a mensagem de confirmação
-                musicItem.appendChild(removeButton);
-
+                musicItem.innerHTML = musicInfo + addButton + removeButton;
                 folderMusicListContainer.appendChild(musicItem);
             });
         }
@@ -1922,14 +1911,23 @@
 
         closeFolderContentModalBtn.addEventListener('click', hideFolderContentModal);
 
-        // Adiciona um listener para tocar as músicas de dentro da pasta
+        // Listener de eventos consolidado para a lista de músicas da pasta
         folderMusicListContainer.addEventListener('click', (e) => {
+            const removeButton = e.target.closest('.remove-from-folder-btn');
+            const addButton = e.target.closest('.add-to-another-folder-btn');
             const musicItem = e.target.closest('.music-item');
-            if (!musicItem || !musicItem.dataset.src) return;
 
-            // A lógica de seleção não se aplica aqui, então apenas tocamos a música
-            // e configuramos a fila a partir desta lista.
-            setupQueueAndPlay(musicItem, folderMusicListContainer);
+            if (removeButton) {
+                const songId = removeButton.dataset.songId;
+                const songTitle = removeButton.dataset.songTitle;
+                const folderId = removeButton.dataset.folderId;
+                showDeleteConfirmationModal(songId, 'song_from_folder', songTitle, { folderId });
+            } else if (addButton) {
+                openAddToFolderModal({ ...addButton.dataset });
+            } else if (musicItem && musicItem.dataset.src) {
+                // Toca a música apenas se o clique não foi em um dos botões
+                setupQueueAndPlay(musicItem, folderMusicListContainer);
+            }
         });
 
 
@@ -3035,6 +3033,7 @@
         window.applyPreferences = applyPreferences; // Expor para teste
 
         // Funções expostas adicionalmente para verificação
+        window.showFolderContentModal = showFolderContentModal;
         window.showDeleteConfirmationModal = showDeleteConfirmationModal;
         window.showMainApp = () => {
             if (!isAppInitialized) {
