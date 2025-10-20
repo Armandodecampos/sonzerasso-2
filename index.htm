@@ -850,7 +850,7 @@
             playerAudio.play();
             musicPlayer.classList.remove('hidden');
 
-            if (currentUserPreferences.autoSkip) {
+            if (currentUserPreferences.autoSkip !== false) {
                 autoSkipTimeout = setTimeout(() => {
                     showNotification('A música demorou para carregar e foi pulada.', 'error');
                     playNextSong();
@@ -1611,24 +1611,34 @@
 
         // Opens the modal and prepares the temporary state for editing
         settingsButton.addEventListener('click', async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
-
-            // Store a deep copy of current preferences to edit and potentially save later
-            tempPreferences = JSON.parse(JSON.stringify((error || !data) ? {} : data.preferences || {}));
-
-            // Set input values based on the loaded preferences
-            headerColorInput.value = tempPreferences.headerColor || '#FFFFFF';
-            wallpaperColorInput.value = (tempPreferences.wallpaper?.type === 'color' ? tempPreferences.wallpaper.value : '#FFFFFF');
-            textColorInput.value = tempPreferences.textColor || '#1f2937';
-            autoSkipToggle.checked = tempPreferences.autoSkip || false;
+            // 1. Show modal with default values immediately
+            tempPreferences = {};
+            headerColorInput.value = '#FFFFFF';
+            wallpaperColorInput.value = '#FFFFFF';
+            textColorInput.value = '#1f2937';
+            autoSkipToggle.checked = true; // Default is true now
 
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
             settingsModal.classList.remove('hidden');
             settingsModal.classList.add('flex');
+
+            // 2. Then, try to load user preferences and override defaults
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return; // If no user, we're done, defaults are shown
+
+            const { data, error } = await supabase.from('profiles').select('preferences').eq('id', user.id).single();
+
+            if (data && data.preferences) {
+                // Store a deep copy of current preferences to edit and potentially save later
+                tempPreferences = JSON.parse(JSON.stringify(data.preferences));
+
+                // Set input values based on the loaded preferences
+                headerColorInput.value = tempPreferences.headerColor || '#FFFFFF';
+                wallpaperColorInput.value = (tempPreferences.wallpaper?.type === 'color' ? tempPreferences.wallpaper.value : '#FFFFFF');
+                textColorInput.value = tempPreferences.textColor || '#1f2937';
+                autoSkipToggle.checked = tempPreferences.autoSkip !== false;
+            }
         });
 
         // Save the changes made in the modal
