@@ -635,6 +635,7 @@
                 <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
             </div>
             <audio id="player-audio" class="w-1/2"></audio>
+            <audio id="silent-audio" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
         </div>
     </div>
 
@@ -896,6 +897,10 @@
         let autoSkipTimeout = null;
 
         function playSong(songData, fromHistory = false) {
+            if (silentAudio.paused) {
+                silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
+            }
+
             if (autoSkipTimeout) {
                 clearTimeout(autoSkipTimeout);
                 autoSkipTimeout = null;
@@ -1035,6 +1040,7 @@
         const playerSongTitle = document.getElementById('player-song-title');
         const playerArtistName = document.getElementById('player-artist-name');
         const playerAudio = document.getElementById('player-audio');
+        const silentAudio = document.getElementById('silent-audio');
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
@@ -2950,6 +2956,10 @@
 
         // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
         async function playRandomSong(clearHistory = true) {
+            if (silentAudio.paused) {
+                silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
+            }
+
             isRandomModeActive = true;
             updateRepeatModeButton();
 
