@@ -14,6 +14,7 @@
             --cor-primaria: #FFFFFF;
             --cor-secundaria: #F3F4F6;
             --cor-texto: #1f2937;
+            --cor-destaque: #4f46e5;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -213,27 +214,28 @@
 
         #explore-content-container::-webkit-scrollbar-track,
         #folder-music-list-container::-webkit-scrollbar-track {
-            background-color: #374151; /* Cor de fundo escura (cinza-700) */
+            background-color: var(--cor-secundaria);
         }
 
         #explore-content-container::-webkit-scrollbar-thumb,
         #folder-music-list-container::-webkit-scrollbar-thumb {
-            background-color: #6b7280; /* Cor do "polegar" (cinza-500) */
-            border-radius: 0; /* Remove o arredondamento para um polegar quadrado */
-            border: none; /* Remove a borda para garantir a forma exata */
+            background-color: var(--cor-destaque);
+            border-radius: 0;
+            border: none;
         }
 
         #explore-content-container::-webkit-scrollbar-thumb:hover,
         #folder-music-list-container::-webkit-scrollbar-thumb:hover {
-            background-color: #9ca3af; /* Cor do "polegar" ao passar o mouse (cinza-400) */
+            filter: brightness(1.2);
         }
         /* Estilos para o Toggle Switch */
         input:checked ~ .dot {
             transform: translateX(100%);
-            background-color: #4f46e5; /* Cor indigo-600 */
+            background-color: var(--cor-destaque);
         }
         input:checked ~ .block {
-             background-color: #a5b4fc; /* Cor indigo-300 */
+             background-color: var(--cor-destaque);
+             opacity: 0.5;
         }
     </style>
 </head>
@@ -305,7 +307,7 @@
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 ease-in-out">
+                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-destaque);">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -336,7 +338,7 @@
 
         <!-- Nova Barra de Navegação Inferior -->
         <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: #141414;"> <!-- Posição ajustada para ficar acima do player -->
-            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center">
+            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-compass mr-3"></i>
                 Explorar
             </button>
@@ -454,18 +456,23 @@
             <h3 class="text-2xl font-bold text-theme">Personalizar Aparência</h3>
 
             <div class="relative">
-                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Cor 1</label>
+                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Fundo Principal</label>
                 <input type="color" id="header-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
             </div>
 
             <div class="relative">
-                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Cor 2</label>
-                <input type="color" id="wallpaper-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
+                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Fundo Secundário</label>
+                <input type="color" id="wallpaper-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#F3F4F6">
             </div>
 
             <div class="relative">
                 <label for="text-color-input" class="block text-sm font-medium text-left text-theme">Cor do Texto</label>
                 <input type="color" id="text-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#1f2937">
+            </div>
+
+            <div class="relative">
+                <label for="accent-color-input" class="block text-sm font-medium text-left text-theme">Cor de Destaque</label>
+                <input type="color" id="accent-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#4f46e5">
             </div>
 
             <!-- Novo Toggle Switch para Pular Música Automaticamente -->
@@ -488,7 +495,7 @@
                 <button id="cancel-settings-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
                     Cancelar
                 </button>
-                <button id="save-settings-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                <button id="save-settings-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Salvar
                 </button>
             </div>
@@ -514,7 +521,7 @@
 
 
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="save-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                <button id="save-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Criar Pasta
                 </button>
                 <button id="cancel-add-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors">
@@ -534,7 +541,7 @@
             </div>
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Salvar</button>
+                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Salvar</button>
             </div>
         </div>
     </div>
@@ -551,7 +558,7 @@
             </div>
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Cancelar</button>
-                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Adicionar</button>
+                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 text-white font-semibold rounded-md" style="background-color: var(--cor-destaque);">Adicionar</button>
             </div>
         </div>
     </div>
@@ -743,6 +750,7 @@
         const headerColorInput = document.getElementById('header-color-input');
         const wallpaperColorInput = document.getElementById('wallpaper-color-input');
         const textColorInput = document.getElementById('text-color-input');
+        const accentColorInput = document.getElementById('accent-color-input');
         const wallpaperUploadInput = document.getElementById('wallpaper-upload');
         const wallpaperUploadMessage = document.getElementById('wallpaper-upload-message');
         const removeWallpaperButton = document.getElementById('remove-wallpaper-button');
@@ -1129,10 +1137,12 @@
             const corPrimaria = preferences?.corPrimaria || '#FFFFFF';
             const corSecundaria = preferences?.corSecundaria || '#F3F4F6';
             const corTexto = preferences?.corTexto || '#1f2937';
+            const corDestaque = preferences?.corDestaque || '#4f46e5';
 
             root.style.setProperty('--cor-primaria', corPrimaria);
             root.style.setProperty('--cor-secundaria', corSecundaria);
             root.style.setProperty('--cor-texto', corTexto);
+            root.style.setProperty('--cor-destaque', corDestaque);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1170,6 +1180,7 @@
                 headerColorInput.value = data.preferences.corPrimaria || '#FFFFFF';
                 wallpaperColorInput.value = data.preferences.corSecundaria || '#F3F4F6';
                 textColorInput.value = data.preferences.corTexto || '#1f2937';
+                accentColorInput.value = data.preferences.corDestaque || '#4f46e5';
             } else {
                 applyPreferences(null);
             }
@@ -1580,8 +1591,9 @@
             // 1. Show modal with default values immediately
             tempPreferences = {};
             headerColorInput.value = '#FFFFFF';
-            wallpaperColorInput.value = '#FFFFFF';
+            wallpaperColorInput.value = '#F3F4F6';
             textColorInput.value = '#1f2937';
+            accentColorInput.value = '#4f46e5';
             autoSkipToggle.checked = true; // Default is true now
 
             profileModal.classList.add('hidden');
@@ -1600,9 +1612,10 @@
                 tempPreferences = JSON.parse(JSON.stringify(data.preferences));
 
                 // Set input values based on the loaded preferences
-                headerColorInput.value = tempPreferences.headerColor || '#FFFFFF';
-                wallpaperColorInput.value = (tempPreferences.wallpaper?.type === 'color' ? tempPreferences.wallpaper.value : '#FFFFFF');
-                textColorInput.value = tempPreferences.textColor || '#1f2937';
+                headerColorInput.value = tempPreferences.corPrimaria || '#FFFFFF';
+                wallpaperColorInput.value = tempPreferences.corSecundaria || '#F3F4F6';
+                textColorInput.value = tempPreferences.corTexto || '#1f2937';
+                accentColorInput.value = tempPreferences.corDestaque || '#4f46e5';
                 autoSkipToggle.checked = tempPreferences.autoSkip !== false;
             }
         });
@@ -1644,6 +1657,12 @@
             tempPreferences.corTexto = color;
         });
 
+        accentColorInput.addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.documentElement.style.setProperty('--cor-destaque', color);
+            tempPreferences.corDestaque = color;
+        });
+
         autoSkipToggle.addEventListener('change', (e) => {
             tempPreferences.autoSkip = e.target.checked;
         });
@@ -1657,6 +1676,7 @@
             headerColorInput.value = '#FFFFFF';
             wallpaperColorInput.value = '#F3F4F6';
             textColorInput.value = '#1f2937';
+            accentColorInput.value = '#4f46e5';
         });
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
@@ -2991,7 +3011,7 @@
 
             <!-- Barra de Progresso -->
             <div id="progress-bar-container" class="w-full bg-gray-700 rounded-full h-2.5 mb-2 cursor-pointer">
-                <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%"></div>
+                <div id="progress-bar" class="h-2.5 rounded-full" style="width: 0%; background-color: var(--cor-destaque);"></div>
             </div>
             <div class="flex justify-between text-sm text-gray-400 mb-6">
                 <span id="current-time">0:00</span>
