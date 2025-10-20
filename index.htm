@@ -11,14 +11,17 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         :root {
-            --text-primary: #1f2937; /* Default: Tailwind gray-800 */
+            --cor-primaria: #FFFFFF;
+            --cor-secundaria: #F3F4F6;
+            --cor-texto: #1f2937;
         }
         body {
             font-family: 'Inter', sans-serif;
-            @apply bg-gray-100;
+            background-color: var(--cor-secundaria);
+            color: var(--cor-texto);
         }
         .text-theme {
-            color: var(--text-primary);
+            color: var(--cor-texto);
         }
         .shopping-list-item {
             @apply flex items-center justify-between p-3 border-b border-gray-200;
@@ -295,7 +298,7 @@
     <!-- Nova tela do usuário logado -->
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
-        <div id="main-header" class="fixed top-0 left-0 right-0 bg-white p-4 shadow-md z-40 h-24 flex items-center">
+        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-md z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="flex items-center space-x-4 p-2 rounded-full transition-all duration-200 focus:outline-none">
                 <img id="user-avatar-logged-in" src="https://placehold.co/100x100/A0A0A0/FFFFFF?text=P" alt="Profile" class="w-12 h-12 rounded-full object-cover">
                 <p id="user-email-display" class="text-xl font-bold text-theme noselect"></p>
@@ -342,7 +345,7 @@
 
     <!-- Modal para opções do perfil -->
     <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -368,7 +371,7 @@
 
     <!-- Novo Modal para editar perfil -->
     <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-edit-profile-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -416,7 +419,7 @@
 
     <!-- Modal para confirmação de exclusão -->
     <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Confirmar Exclusão</h3>
             <p id="delete-confirm-message" class="text-theme">Tem certeza que deseja excluir este item da lista?</p>
             <div class="flex justify-center space-x-4">
@@ -440,7 +443,7 @@
 
     <!-- Modal para Configurações de Papel de Parede -->
     <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-settings-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -451,24 +454,18 @@
             <h3 class="text-2xl font-bold text-theme">Personalizar Aparência</h3>
 
             <div class="relative">
-                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Cor do Cabeçalho</label>
+                <label for="header-color-input" class="block text-sm font-medium text-left text-theme">Cor 1</label>
                 <input type="color" id="header-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
             </div>
 
             <div class="relative">
-                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Cor do Papel de Parede</label>
+                <label for="wallpaper-color-input" class="block text-sm font-medium text-left text-theme">Cor 2</label>
                 <input type="color" id="wallpaper-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#FFFFFF">
             </div>
 
             <div class="relative">
                 <label for="text-color-input" class="block text-sm font-medium text-left text-theme">Cor do Texto</label>
                 <input type="color" id="text-color-input" class="mt-1 block w-full h-10 px-1 py-1 border border-gray-300 rounded-md shadow-sm" value="#1f2937">
-            </div>
-
-            <div>
-                <label for="wallpaper-upload" class="block text-sm font-medium text-left text-theme">Carregar Imagem de Fundo</label>
-                <input type="file" id="wallpaper-upload" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mt-1"/>
-                <p id="wallpaper-upload-message" class="text-sm font-medium p-2 rounded-lg" style="display: none;"></p>
             </div>
 
             <!-- Novo Toggle Switch para Pular Música Automaticamente -->
@@ -484,7 +481,7 @@
             </div>
 
             <button id="remove-wallpaper-button" class="w-full px-4 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors">
-                Remover Personalização
+                Restaurar Padrão
             </button>
 
             <div class="flex justify-between space-x-4 pt-4">
@@ -500,8 +497,8 @@
 
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
-    <div id="add-app-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[60]">
-        <header class="flex items-center justify-between p-4 bg-white shadow-md">
+    <div id="add-app-modal" class="fixed inset-0 hidden flex-col z-[60]" style="background-color: var(--cor-secundaria);">
+        <header class="flex items-center justify-between p-4 shadow-md" style="background-color: var(--cor-primaria);">
             <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
             <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -509,7 +506,7 @@
                 </svg>
             </button>
         </header>
-        <div class="flex flex-col p-4 bg-gray-100 flex-grow space-y-4 overflow-y-auto">
+        <div class="flex flex-col p-4 flex-grow space-y-4 overflow-y-auto">
             <div class="relative">
                 <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Nome da Pasta</label>
                 <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -529,7 +526,7 @@
 
     <!-- Novo Modal para Editar Nome de App Fixo -->
     <div id="edit-fixed-app-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 id="edit-fixed-app-title" class="text-2xl font-bold text-center text-theme">Editar Nome</h3>
             <div class="relative">
                 <label for="fixed-app-name-input" class="block text-sm font-medium text-left text-theme">Novo Nome</label>
@@ -544,7 +541,7 @@
 
     <!-- NOVO: Modal para Adicionar Música à Pasta -->
     <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[90]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
             <div class="relative">
                 <label for="modal-folder-select" class="block text-sm font-medium text-left text-theme">Selecione a Pasta</label>
@@ -560,7 +557,7 @@
     </div>
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
-    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-50">
+    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-50" style="background-color: var(--cor-secundaria);">
         <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -1127,40 +1124,15 @@
         // Aplica as preferências salvas (papel de parede e cor do cabeçalho)
         function applyPreferences(preferences) {
             currentUserPreferences = preferences || {}; // Armazena as preferências globalmente
-            // Estilos padrão
-            const defaultWallpaperStyles = {
-                backgroundImage: 'none',
-                backgroundColor: '', // Reverte para o padrão do CSS
-                backgroundSize: '',
-                backgroundPosition: '',
-                backgroundRepeat: ''
-            };
-            const defaultHeaderColor = ''; // Branco padrão do CSS
+            const root = document.documentElement;
 
-            // Aplica papel de parede
-            const wallpaperPrefs = preferences?.wallpaper;
-            if (wallpaperPrefs) {
-                if (wallpaperPrefs.type === 'color') {
-                    loggedInAppContainer.style.backgroundColor = wallpaperPrefs.value;
-                    loggedInAppContainer.style.backgroundImage = 'none';
-                } else if (wallpaperPrefs.type === 'image') {
-                    loggedInAppContainer.style.backgroundImage = `url(${wallpaperPrefs.value})`;
-                    loggedInAppContainer.style.backgroundSize = 'cover';
-                    loggedInAppContainer.style.backgroundPosition = 'center';
-                    loggedInAppContainer.style.backgroundRepeat = 'no-repeat';
-                }
-            } else {
-                Object.assign(loggedInAppContainer.style, defaultWallpaperStyles);
-            }
+            const corPrimaria = preferences?.corPrimaria || '#FFFFFF';
+            const corSecundaria = preferences?.corSecundaria || '#F3F4F6';
+            const corTexto = preferences?.corTexto || '#1f2937';
 
-            // Aplica cor do cabeçalho e da faixa de ações
-            const headerColor = preferences?.headerColor || defaultHeaderColor;
-            mainHeader.style.backgroundColor = headerColor;
-            appActionBar.style.backgroundColor = headerColor;
-
-            // Aplica cor do texto apenas à área logada, não aos modais
-            const textColor = preferences?.textColor || '#1f2937'; // Default to gray-800
-            loggedInAppContainer.style.setProperty('--text-primary', textColor);
+            root.style.setProperty('--cor-primaria', corPrimaria);
+            root.style.setProperty('--cor-secundaria', corSecundaria);
+            root.style.setProperty('--cor-texto', corTexto);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1191,21 +1163,15 @@
 
             if (error && error.code !== 'PGRST116') {
                 console.error('Erro ao carregar preferências:', error);
-                applyPreferences(null); // Aplica defaults em caso de erro
+                applyPreferences(null);
             } else if (data && data.preferences) {
                 applyPreferences(data.preferences);
-                // Define os valores iniciais dos seletores de cor
-                if (data.preferences.headerColor) {
-                    headerColorInput.value = data.preferences.headerColor;
-                }
-                if (data.preferences.wallpaper?.type === 'color') {
-                    wallpaperColorInput.value = data.preferences.wallpaper.value;
-                }
-                if (data.preferences.textColor) {
-                    textColorInput.value = data.preferences.textColor;
-                }
+                // Sincroniza os inputs do modal com as preferências carregadas
+                headerColorInput.value = data.preferences.corPrimaria || '#FFFFFF';
+                wallpaperColorInput.value = data.preferences.corSecundaria || '#F3F4F6';
+                textColorInput.value = data.preferences.corTexto || '#1f2937';
             } else {
-                applyPreferences(null); // Nenhuma preferência salva, aplica defaults
+                applyPreferences(null);
             }
         }
 
@@ -1661,79 +1627,35 @@
         // Live preview for header color
         headerColorInput.addEventListener('input', (e) => {
             const color = e.target.value;
-            mainHeader.style.backgroundColor = color;
-            appActionBar.style.backgroundColor = color; // Sincroniza a cor da faixa de ações
-            tempPreferences.headerColor = color; // Update temp state
+            document.documentElement.style.setProperty('--cor-primaria', color);
+            tempPreferences.corPrimaria = color;
         });
 
         // Live preview for wallpaper color
         wallpaperColorInput.addEventListener('input', (e) => {
             const color = e.target.value;
-            loggedInAppContainer.style.backgroundColor = color;
-            loggedInAppContainer.style.backgroundImage = 'none';
-            // Update temp state to reflect color selection
-            tempPreferences.wallpaper = { type: 'color', value: color };
+            document.documentElement.style.setProperty('--cor-secundaria', color);
+            tempPreferences.corSecundaria = color;
         });
 
         textColorInput.addEventListener('input', (e) => {
             const color = e.target.value;
-            loggedInAppContainer.style.setProperty('--text-primary', color);
-            tempPreferences.textColor = color; // Update temp state
+            document.documentElement.style.setProperty('--cor-texto', color);
+            tempPreferences.corTexto = color;
         });
 
         autoSkipToggle.addEventListener('change', (e) => {
             tempPreferences.autoSkip = e.target.checked;
         });
 
-        // Handle image upload: updates temp state, but doesn't save permanently yet
-        wallpaperUploadInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                wallpaperUploadMessage.textContent = 'Usuário não encontrado.';
-                wallpaperUploadMessage.style.display = 'block';
-                return;
-            }
-
-            wallpaperUploadMessage.textContent = 'Carregando imagem...';
-            wallpaperUploadMessage.style.display = 'block';
-            wallpaperUploadMessage.classList.remove('text-red-700', 'text-green-700');
-
-            const filePath = `${user.id}/${file.name}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('wallpapers')
-                .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-            if (uploadError) {
-                wallpaperUploadMessage.textContent = `Erro no upload: ${uploadError.message}`;
-                wallpaperUploadMessage.classList.add('text-red-700');
-                console.error(uploadError);
-                return;
-            }
-
-            const { data } = supabase.storage.from('wallpapers').getPublicUrl(filePath);
-            const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
-
-            // Update temp state with new image wallpaper
-            tempPreferences.wallpaper = { type: 'image', value: publicUrl };
-
-            // Apply the change for live preview
-            applyPreferences(tempPreferences);
-
-            wallpaperUploadMessage.textContent = 'Imagem carregada! Clique em Salvar.';
-            wallpaperUploadMessage.classList.add('text-green-700');
-            wallpaperUploadInput.value = '';
-        });
-
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
-            tempPreferences = {};
-            applyPreferences(null); // Visually reset to defaults
-            wallpaperColorInput.value = '#FFFFFF';
+            tempPreferences = {}; // Limpa as preferências temporárias
+            applyPreferences(null); // Aplica as cores padrão visualmente
+
+            // Redefine os valores dos inputs de cor para os padrões
             headerColorInput.value = '#FFFFFF';
+            wallpaperColorInput.value = '#F3F4F6';
             textColorInput.value = '#1f2937';
         });
 
@@ -3014,7 +2936,7 @@
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
-    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 bg-gray-100 hidden flex-col z-40">
+    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-40" style="background-color: var(--cor-secundaria);">
         <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
             <div class="flex items-center justify-between">
                 <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
@@ -3033,7 +2955,7 @@
 
     <!-- NOVO: Modal de Ações da Pasta -->
     <div id="folder-action-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
                 <button id="close-folder-action-modal" class="text-gray-500 hover:text-white">
