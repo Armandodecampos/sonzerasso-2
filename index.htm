@@ -313,6 +313,52 @@
                     <button id="reset-password-button" class="!mt-2 w-full text-sm text-center text-theme hover:underline focus:outline-none transition-colors duration-200">
                         Esqueceu a senha?
                     </button>
+
+                    <!-- Novo link para cadastro -->
+                    <p class="!mt-4 text-center text-sm text-theme">
+                        Não tem uma conta?
+                        <button id="show-signup-button" class="font-semibold hover:underline" style="color: var(--cor-destaque);">
+                            Cadastre-se
+                        </button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- NOVO: Formulário de Cadastro (inicialmente escondido) -->
+            <div id="signup-form-container" class="hidden w-full max-w-xs mx-auto">
+                <div class="space-y-4">
+                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-destaque);">Criar Conta</h1>
+
+                    <!-- Campo do Email -->
+                    <div class="w-full">
+                        <label for="signup-email" class="block text-sm font-medium text-theme">Email</label>
+                        <input type="email" id="signup-email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
+                    </div>
+
+                    <!-- Campo da Senha -->
+                    <div class="w-full">
+                        <label for="signup-password" class="block text-sm font-medium text-theme">Senha</label>
+                        <input type="password" id="signup-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
+                    </div>
+
+                    <!-- Campo de Confirmar Senha -->
+                    <div class="w-full">
+                        <label for="signup-confirm-password" class="block text-sm font-medium text-theme">Confirmar Senha</label>
+                        <input type="password" id="signup-confirm-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
+                    </div>
+
+                    <!-- Botão de Cadastrar -->
+                    <button id="signup-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
+                        Cadastrar
+                    </button>
+
+                    <!-- Link para voltar ao Login -->
+                    <p class="!mt-4 text-center text-sm text-theme">
+                        Já tem uma conta?
+                        <button id="show-login-button" class="font-semibold hover:underline" style="color: var(--cor-destaque);">
+                            Entrar
+                        </button>
+                    </p>
                 </div>
             </div>
 
@@ -620,7 +666,7 @@
     <!-- Player de Música Fixo -->
     <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 cursor-pointer text-theme" style="background-color: var(--cor-primaria);">
         <div class="flex items-center">
-            <img id="player-album-art" src="https://placehold.co/64x64" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
+            <img id="player-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
                 <h3 id="player-song-title" class="font-bold">Nome da Música</h3>
                 <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
@@ -734,6 +780,15 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const loginButton = document.getElementById('login-button');
+
+        // --- NOVO: Referências do Formulário de Cadastro ---
+        const signupFormContainer = document.getElementById('signup-form-container');
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const signupConfirmPasswordInput = document.getElementById('signup-confirm-password');
+        const signupButton = document.getElementById('signup-button');
+        const showSignupButton = document.getElementById('show-signup-button');
+        const showLoginButton = document.getElementById('show-login-button');
         const resetPasswordButton = document.getElementById('reset-password-button');
         const resetPasswordModal = document.getElementById('reset-password-modal');
         const resetEmailDisplay = document.getElementById('reset-email-display');
@@ -858,7 +913,7 @@
         let isRandomModeActive = false;
         let autoSkipTimeout = null;
 
-        function playSong(songData, fromHistory = false) {
+        function playSong(songData, fromHistory = false, autoplay = true) {
             if (silentAudio.paused) {
                 silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
             }
@@ -874,14 +929,16 @@
             }
             currentSong = songData;
 
-            playerAlbumArt.src = songData.albumArt || 'https://placehold.co/128x128/333/fff?text=Art';
+            playerAlbumArt.src = songData.albumArt || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
             playerSongTitle.textContent = songData.title || 'Música desconhecida';
             playerArtistName.textContent = songData.artist || 'Artista desconhecido';
             fullscreenAlbumArt.src = playerAlbumArt.src;
             fullscreenSongTitle.textContent = playerSongTitle.textContent;
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
-            playerAudio.play();
+            if (autoplay) {
+                playerAudio.play();
+            }
 
             // --- INTEGRAÇÃO COM MEDIA SESSION API ---
             if ('mediaSession' in navigator) {
@@ -1110,11 +1167,14 @@
 
                 // Esconde todas as vistas dentro do ecrã de login
                 loginFormContainer.classList.add('hidden');
+                signupFormContainer.classList.add('hidden');
                 newPasswordContainer.classList.add('hidden');
 
                 // Mostra a vista de login correta
                 if (view === 'new-password') {
                     newPasswordContainer.classList.remove('hidden');
+                } else if (view === 'signup') {
+                    signupFormContainer.classList.remove('hidden');
                 } else { // A vista padrão é o formulário de login
                     loginFormContainer.classList.remove('hidden');
                 }
@@ -1271,6 +1331,57 @@
 
 
         // --- EVENT LISTENERS ---
+
+        // --- NOVO: Lógica para alternar entre Login e Cadastro ---
+        showSignupButton.addEventListener('click', () => {
+            loginFormContainer.classList.add('hidden');
+            signupFormContainer.classList.remove('hidden');
+        });
+
+        showLoginButton.addEventListener('click', () => {
+            signupFormContainer.classList.add('hidden');
+            loginFormContainer.classList.remove('hidden');
+        });
+
+        // --- NOVO: Lógica de Cadastro ---
+        signupButton.addEventListener('click', async () => {
+            const email = signupEmailInput.value;
+            const password = signupPasswordInput.value;
+            const confirmPassword = signupConfirmPasswordInput.value;
+
+            if (!email || !password || !confirmPassword) {
+                showNotification("Por favor, preencha todos os campos.", 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showNotification("As senhas não coincidem.", 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showNotification("A senha deve ter pelo menos 6 caracteres.", 'error');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                showNotification(`Erro no cadastro: ${error.message}`, 'error');
+            } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+                showNotification('Este email já está em uso, mas não foi confirmado. Tente fazer login ou redefinir a senha.', 'error');
+            }
+             else {
+                showNotification("Cadastro realizado com sucesso! Verifique seu email para confirmar a conta.", 'success');
+                // Limpa os campos e volta para a tela de login
+                signupEmailInput.value = '';
+                signupPasswordInput.value = '';
+                signupConfirmPasswordInput.value = '';
+                showLoginButton.click();
+            }
+        });
+
         loginButton.addEventListener('click', async () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -2746,7 +2857,7 @@
                     toggleUI(true);
 
                     // Toca uma música aleatória apenas na primeira inicialização
-                    // playRandomSong();
+                    playRandomSong(true, false);
 
                     isAppInitialized = true;
 
@@ -2789,7 +2900,7 @@
         let totalSongsCount = 0; // Cache para o número total de músicas
 
         // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
-        async function playRandomSong(clearHistory = true) {
+        async function playRandomSong(clearHistory = true, autoplay = true) {
             if (silentAudio.paused) {
                 silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
             }
@@ -2847,7 +2958,7 @@
             };
 
             // Toca a música usando a nova função centralizada
-            playSong(songData);
+            playSong(songData, false, autoplay);
         }
 
         // --- Event Listener para o novo botão ---
@@ -2957,7 +3068,7 @@
 
         <div class="w-full max-w-md text-center">
             <!-- Arte do Álbum -->
-            <img id="fullscreen-album-art" src="https://placehold.co/400x400" alt="Capa do Álbum" class="w-64 h-64 mx-auto rounded-lg shadow-lg mb-6">
+            <img id="fullscreen-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-64 h-64 mx-auto rounded-lg shadow-lg mb-6">
 
             <!-- Informações da Música -->
             <h2 id="fullscreen-song-title" class="text-3xl font-bold">Nome da Música</h2>
