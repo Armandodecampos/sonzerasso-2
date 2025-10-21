@@ -312,9 +312,8 @@
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
-            <button id="profile-button" class="flex items-center space-x-4 p-2 rounded-full transition-all duration-200 focus:outline-none">
-                <img id="user-avatar-logged-in" src="https://placehold.co/100x100/A0A0A0/FFFFFF?text=P" alt="Profile" class="w-12 h-12 rounded-full object-cover">
-                <p id="user-email-display" class="text-xl font-bold text-theme noselect"></p>
+            <button id="profile-button" class="transition-all duration-200 focus:outline-none">
+                <h1 class="text-5xl font-black" style="color: #fa0;">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
@@ -754,7 +753,6 @@
         const app = document.getElementById('app');
         const loggedInAppContainer = document.getElementById('logged-in-app');
         const loginFormContainer = document.getElementById('login-form-container');
-        const userEmailDisplay = document.getElementById('user-email-display');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const loginButton = document.getElementById('login-button');
@@ -781,7 +779,6 @@
         const avatarUploadInput = document.getElementById('avatar-upload');
         const uploadAvatarButton = document.getElementById('upload-avatar-button');
         const uploadMessage = document.getElementById('upload-message');
-        const userAvatarLoggedIn = document.getElementById('user-avatar-logged-in');
         const profileNameInput = document.getElementById('profile-name-input');
         const updateProfileButton = document.getElementById('update-profile-button');
 
@@ -1109,18 +1106,13 @@
         async function loadUserProfile(user) {
             const { data: profileData, error } = await supabase
                 .from('profiles')
-                .select('avatar_url, profile_name')
+                .select('profile_name')
                 .eq('id', user.id)
                 .single();
 
             if (!error && profileData) {
-                userAvatarLoggedIn.src = profileData.avatar_url || `https://placehold.co/100x100/A0A0A0/FFFFFF?text=${(profileData.profile_name || user.email).charAt(0).toUpperCase()}`;
-                userEmailDisplay.textContent = profileData.profile_name || user.email;
                 profileNameInput.value = profileData.profile_name || '';
             } else {
-                const initial = user.email.charAt(0).toUpperCase();
-                userAvatarLoggedIn.src = `https://placehold.co/100x100/A0A0A0/FFFFFF?text=${initial}`;
-                userEmailDisplay.textContent = user.email;
                 profileNameInput.value = '';
             }
         }
@@ -1553,7 +1545,6 @@
                     uploadMessage.textContent = `Erro ao atualizar perfil: ${updateError.message}`;
                     uploadMessage.classList.add('text-red-700');
                 } else {
-                    userAvatarLoggedIn.src = publicUrl;
                     uploadMessage.textContent = 'Upload bem-sucedido!';
                     uploadMessage.classList.add('text-green-700');
                     avatarUploadInput.value = null;
@@ -1592,7 +1583,6 @@
                 uploadMessage.textContent = `Erro ao atualizar nome do perfil: ${updateError.message}`;
                 uploadMessage.classList.add('text-red-700');
             } else {
-                userEmailDisplay.textContent = newProfileName;
                 uploadMessage.textContent = 'Nome do perfil atualizado com sucesso!';
                 uploadMessage.classList.add('text-green-700');
             }
