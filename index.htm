@@ -317,23 +317,23 @@
             </div>
 
             <!-- Formulário de Nova Senha (inicialmente escondido) -->
-            <div id="new-password-container" class="hidden space-y-6 bg-white p-6 rounded-xl shadow-lg">
+            <div id="new-password-container" class="hidden space-y-6 p-6 rounded-xl shadow-lg" style="background-color: var(--cor-primaria);">
                 <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Voltar
                 </button>
-                <p class="text-center font-semibold text-gray-700 text-lg">Defina sua nova senha</p>
+                <p class="text-center font-semibold text-theme text-lg">Defina sua nova senha</p>
                 <div class="relative">
-                    <label for="new-password" class="block text-sm font-medium text-gray-700">Nova Senha</label>
-                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="new-password" class="block text-sm font-medium text-theme">Nova Senha</label>
+                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                 </div>
                 <div class="relative">
-                    <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirme a Senha</label>
-                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="confirm-password" class="block text-sm font-medium text-theme">Confirme a Senha</label>
+                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                 </div>
-                <button id="update-password-button" class="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                <button id="update-password-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
                     Confirmar
                 </button>
             </div>
@@ -357,7 +357,7 @@
 
         <!-- Modal de Ações do Aplicativo -->
         <div id="app-action-bar" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-            <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4">
+            <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
                 <button id="open-app-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-blue-500 hover:bg-blue-600">
                     Abrir
                 </button>
@@ -412,19 +412,19 @@
 
     <!-- Modal para confirmação de redefinição de senha -->
     <div id="reset-password-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Verifique seu Email</h3>
-            <p class="text-theme">Um link para redefinição de senha foi enviado para <span id="reset-email-display" class="font-semibold text-indigo-600"></span>. Siga as instruções para criar uma nova senha.</p>
-            <button id="close-modal-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">OK</button>
+            <p class="text-theme">Um link para redefinição de senha foi enviado para <span id="reset-email-display" class="font-semibold" style="color: var(--cor-destaque);"></span>. Siga as instruções para criar uma nova senha.</p>
+            <button id="close-modal-button" class="px-6 py-2 text-white font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">OK</button>
         </div>
     </div>
 
     <!-- Novo Modal de Mensagem de Espera -->
     <div id="wait-message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Aguarde</h3>
-            <p class="text-theme">É necessário aguardar para enviar outro e-mail. Por favor, aguarde <span id="wait-time" class="font-semibold text-indigo-600"></span> segundos.</p>
-            <button id="close-wait-modal" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">OK</button>
+            <p class="text-theme">É necessário aguardar para enviar outro e-mail. Por favor, aguarde <span id="wait-time" class="font-semibold" style="color: var(--cor-destaque);"></span> segundos.</p>
+            <button id="close-wait-modal" class="px-6 py-2 text-white font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">OK</button>
         </div>
     </div>
 
@@ -442,12 +442,12 @@
 
     <!-- Modal para confirmação de mover item -->
     <div id="move-item-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Confirmar Ação</h3>
             <p id="move-item-confirm-message" class="text-theme"></p>
             <div class="flex justify-center space-x-4">
                 <button id="cancel-move-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90 transition-colors" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
-                <button id="confirm-move-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Confirmar</button>
+                <button id="confirm-move-button" class="px-6 py-2 text-white font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">Confirmar</button>
             </div>
         </div>
     </div>
@@ -467,7 +467,7 @@
             <div class="relative">
                 <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
                 <select id="theme-select" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
-                    <option value="default">Padrão</option>
+                    <option value="dark">Escuro (padrão)</option>
                     <option value="light">Claro</option>
                     <option value="custom">Personalizado</option>
                 </select>
@@ -570,7 +570,7 @@
             <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
             <div class="relative">
                 <label for="modal-folder-select" class="block text-sm font-medium text-left text-theme">Selecione a Pasta</label>
-                <select id="modal-folder-select" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800">
+                <select id="modal-folder-select" class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     <!-- Opções de pasta serão preenchidas aqui -->
                 </select>
             </div>
@@ -712,7 +712,7 @@
 
         // --- DEFINIÇÕES DE TEMA ---
         const themes = {
-            'default': {
+            'dark': {
                 corPrimaria: '#1a1a1a',
                 corSecundaria: '#2a2a2a',
                 corTexto: '#f0f0f0',
@@ -1180,13 +1180,13 @@
                 currentUserPreferences = JSON.parse(JSON.stringify(prefs || {}));
             }
 
-            const themeName = prefs?.theme || 'default';
+            const themeName = prefs?.theme || 'dark';
             let themeColors;
 
             if (themeName === 'custom' && prefs.customColors) {
                 themeColors = prefs.customColors;
             } else {
-                themeColors = themes[themeName] || themes['default'];
+                themeColors = themes[themeName] || themes['dark'];
             }
 
             const root = document.documentElement;
@@ -1228,10 +1228,10 @@
             } else if (data && data.preferences) {
                 applyPreferences(data.preferences, true);
                 // Sincroniza o dropdown do tema com as preferências carregadas
-                themeSelect.value = data.preferences.theme || 'default';
+                themeSelect.value = data.preferences.theme || 'dark';
             } else {
                 applyPreferences(null, true);
-                themeSelect.value = 'default';
+                themeSelect.value = 'dark';
             }
         }
 
@@ -1508,7 +1508,7 @@
         settingsButton.addEventListener('click', async () => {
             // 1. Show modal with default values immediately
             tempPreferences = { ...currentUserPreferences };
-            themeSelect.value = currentUserPreferences.theme || 'default';
+            themeSelect.value = currentUserPreferences.theme || 'dark';
             autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
 
             // Mostra ou esconde os seletores de cores personalizadas
@@ -1606,8 +1606,8 @@
 
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
-            tempPreferences.theme = 'default';
-            themeSelect.value = 'default';
+            tempPreferences.theme = 'dark';
+            themeSelect.value = 'dark';
             applyPreferences({ ...tempPreferences });
         });
 
