@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Login com Supabase</title>
     <!-- Carrega o Tailwind CSS para estilização rápida e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -543,7 +543,7 @@
         <div class="flex flex-col p-4 flex-grow space-y-4 overflow-y-auto">
             <div class="relative">
                 <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Nome da Pasta</label>
-                <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-black">
+                <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
 
@@ -635,7 +635,6 @@
                 <p id="player-artist-name" class="text-sm text-gray-400">Nome do Artista</p>
             </div>
             <audio id="player-audio" class="w-1/2"></audio>
-            <audio id="silent-audio" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
         </div>
     </div>
 
@@ -892,15 +891,11 @@
         let currentSong = null; // Armazena a música atual
         let historyPast = [];   // Armazena as músicas já tocadas
         let historyFuture = []; // Armazena as músicas "puladas" com o botão "anterior"
-        let repeatMode = 'shuffle';
+        let repeatMode = 'none';
         let isRandomModeActive = false;
         let autoSkipTimeout = null;
 
         function playSong(songData, fromHistory = false) {
-            if (silentAudio.paused) {
-                silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
-            }
-
             if (autoSkipTimeout) {
                 clearTimeout(autoSkipTimeout);
                 autoSkipTimeout = null;
@@ -954,35 +949,22 @@
         }
 
         async function playNextSong() {
-            // Se estiver no modo aleatório global, busca uma música completamente nova
             if (isRandomModeActive) {
                 if (historyFuture.length > 0) {
                     playSong(historyFuture.pop(), true);
                 } else {
                     await playRandomSong(false);
                 }
-                return;
-            }
-
-            // Lógica para playlists (fila atual)
-            if (currentQueue.length === 0) return;
-
-            let nextIndex;
-            if (repeatMode === 'shuffle') {
-                // Seleciona um índice aleatório diferente do atual
-                do {
-                    nextIndex = Math.floor(Math.random() * currentQueue.length);
-                } while (currentQueue.length > 1 && nextIndex === currentQueueIndex);
-            } else { // 'repeat-all' ou 'repeat-one' (quando o botão "próximo" é clicado)
-                nextIndex = currentQueueIndex + 1;
-                // Para 'repeat-all' ou para continuar após o fim da lista, volta ao início.
-                // Não há modo "parar no final", o ciclo de modos de repetição garante a reprodução contínua.
+            } else {
+                if (currentQueue.length === 0) return;
+                let nextIndex = currentQueueIndex + 1;
                 if (nextIndex >= currentQueue.length) {
-                    nextIndex = 0;
+                    if (repeatMode === 'repeat-all') nextIndex = 0;
+                    else return;
                 }
+                currentQueueIndex = nextIndex;
+                playSong(currentQueue[currentQueueIndex]);
             }
-            currentQueueIndex = nextIndex;
-            playSong(currentQueue[currentQueueIndex]);
         }
 
         function playPreviousSong() {
@@ -1009,9 +991,10 @@
 
         // --- LÓGICA DO MODO DE REPETIÇÃO ---
         const repeatModes = [
-            { mode: 'shuffle', icon: 'fa-random' },
+            { mode: 'none', icon: 'fa-random' },
             { mode: 'repeat-all', icon: 'fa-redo-alt' },
-            { mode: 'repeat-one', icon: 'fa-retweet' }
+            { mode: 'repeat-one', icon: 'fa-retweet' },
+            { mode: 'shuffle', icon: 'fa-random' }
         ];
 
         function updateRepeatModeButton() {
@@ -1019,8 +1002,14 @@
             if (!currentMode) return;
 
             const icon = repeatModeBtn.querySelector('i');
-            // Garante que o ícone seja sempre grande e preto, removendo a cor customizada.
-            icon.className = `fas ${currentMode.icon} text-2xl`;
+            icon.className = `fas ${currentMode.icon}`;
+
+            if (repeatMode === 'repeat-one') {
+                icon.classList.add('text-indigo-400');
+            } else {
+                icon.classList.remove('text-indigo-400');
+            }
+            repeatModeBtn.style.display = isRandomModeActive ? 'none' : 'block';
         }
 
         repeatModeBtn.addEventListener('click', () => {
@@ -1046,7 +1035,6 @@
         const playerSongTitle = document.getElementById('player-song-title');
         const playerArtistName = document.getElementById('player-artist-name');
         const playerAudio = document.getElementById('player-audio');
-        const silentAudio = document.getElementById('silent-audio');
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
@@ -2820,10 +2808,7 @@
 
             if (clickedIndex !== -1) {
                 currentQueueIndex = clickedIndex;
-                // Define 'shuffle' como o modo padrão ao iniciar uma playlist
                 repeatMode = 'shuffle';
-                // Atualiza o ícone para refletir o modo padrão imediatamente
-                updateRepeatModeButton();
                 playSong(currentQueue[currentQueueIndex]);
             }
         }
@@ -2965,10 +2950,6 @@
 
         // --- NOVA LÓGICA PARA MÚSICA ALEATÓRIA ---
         async function playRandomSong(clearHistory = true) {
-            if (silentAudio.paused) {
-                silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
-            }
-
             isRandomModeActive = true;
             updateRepeatModeButton();
 
@@ -3160,23 +3141,23 @@
                 </button>
             </div>
 
-            <!-- Controles Adicionais (Volume e Ações) -->
-            <div class="w-full max-w-sm mx-auto mt-8 space-y-6">
-                <!-- Volume -->
-                <div class="flex items-center space-x-2">
+            <!-- Controles Adicionais (Volume e Modo de Repetição) -->
+            <div class="w-full max-w-sm mx-auto mt-8 flex items-center justify-between space-x-4">
+                <button id="repeat-mode-btn" class="player-button w-12 h-12" data-mode="none">
+                    <i class="fas fa-random text-lg"></i>
+                </button>
+                <div class="flex items-center flex-grow space-x-2">
                     <i class="fas fa-volume-down text-gray-400"></i>
                     <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     <i class="fas fa-volume-up text-gray-400"></i>
                 </div>
-                <!-- Ações (Repetir e Adicionar) -->
-                <div class="flex justify-center items-center space-x-8">
-                    <button id="repeat-mode-btn" class="player-button w-16 h-16">
-                        <i class="fas fa-random text-2xl"></i>
-                    </button>
-                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
-                        <i class="fas fa-plus text-2xl"></i>
-                    </button>
-                </div>
+            </div>
+
+            <!-- Botão de Adicionar à Pasta (Centralizado) -->
+            <div class="w-full flex justify-center mt-6">
+                <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
+                    <i class="fas fa-plus text-2xl"></i>
+                </button>
             </div>
         </div>
     </div>
