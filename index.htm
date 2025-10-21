@@ -313,7 +313,7 @@
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="transition-all duration-200 focus:outline-none">
-                <h1 class="text-5xl font-black" style="color: #fa0;">Sonzerasso</h1>
+                <h1 class="text-lg font-black" style="color: #fa0;">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
@@ -366,9 +366,6 @@
                 </button>
             </div>
             <h3 class="text-2xl font-bold text-theme">Opções do Perfil</h3>
-            <button id="edit-profile-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
-                Editar Perfil
-            </button>
             <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Trocar Senha
             </button>
@@ -378,36 +375,6 @@
             <button id="logout-button" class="w-full px-4 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors">
                 Sair
             </button>
-        </div>
-    </div>
-
-    <!-- Novo Modal para editar perfil -->
-    <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
-            <div class="flex justify-end">
-                <button id="close-edit-profile-modal" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <h3 class="text-2xl font-bold text-theme">Editar Perfil</h3>
-
-            <!-- Novo campo para o nome do perfil -->
-            <div class="relative">
-                <label for="profile-name" class="block text-sm font-medium text-left text-theme">Nome do Perfil</label>
-                <input type="text" id="profile-name-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" maxlength="21">
-            </div>
-            <button id="update-profile-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                Salvar Nome do Perfil
-            </button>
-
-            <label for="avatar-upload" class="block text-sm font-medium text-left text-theme">Trocar Foto</label>
-            <input type="file" id="avatar-upload" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-            <button id="upload-avatar-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
-                Fazer Upload da Foto
-            </button>
-            <p id="upload-message" class="text-sm font-medium p-2 rounded-lg" style="display: none;"></p>
         </div>
     </div>
 
@@ -771,16 +738,8 @@
         const profileButton = document.getElementById('profile-button');
         const profileModal = document.getElementById('profile-modal');
         const closeProfileModalButton = document.getElementById('close-profile-modal');
-        const editProfileButton = document.getElementById('edit-profile-button');
         const changePasswordButton = document.getElementById('change-password-button');
         const logoutButtonModal = document.getElementById('logout-button');
-        const editProfileModal = document.getElementById('edit-profile-modal');
-        const closeEditProfileModalButton = document.getElementById('close-edit-profile-modal');
-        const avatarUploadInput = document.getElementById('avatar-upload');
-        const uploadAvatarButton = document.getElementById('upload-avatar-button');
-        const uploadMessage = document.getElementById('upload-message');
-        const profileNameInput = document.getElementById('profile-name-input');
-        const updateProfileButton = document.getElementById('update-profile-button');
 
         // Referências do novo modal de espera
         const waitMessageModal = document.getElementById('wait-message-modal');
@@ -1104,17 +1063,8 @@
 
         // Função para carregar os dados do perfil logado
         async function loadUserProfile(user) {
-            const { data: profileData, error } = await supabase
-                .from('profiles')
-                .select('profile_name')
-                .eq('id', user.id)
-                .single();
-
-            if (!error && profileData) {
-                profileNameInput.value = profileData.profile_name || '';
-            } else {
-                profileNameInput.value = '';
-            }
+            // A lógica de carregamento do nome e avatar do perfil foi removida
+            // pois os elementos da UI não existem mais.
         }
 
         // Função para alternar a visibilidade das áreas
@@ -1122,7 +1072,6 @@
             // Esconde todos os modais primeiro
             profileModal.classList.add('hidden');
             waitMessageModal.classList.add('hidden');
-            editProfileModal.classList.add('hidden');
             settingsModal.classList.add('hidden');
             deleteConfirmModal.classList.add('hidden');
             addAppModal.classList.add('hidden');
@@ -1430,25 +1379,6 @@
             profileModal.classList.remove('flex');
         });
 
-        editProfileButton.addEventListener('click', async () => {
-            profileModal.classList.add('hidden');
-            profileModal.classList.remove('flex');
-            editProfileModal.classList.remove('hidden');
-            editProfileModal.classList.add('flex');
-            const { data, error } = await supabase.from('profiles').select('profile_name').eq('id', (await supabase.auth.getSession()).data.session.user.id).single();
-            if (!error && data?.profile_name) {
-                profileNameInput.value = data.profile_name;
-            }
-        });
-
-        closeEditProfileModalButton.addEventListener('click', () => {
-            editProfileModal.classList.add('hidden');
-            editProfileModal.classList.remove('flex');
-            profileModal.classList.remove('hidden');
-            profileModal.classList.add('flex');
-            uploadMessage.style.display = 'none';
-        });
-
         changePasswordButton.addEventListener('click', async () => {
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
@@ -1486,105 +1416,6 @@
             } else {
                 toggleUI(false, 'initial');
                 passwordInput.value = '';
-            }
-        });
-
-        uploadAvatarButton.addEventListener('click', async () => {
-            const { data: { session } = {} } = await supabase.auth.getSession();
-            const user = session?.user;
-
-            if (!user) {
-                uploadMessage.textContent = 'Erro: Nenhum usuário logado.';
-                uploadMessage.style.display = 'block';
-                return;
-            }
-
-            const file = avatarUploadInput.files[0];
-            if (!file) {
-                uploadMessage.textContent = 'Por favor, selecione um arquivo.';
-                uploadMessage.style.display = 'block';
-                return;
-            }
-
-            uploadMessage.textContent = 'Carregando...';
-            uploadMessage.style.display = 'block';
-            uploadMessage.classList.remove('text-red-700', 'text-green-700');
-            uploadMessage.classList.add('text-gray-700');
-
-            const filePath = `${user.id}/${file.name}`;
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: true
-                });
-
-            if (uploadError) {
-                console.error(uploadError);
-                uploadMessage.textContent = `Erro ao fazer upload: ${uploadError.message}`;
-                uploadMessage.classList.add('text-red-700');
-            } else {
-                const { data: { publicUrl }, error: urlError } = supabase.storage
-                    .from('avatars')
-                    .getPublicUrl(filePath);
-
-                if (urlError) {
-                    console.error(urlError);
-                    uploadMessage.textContent = 'Erro ao obter o URL da imagem.';
-                    uploadMessage.classList.add('text-red-700');
-                    return;
-                }
-
-                const { error: updateError } = await supabase
-                    .from('profiles')
-                    .update({ avatar_url: publicUrl })
-                    .eq('id', user.id);
-
-                if (updateError) {
-                    console.error(updateError);
-                    uploadMessage.textContent = `Erro ao atualizar perfil: ${updateError.message}`;
-                    uploadMessage.classList.add('text-red-700');
-                } else {
-                    uploadMessage.textContent = 'Upload bem-sucedido!';
-                    uploadMessage.classList.add('text-green-700');
-                    avatarUploadInput.value = null;
-                    fetchUsers();
-                }
-            }
-        });
-
-        updateProfileButton.addEventListener('click', async () => {
-            const { data: { session } = {} } = await supabase.auth.getSession();
-            const user = session?.user;
-            if (!user) {
-                uploadMessage.textContent = 'Erro: Nenhum usuário logado.';
-                uploadMessage.style.display = 'block';
-                return;
-            }
-            const newProfileName = profileNameInput.value;
-            if (!newProfileName) {
-                uploadMessage.textContent = 'O nome do perfil não pode ser vazio.';
-                uploadMessage.style.display = 'block';
-                return;
-            }
-
-            uploadMessage.textContent = 'Atualizando nome do perfil...';
-            uploadMessage.style.display = 'block';
-            uploadMessage.classList.remove('text-red-700', 'text-green-700');
-            uploadMessage.classList.add('text-gray-700');
-
-            const { error: updateError } = await supabase
-                .from('profiles')
-                .update({ profile_name: newProfileName })
-                .eq('id', user.id);
-
-            if (updateError) {
-                console.error(updateError);
-                uploadMessage.textContent = `Erro ao atualizar nome do perfil: ${updateError.message}`;
-                uploadMessage.classList.add('text-red-700');
-            } else {
-                uploadMessage.textContent = 'Nome do perfil atualizado com sucesso!';
-                uploadMessage.classList.add('text-green-700');
             }
         });
 
