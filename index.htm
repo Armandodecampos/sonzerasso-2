@@ -11,10 +11,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         :root {
-            --cor-primaria: #FFFFFF;
-            --cor-secundaria: #F3F4F6;
-            --cor-texto: #1f2937;
-            --cor-destaque: #4f46e5;
+            --cor-primaria: #1a1a1a;
+            --cor-secundaria: #2a2a2a;
+            --cor-texto: #f0f0f0;
+            --cor-destaque: #ffaa00;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -290,27 +290,27 @@
             <!-- Formulário de Login Padrão -->
             <div id="login-form-container" class="w-full max-w-xs mx-auto">
                 <div class="space-y-4">
-                    <h1 class="text-5xl font-black text-center text-gray-800">Sonzerasso</h1>
+                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-destaque);">Sonzerasso</h1>
 
                     <!-- Campo do Email -->
                     <div class="w-full">
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
+                        <label for="email" class="block text-sm font-medium text-theme">Email</label>
+                        <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     </div>
 
                     <!-- Campo da Senha -->
                     <div class="w-full">
-                        <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
-                        <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg">
+                        <label for="password" class="block text-sm font-medium text-theme">Senha</label>
+                        <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     </div>
 
                     <!-- Botão de Entrar -->
-                    <button id="login-button" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg">
+                    <button id="login-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
                         Entrar
                     </button>
 
                     <!-- Botão de redefinir senha (agora como texto) -->
-                    <button id="reset-password-button" class="!mt-2 w-full text-sm text-center text-gray-600 hover:text-indigo-600 hover:underline focus:outline-none transition-colors duration-200">
+                    <button id="reset-password-button" class="!mt-2 w-full text-sm text-center text-theme hover:underline focus:outline-none transition-colors duration-200">
                         Esqueceu a senha?
                     </button>
                 </div>
@@ -345,7 +345,7 @@
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="transition-all duration-200 focus:outline-none">
-                <h1 class="text-3xl font-black" style="color: #fa0;">Sonzerasso</h1>
+                <h1 class="text-3xl font-black" style="color: var(--cor-destaque);">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
@@ -466,12 +466,9 @@
 
             <div class="relative">
                 <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
-                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800">
+                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     <option value="default">Padrão</option>
-                    <option value="dark">Escuro</option>
                     <option value="light">Claro</option>
-                    <option value="rose">Rosa</option>
-                    <option value="sepia">Sépia</option>
                     <option value="custom">Personalizado</option>
                 </select>
             </div>
@@ -716,12 +713,6 @@
         // --- DEFINIÇÕES DE TEMA ---
         const themes = {
             'default': {
-                corPrimaria: '#FFFFFF',
-                corSecundaria: '#F3F4F6',
-                corTexto: '#1f2937',
-                corDestaque: '#ffaa00'
-            },
-            'dark': {
                 corPrimaria: '#1a1a1a',
                 corSecundaria: '#2a2a2a',
                 corTexto: '#f0f0f0',
@@ -732,18 +723,6 @@
                 corSecundaria: '#f0f8ff',
                 corTexto: '#000000',
                 corDestaque: '#007bff'
-            },
-            'rose': {
-                corPrimaria: '#fdf2f8',
-                corSecundaria: '#fff0f5',
-                corTexto: '#831843',
-                corDestaque: '#e11d48'
-            },
-            'sepia': {
-                corPrimaria: '#f1e9db',
-                corSecundaria: '#e3dace',
-                corTexto: '#433422',
-                corDestaque: '#8c5a2b'
             }
         };
 
