@@ -248,6 +248,38 @@
             justify-content: center;
             transition: all 0.2s ease-in-out;
         }
+        /* Estilos Unificados para Sliders */
+        .custom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px; /* Altura do trilho */
+            background: #4a4a4a; /* Cor de fundo do trilho */
+            border-radius: 5px;
+            outline: none;
+            transition: opacity .2s;
+        }
+
+        /* Thumb (bolinha) para Webkit (Chrome, Safari) */
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* Largura da bolinha */
+            height: 20px; /* Altura da bolinha */
+            background: var(--cor-destaque); /* Cor da bolinha */
+            cursor: pointer;
+            border-radius: 50%; /* Faz a bolinha ser redonda */
+        }
+
+        /* Thumb (bolinha) para Firefox */
+        .custom-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--cor-destaque);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none; /* Firefox adiciona uma borda por padrão */
+        }
     </style>
 </head>
 <body>
@@ -313,7 +345,7 @@
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="transition-all duration-200 focus:outline-none">
-                <h1 class="text-lg font-black" style="color: #fa0;">Sonzerasso</h1>
+                <h1 class="text-3xl font-black" style="color: #fa0;">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
@@ -823,8 +855,7 @@
         const fullscreenAlbumArt = document.getElementById('fullscreen-album-art');
         const fullscreenSongTitle = document.getElementById('fullscreen-song-title');
         const fullscreenArtistName = document.getElementById('fullscreen-artist-name');
-        const progressBarContainer = document.getElementById('progress-bar-container');
-        const progressBar = document.getElementById('progress-bar');
+        const progressSlider = document.getElementById('progress-slider');
         const currentTimeDisplay = document.getElementById('current-time');
         const durationDisplay = document.getElementById('duration');
         const playPauseBtn = document.getElementById('play-pause-btn');
@@ -2541,8 +2572,9 @@
         playerAudio.addEventListener('timeupdate', () => {
             const { currentTime, duration } = playerAudio;
             if (duration) {
-                const progressPercent = (currentTime / duration) * 100;
-                progressBar.style.width = `${progressPercent}%`;
+                // Atualiza o valor do slider
+                const progressValue = (currentTime / duration) * 100;
+                progressSlider.value = progressValue;
                 currentTimeDisplay.textContent = formatTime(currentTime);
             }
         });
@@ -2550,6 +2582,7 @@
         // Define a duração total quando os metadados da música são carregados
         playerAudio.addEventListener('loadedmetadata', () => {
             durationDisplay.textContent = formatTime(playerAudio.duration);
+            progressSlider.value = 0; // Reseta o slider no início da música
         });
 
         // Lida com o que acontece quando uma música termina
@@ -2561,14 +2594,12 @@
             }
         });
 
-        // Permite clicar na barra de progresso para pular para um ponto da música
-        progressBarContainer.addEventListener('click', (e) => {
-            const width = progressBarContainer.clientWidth;
-            const clickX = e.offsetX;
+        // Permite arrastar o slider para pular para um ponto da música
+        progressSlider.addEventListener('input', () => {
             const duration = playerAudio.duration;
-
             if (duration) {
-                playerAudio.currentTime = (clickX / width) * duration;
+                const newTime = (progressSlider.value / 100) * duration;
+                playerAudio.currentTime = newTime;
             }
         });
 
@@ -2956,10 +2987,10 @@
             <p id="fullscreen-artist-name" class="text-lg text-gray-400 mb-6">Nome do Artista</p>
 
             <!-- Barra de Progresso -->
-            <div id="progress-bar-container" class="w-full bg-gray-700 rounded-full h-2.5 mb-2 cursor-pointer">
-                <div id="progress-bar" class="h-2.5 rounded-full" style="width: 0%; background-color: var(--cor-destaque);"></div>
+            <div class="w-full">
+                 <input id="progress-slider" type="range" min="0" max="100" step="1" value="0" class="custom-slider">
             </div>
-            <div class="flex justify-between text-sm text-gray-400 mb-6">
+            <div class="flex justify-between text-sm text-gray-400 mb-6 px-1">
                 <span id="current-time">0:00</span>
                 <span id="duration">0:00</span>
             </div>
@@ -2982,7 +3013,7 @@
                 <!-- Volume -->
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-volume-down text-gray-400"></i>
-                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="custom-slider">
                     <i class="fas fa-volume-up text-gray-400"></i>
                 </div>
                 <!-- Ações (Repetir e Adicionar) -->
