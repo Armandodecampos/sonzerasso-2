@@ -543,7 +543,7 @@
         <div class="flex flex-col p-4 flex-grow space-y-4 overflow-y-auto">
             <div class="relative">
                 <label for="app-title-input" class="block text-sm font-medium text-left text-theme">Nome da Pasta</label>
-                <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <input type="text" id="app-title-input" placeholder="Ex: Músicas para relaxar" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-black">
             </div>
 
 
@@ -954,22 +954,35 @@
         }
 
         async function playNextSong() {
+            // Se estiver no modo aleatório global, busca uma música completamente nova
             if (isRandomModeActive) {
                 if (historyFuture.length > 0) {
                     playSong(historyFuture.pop(), true);
                 } else {
                     await playRandomSong(false);
                 }
-            } else {
-                if (currentQueue.length === 0) return;
-                let nextIndex = currentQueueIndex + 1;
-                if (nextIndex >= currentQueue.length) {
-                    if (repeatMode === 'repeat-all') nextIndex = 0;
-                    else return;
-                }
-                currentQueueIndex = nextIndex;
-                playSong(currentQueue[currentQueueIndex]);
+                return;
             }
+
+            // Lógica para playlists (fila atual)
+            if (currentQueue.length === 0) return;
+
+            let nextIndex;
+            if (repeatMode === 'shuffle') {
+                // Seleciona um índice aleatório diferente do atual
+                do {
+                    nextIndex = Math.floor(Math.random() * currentQueue.length);
+                } while (currentQueue.length > 1 && nextIndex === currentQueueIndex);
+            } else { // 'repeat-all' ou 'repeat-one' (quando o botão "próximo" é clicado)
+                nextIndex = currentQueueIndex + 1;
+                // Para 'repeat-all' ou para continuar após o fim da lista, volta ao início.
+                // Não há modo "parar no final", o ciclo de modos de repetição garante a reprodução contínua.
+                if (nextIndex >= currentQueue.length) {
+                    nextIndex = 0;
+                }
+            }
+            currentQueueIndex = nextIndex;
+            playSong(currentQueue[currentQueueIndex]);
         }
 
         function playPreviousSong() {
@@ -996,10 +1009,9 @@
 
         // --- LÓGICA DO MODO DE REPETIÇÃO ---
         const repeatModes = [
-            { mode: 'none', icon: 'fa-random' },
+            { mode: 'shuffle', icon: 'fa-random' },
             { mode: 'repeat-all', icon: 'fa-redo-alt' },
-            { mode: 'repeat-one', icon: 'fa-retweet' },
-            { mode: 'shuffle', icon: 'fa-random' }
+            { mode: 'repeat-one', icon: 'fa-retweet' }
         ];
 
         function updateRepeatModeButton() {
@@ -1018,15 +1030,13 @@
         }
 
         repeatModeBtn.addEventListener('click', () => {
+            // Encontra o índice do modo atual
             let currentModeIndex = repeatModes.findIndex(m => m.mode === repeatMode);
-            let nextMode;
-
-            do {
-                currentModeIndex = (currentModeIndex + 1) % repeatModes.length;
-                nextMode = repeatModes[currentModeIndex];
-            } while (isRandomModeActive && nextMode.mode === 'repeat-all');
-
-            repeatMode = nextMode.mode;
+            // Calcula o próximo índice, voltando ao início se necessário
+            const nextModeIndex = (currentModeIndex + 1) % repeatModes.length;
+            // Define o novo modo
+            repeatMode = repeatModes[nextModeIndex].mode;
+            // Atualiza a aparência do botão
             updateRepeatModeButton();
         });
 
@@ -2814,7 +2824,10 @@
 
             if (clickedIndex !== -1) {
                 currentQueueIndex = clickedIndex;
+                // Define 'shuffle' como o modo padrão ao iniciar uma playlist
                 repeatMode = 'shuffle';
+                // Atualiza o ícone para refletir o modo padrão imediatamente
+                updateRepeatModeButton();
                 playSong(currentQueue[currentQueueIndex]);
             }
         }
@@ -3151,23 +3164,23 @@
                 </button>
             </div>
 
-            <!-- Controles Adicionais (Volume e Modo de Repetição) -->
-            <div class="w-full max-w-sm mx-auto mt-8 flex items-center justify-between space-x-4">
-                <button id="repeat-mode-btn" class="player-button w-12 h-12" data-mode="none">
-                    <i class="fas fa-random text-lg"></i>
-                </button>
-                <div class="flex items-center flex-grow space-x-2">
+            <!-- Controles Adicionais (Volume e Ações) -->
+            <div class="w-full max-w-sm mx-auto mt-8 space-y-6">
+                <!-- Volume -->
+                <div class="flex items-center space-x-2">
                     <i class="fas fa-volume-down text-gray-400"></i>
                     <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     <i class="fas fa-volume-up text-gray-400"></i>
                 </div>
-            </div>
-
-            <!-- Botão de Adicionar à Pasta (Centralizado) -->
-            <div class="w-full flex justify-center mt-6">
-                <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
-                    <i class="fas fa-plus text-2xl"></i>
-                </button>
+                <!-- Ações (Repetir e Adicionar) -->
+                <div class="flex justify-center items-center space-x-8">
+                    <button id="repeat-mode-btn" class="player-button w-16 h-16">
+                        <i class="fas fa-random text-2xl"></i>
+                    </button>
+                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
+                        <i class="fas fa-plus text-2xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
