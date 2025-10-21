@@ -1019,13 +1019,8 @@
             if (!currentMode) return;
 
             const icon = repeatModeBtn.querySelector('i');
-            icon.className = `fas ${currentMode.icon}`;
-
-            if (repeatMode === 'repeat-one') {
-                icon.classList.add('text-indigo-400');
-            } else {
-                icon.classList.remove('text-indigo-400');
-            }
+            // Garante que o ícone seja sempre grande e preto, removendo a cor customizada.
+            icon.className = `fas ${currentMode.icon} text-2xl`;
         }
 
         repeatModeBtn.addEventListener('click', () => {
