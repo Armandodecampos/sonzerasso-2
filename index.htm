@@ -1026,17 +1026,18 @@
             } else {
                 icon.classList.remove('text-indigo-400');
             }
-            repeatModeBtn.style.display = isRandomModeActive ? 'none' : 'block';
         }
 
         repeatModeBtn.addEventListener('click', () => {
-            // Encontra o índice do modo atual
             let currentModeIndex = repeatModes.findIndex(m => m.mode === repeatMode);
-            // Calcula o próximo índice, voltando ao início se necessário
-            const nextModeIndex = (currentModeIndex + 1) % repeatModes.length;
-            // Define o novo modo
-            repeatMode = repeatModes[nextModeIndex].mode;
-            // Atualiza a aparência do botão
+            let nextMode;
+
+            do {
+                currentModeIndex = (currentModeIndex + 1) % repeatModes.length;
+                nextMode = repeatModes[currentModeIndex];
+            } while (isRandomModeActive && nextMode.mode === 'repeat-all');
+
+            repeatMode = nextMode.mode;
             updateRepeatModeButton();
         });
 
