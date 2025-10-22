@@ -903,6 +903,14 @@
         const notificationModal = document.getElementById('notification-modal');
         const notificationMessage = document.getElementById('notification-message');
 
+        // Referências do Player de Música
+        const musicPlayer = document.getElementById('music-player');
+        const playerAlbumArt = document.getElementById('player-album-art');
+        const playerSongTitle = document.getElementById('player-song-title');
+        const playerArtistName = document.getElementById('player-artist-name');
+        const playerAudio = document.getElementById('player-audio');
+        const silentAudio = document.getElementById('silent-audio');
+
         // --- NOVA LÓGICA DE REPRODUÇÃO E HISTÓRICO ---
         let currentQueue = [];
         let currentQueueIndex = -1;
@@ -1078,14 +1086,6 @@
         const MUSIC_PAGE_SIZE = 50; // Usado no loop de busca
         let isMusicSelectionModeActive = false; // Novo estado para o modo de seleção
 
-
-        // Referências do Player de Música
-        const musicPlayer = document.getElementById('music-player');
-        const playerAlbumArt = document.getElementById('player-album-art');
-        const playerSongTitle = document.getElementById('player-song-title');
-        const playerArtistName = document.getElementById('player-artist-name');
-        const playerAudio = document.getElementById('player-audio');
-        const silentAudio = document.getElementById('silent-audio');
 
         // Referências do Modal de Edição de App Fixo
         const editFixedAppModal = document.getElementById('edit-fixed-app-modal');
