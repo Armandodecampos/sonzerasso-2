@@ -284,7 +284,7 @@
 </head>
 <body>
     <!-- Novo container principal para centralizar todos os elementos -->
-    <div id="main-container" class="flex items-center justify-center min-h-screen p-4">
+    <div id="main-container" class="flex items-center justify-center min-h-screen p-4 overflow-y-auto">
         <!-- Conteúdo do Login -->
         <div id="app" class="w-full max-w-md">
             <!-- Formulário de Login Padrão -->
@@ -3116,65 +3116,64 @@
     </div>
 
     <!-- NOVO: Player de Música em Tela Cheia -->
-    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col p-4 z-[80] text-theme" style="background-color: var(--cor-primaria);">
+    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center p-4 z-[80] text-theme overflow-y-auto" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
         <button id="close-fullscreen-player" class="player-button absolute top-4 right-4 w-12 h-12 z-10">
             <i class="fas fa-times text-xl"></i>
         </button>
 
-        <div class="w-full max-w-md h-full flex flex-col text-center pt-12 pb-4">
-            <!-- Parte Superior: Arte do Álbum e Informações -->
-            <div class="flex-shrink-0">
-                <img id="fullscreen-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-48 h-48 mx-auto rounded-lg shadow-lg mb-4">
-                <h2 id="fullscreen-song-title" class="text-2xl font-bold truncate">Nome da Música</h2>
-                <p id="fullscreen-artist-name" class="text-lg text-gray-400 mb-2">Nome do Artista</p>
+        <div class="w-full max-w-md text-center pt-12 pb-4">
+            <!-- Arte do Álbum -->
+            <img id="fullscreen-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-64 h-64 mx-auto rounded-lg shadow-lg mb-6">
+
+            <!-- Informações da Música -->
+            <h2 id="fullscreen-song-title" class="text-3xl font-bold">Nome da Música</h2>
+            <p id="fullscreen-artist-name" class="text-lg text-gray-400 mb-6">Nome do Artista</p>
+
+            <!-- Barra de Progresso -->
+            <div class="w-full">
+                 <input id="progress-slider" type="range" min="0" max="100" step="1" value="0" class="custom-slider">
+            </div>
+            <div class="flex justify-between text-sm text-gray-400 mb-6 px-1">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
             </div>
 
-            <!-- Parte Central: Letra da Música (com scroll) -->
-            <div id="lyrics-container" class="flex-grow overflow-y-auto my-4 p-3 border border-gray-700 rounded-md whitespace-pre-wrap text-sm text-left">
+            <!-- Controles -->
+            <div class="flex items-center justify-center space-x-6">
+                <button id="prev-btn" class="player-button w-16 h-16">
+                    <i class="fas fa-step-backward text-2xl"></i>
+                </button>
+                <button id="play-pause-btn" class="player-button w-20 h-20">
+                    <i class="fas fa-play text-3xl"></i>
+                </button>
+                <button id="next-btn" class="player-button w-16 h-16">
+                    <i class="fas fa-step-forward text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Controles Adicionais (Volume e Ações) -->
+            <div class="w-full max-w-sm mx-auto mt-8 space-y-6">
+                <!-- Volume -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-volume-down text-gray-400"></i>
+                    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="custom-slider">
+                    <i class="fas fa-volume-up text-gray-400"></i>
+                </div>
+                <!-- Ações (Repetir e Adicionar) -->
+                <div class="flex justify-center items-center space-x-8">
+                    <button id="repeat-mode-btn" class="player-button w-16 h-16">
+                        <i class="fas fa-random text-2xl"></i>
+                    </button>
+                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
+                        <i class="fas fa-plus text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Letra da Música -->
+            <div id="lyrics-container" class="mt-8 p-3 border border-gray-700 rounded-md whitespace-pre-wrap text-sm text-left">
                 Buscando letra...
-            </div>
-
-            <!-- Parte Inferior: Controles -->
-            <div class="flex-shrink-0">
-                <!-- Barra de Progresso -->
-                <div class="w-full">
-                     <input id="progress-slider" type="range" min="0" max="100" step="1" value="0" class="custom-slider">
-                </div>
-                <div class="flex justify-between text-sm text-gray-400 mb-4 px-1">
-                    <span id="current-time">0:00</span>
-                    <span id="duration">0:00</span>
-                </div>
-
-                <!-- Controles -->
-                <div class="flex items-center justify-center space-x-6 mb-4">
-                    <button id="prev-btn" class="player-button w-16 h-16">
-                        <i class="fas fa-step-backward text-2xl"></i>
-                    </button>
-                    <button id="play-pause-btn" class="player-button w-20 h-20">
-                        <i class="fas fa-play text-3xl"></i>
-                    </button>
-                    <button id="next-btn" class="player-button w-16 h-16">
-                        <i class="fas fa-step-forward text-2xl"></i>
-                    </button>
-                </div>
-
-                <!-- Controles Adicionais (Volume e Ações) -->
-                <div class="w-full max-w-sm mx-auto">
-                    <div class="flex justify-around items-center">
-                        <button id="repeat-mode-btn" class="player-button w-14 h-14">
-                            <i class="fas fa-random text-xl"></i>
-                        </button>
-                        <div class="flex items-center space-x-2 flex-grow mx-4">
-                            <i class="fas fa-volume-down text-gray-400"></i>
-                            <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="custom-slider">
-                            <i class="fas fa-volume-up text-gray-400"></i>
-                        </div>
-                        <button id="add-to-folder-fullscreen-btn" class="player-button w-14 h-14">
-                            <i class="fas fa-plus text-xl"></i>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
