@@ -11,18 +11,18 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         :root {
-            --cor-fontes-icones: #f0f0f0; /* Cor 1: Fontes e Ícones */
-            --cor-botoes-inputs: #ffaa00; /* Cor 2: Botões e Inputs */
-            --cor-listas: #2a2a2a;      /* Cor 3: Contêineres de Listas */
-            --cor-cabecalho-player: #1a1a1a; /* Cor 4: Cabeçalhos, Players, etc. */
+            --cor-primaria: #1a1a1a;
+            --cor-secundaria: #2a2a2a;
+            --cor-texto: #f0f0f0;
+            --cor-destaque: #ffaa00;
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--cor-listas);
-            color: var(--cor-fontes-icones);
+            background-color: var(--cor-secundaria);
+            color: var(--cor-texto);
         }
         .text-theme {
-            color: var(--cor-fontes-icones);
+            color: var(--cor-texto);
         }
         .shopping-list-item {
             @apply flex items-center justify-between p-3 border-b border-gray-200;
@@ -214,12 +214,12 @@
 
         #explore-content-container::-webkit-scrollbar-track,
         #folder-music-list-container::-webkit-scrollbar-track {
-            background-color: var(--cor-listas);
+            background-color: var(--cor-secundaria);
         }
 
         #explore-content-container::-webkit-scrollbar-thumb,
         #folder-music-list-container::-webkit-scrollbar-thumb {
-            background-color: var(--cor-botoes-inputs);
+            background-color: var(--cor-destaque);
             border-radius: 0;
             border: none;
         }
@@ -231,10 +231,10 @@
         /* Estilos para o Toggle Switch */
         input:checked ~ .dot {
             transform: translateX(100%);
-            background-color: var(--cor-botoes-inputs);
+            background-color: var(--cor-destaque);
         }
         input:checked ~ .block {
-             background-color: var(--cor-botoes-inputs);
+             background-color: var(--cor-destaque);
              opacity: 0.5;
         }
         /* Estilos para os novos botões do player */
@@ -266,7 +266,7 @@
             appearance: none;
             width: 20px; /* Largura da bolinha */
             height: 20px; /* Altura da bolinha */
-            background: var(--cor-botoes-inputs); /* Cor da bolinha */
+            background: var(--cor-destaque); /* Cor da bolinha */
             cursor: pointer;
             border-radius: 50%; /* Faz a bolinha ser redonda */
         }
@@ -275,7 +275,7 @@
         .custom-slider::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: var(--cor-botoes-inputs);
+            background: var(--cor-destaque);
             cursor: pointer;
             border-radius: 50%;
             border: none; /* Firefox adiciona uma borda por padrão */
@@ -284,28 +284,28 @@
 </head>
 <body>
     <!-- Novo container principal para centralizar todos os elementos -->
-    <div id="main-container" class="flex items-center justify-center min-h-screen p-4">
+    <div id="main-container" class="flex items-center justify-center min-h-screen p-4 overflow-y-auto">
         <!-- Conteúdo do Login -->
         <div id="app" class="w-full max-w-md">
             <!-- Formulário de Login Padrão -->
             <div id="login-form-container" class="w-full max-w-xs mx-auto">
                 <div class="space-y-4">
-                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-botoes-inputs);">Sonzerasso</h1>
+                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-destaque);">Sonzerasso</h1>
 
                     <!-- Campo do Email -->
                     <div class="w-full">
                         <label for="email" class="block text-sm font-medium text-theme">Email</label>
-                        <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                        <input type="email" id="email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                     </div>
 
                     <!-- Campo da Senha -->
                     <div class="w-full">
                         <label for="password" class="block text-sm font-medium text-theme">Senha</label>
-                        <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                        <input type="password" id="password" autocomplete="current-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                     </div>
 
                     <!-- Botão de Entrar -->
-                    <button id="login-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">
+                    <button id="login-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
                         Entrar
                     </button>
 
@@ -317,7 +317,7 @@
                     <!-- Novo link para cadastro -->
                     <p class="!mt-4 text-center text-sm text-theme">
                         Não tem uma conta?
-                        <button id="show-signup-button" class="font-semibold hover:underline" style="color: var(--cor-botoes-inputs);">
+                        <button id="show-signup-button" class="font-semibold hover:underline" style="color: var(--cor-destaque);">
                             Cadastre-se
                         </button>
                     </p>
@@ -327,35 +327,35 @@
             <!-- NOVO: Formulário de Cadastro (inicialmente escondido) -->
             <div id="signup-form-container" class="hidden w-full max-w-xs mx-auto">
                 <div class="space-y-4">
-                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-botoes-inputs);">Criar Conta</h1>
+                    <h1 class="text-5xl font-black text-center" style="color: var(--cor-destaque);">Criar Conta</h1>
 
                     <!-- Campo do Email -->
                     <div class="w-full">
                         <label for="signup-email" class="block text-sm font-medium text-theme">Email</label>
-                        <input type="email" id="signup-email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                        <input type="email" id="signup-email" autocomplete="email" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                     </div>
 
                     <!-- Campo da Senha -->
                     <div class="w-full">
                         <label for="signup-password" class="block text-sm font-medium text-theme">Senha</label>
-                        <input type="password" id="signup-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                        <input type="password" id="signup-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                     </div>
 
                     <!-- Campo de Confirmar Senha -->
                     <div class="w-full">
                         <label for="signup-confirm-password" class="block text-sm font-medium text-theme">Confirmar Senha</label>
-                        <input type="password" id="signup-confirm-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                        <input type="password" id="signup-confirm-password" autocomplete="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                     </div>
 
                     <!-- Botão de Cadastrar -->
-                    <button id="signup-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">
+                    <button id="signup-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
                         Cadastrar
                     </button>
 
                     <!-- Link para voltar ao Login -->
                     <p class="!mt-4 text-center text-sm text-theme">
                         Já tem uma conta?
-                        <button id="show-login-button" class="font-semibold hover:underline" style="color: var(--cor-botoes-inputs);">
+                        <button id="show-login-button" class="font-semibold hover:underline" style="color: var(--cor-destaque);">
                             Entrar
                         </button>
                     </p>
@@ -363,8 +363,8 @@
             </div>
 
             <!-- Formulário de Nova Senha (inicialmente escondido) -->
-            <div id="new-password-container" class="hidden space-y-6 p-6 rounded-xl shadow-lg" style="background-color: var(--cor-cabecalho-player);">
-                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+            <div id="new-password-container" class="hidden space-y-6 p-6 rounded-xl shadow-lg" style="background-color: var(--cor-primaria);">
+                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -373,13 +373,13 @@
                 <p class="text-center font-semibold text-theme text-lg">Defina sua nova senha</p>
                 <div class="relative">
                     <label for="new-password" class="block text-sm font-medium text-theme">Nova Senha</label>
-                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-listas); border-color: var(--cor-botoes-inputs); color: var(--cor-fontes-icones);">
+                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                 </div>
                 <div class="relative">
                     <label for="confirm-password" class="block text-sm font-medium text-theme">Confirme a Senha</label>
-                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-botoes-inputs); color: #000000;">
+                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
                 </div>
-                <button id="update-password-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">
+                <button id="update-password-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
                     Confirmar
                 </button>
             </div>
@@ -389,13 +389,13 @@
     <!-- Nova tela do usuário logado -->
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
-        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-cabecalho-player);">
+        <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
             <button id="profile-button" class="transition-all duration-200 focus:outline-none">
-                <h1 class="text-3xl font-black" style="color: var(--cor-botoes-inputs);">Sonzerasso</h1>
+                <h1 class="text-3xl font-black" style="color: var(--cor-destaque);">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-black shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-botoes-inputs);">
+                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-black shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-destaque);">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -403,7 +403,7 @@
 
         <!-- Modal de Ações do Aplicativo -->
         <div id="app-action-bar" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-            <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-cabecalho-player);">
+            <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
                 <button id="open-app-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-blue-500 hover:bg-blue-600">
                     Abrir
                 </button>
@@ -413,7 +413,7 @@
                 <button id="delete-app-button" class="w-full px-4 py-3 text-white font-bold rounded-md shadow-lg hover:shadow-xl transition-all text-lg bg-red-500 hover:bg-red-600">
                     <span id="delete-app-text">Remover</span>
                 </button>
-                <button id="close-app-modal-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors mt-2 hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+                <button id="close-app-modal-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors mt-2 hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Fechar
                 </button>
             </div>
@@ -425,8 +425,8 @@
         </div>
 
         <!-- Nova Barra de Navegação Inferior -->
-        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-cabecalho-player);"> <!-- Posição ajustada para ficar acima do player -->
-            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-botoes-inputs);">
+        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-primaria);"> <!-- Posição ajustada para ficar acima do player -->
+            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-compass mr-3"></i>
                 Explorar
             </button>
@@ -435,7 +435,7 @@
 
     <!-- Modal para opções do perfil -->
     <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -444,10 +444,10 @@
                 </button>
             </div>
             <h3 class="text-2xl font-bold text-theme">Opções do Perfil</h3>
-            <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+            <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Trocar Senha
             </button>
-            <button id="settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+            <button id="settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Configurações
             </button>
             <button id="logout-button" class="w-full px-4 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors">
@@ -458,29 +458,29 @@
 
     <!-- Modal para confirmação de redefinição de senha -->
     <div id="reset-password-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Verifique seu Email</h3>
-            <p class="text-theme">Um link para redefinição de senha foi enviado para <span id="reset-email-display" class="font-semibold" style="color: var(--cor-botoes-inputs);"></span>. Siga as instruções para criar uma nova senha.</p>
-            <button id="close-modal-button" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">OK</button>
+            <p class="text-theme">Um link para redefinição de senha foi enviado para <span id="reset-email-display" class="font-semibold" style="color: var(--cor-destaque);"></span>. Siga as instruções para criar uma nova senha.</p>
+            <button id="close-modal-button" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">OK</button>
         </div>
     </div>
 
     <!-- Novo Modal de Mensagem de Espera -->
     <div id="wait-message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Aguarde</h3>
-            <p class="text-theme">É necessário aguardar para enviar outro e-mail. Por favor, aguarde <span id="wait-time" class="font-semibold" style="color: var(--cor-botoes-inputs);"></span> segundos.</p>
-            <button id="close-wait-modal" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">OK</button>
+            <p class="text-theme">É necessário aguardar para enviar outro e-mail. Por favor, aguarde <span id="wait-time" class="font-semibold" style="color: var(--cor-destaque);"></span> segundos.</p>
+            <button id="close-wait-modal" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">OK</button>
         </div>
     </div>
 
     <!-- Modal para confirmação de exclusão -->
     <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Confirmar Exclusão</h3>
             <p id="delete-confirm-message" class="text-theme">Tem certeza que deseja excluir este item da lista?</p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-delete-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">Cancelar</button>
+                <button id="cancel-delete-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
                 <button id="confirm-delete-button" class="px-6 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">Excluir</button>
             </div>
         </div>
@@ -488,19 +488,19 @@
 
     <!-- Modal para confirmação de mover item -->
     <div id="move-item-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-xl font-bold text-theme">Confirmar Ação</h3>
             <p id="move-item-confirm-message" class="text-theme"></p>
             <div class="flex justify-center space-x-4">
-                <button id="cancel-move-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90 transition-colors" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">Cancelar</button>
-                <button id="confirm-move-button" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-botoes-inputs);">Confirmar</button>
+                <button id="cancel-move-button" class="px-6 py-2 font-semibold rounded-md hover:brightness-90 transition-colors" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="confirm-move-button" class="px-6 py-2 text-black font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-destaque);">Confirmar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal para Configurações de Papel de Parede -->
     <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
                 <button id="close-settings-modal" class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -512,7 +512,7 @@
 
             <div class="relative">
                 <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
-                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800" style="background-color: var(--cor-cabecalho-player); border-color: var(--cor-botoes-inputs); color: var(--cor-fontes-icones);">
+                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     <option value="dark">Escuro (padrão)</option>
                     <option value="light">Claro</option>
                     <option value="custom">Personalizado</option>
@@ -522,20 +522,20 @@
             <!-- Novo container para as cores personalizadas -->
             <div id="custom-colors-container" class="hidden space-y-2 pt-4 text-left">
                 <div class="flex items-center justify-between">
-                    <label for="custom-font-icon-color" class="text-sm font-medium text-theme">Cor 1 (Fontes e Ícones)</label>
-                    <input type="color" id="custom-font-icon-color" value="#f0f0f0">
+                    <label for="custom-primary-color" class="text-sm font-medium text-theme">Cor Primária</label>
+                    <input type="color" id="custom-primary-color" value="#FFFFFF">
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="custom-buttons-inputs-color" class="text-sm font-medium text-theme">Cor 2 (Botões e Inputs)</label>
-                    <input type="color" id="custom-buttons-inputs-color" value="#ffaa00">
+                    <label for="custom-secondary-color" class="text-sm font-medium text-theme">Cor Secundária</label>
+                    <input type="color" id="custom-secondary-color" value="#F3F4F6">
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="custom-lists-color" class="text-sm font-medium text-theme">Cor 3 (Contêineres de Listas)</label>
-                    <input type="color" id="custom-lists-color" value="#2a2a2a">
+                    <label for="custom-text-color" class="text-sm font-medium text-theme">Cor do Texto</label>
+                    <input type="color" id="custom-text-color" value="#1f2937">
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="custom-header-player-color" class="text-sm font-medium text-theme">Cor 4 (Cabeçalho e Player)</label>
-                    <input type="color" id="custom-header-player-color" value="#1a1a1a">
+                    <label for="custom-accent-color" class="text-sm font-medium text-theme">Cor de Destaque</label>
+                    <input type="color" id="custom-accent-color" value="#4f46e5">
                 </div>
             </div>
 
@@ -556,10 +556,10 @@
             </button>
 
             <div class="flex justify-between space-x-4 pt-4">
-                <button id="cancel-settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+                <button id="cancel-settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
-                <button id="save-settings-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-botoes-inputs);">
+                <button id="save-settings-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Salvar
                 </button>
             </div>
@@ -568,8 +568,8 @@
 
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
-    <div id="add-app-modal" class="fixed inset-0 hidden flex-col z-[60]" style="background-color: var(--cor-listas);">
-        <header class="flex items-center justify-between p-4 shadow-md" style="background-color: var(--cor-cabecalho-player);">
+    <div id="add-app-modal" class="fixed inset-0 hidden flex-col z-[60]" style="background-color: var(--cor-secundaria);">
+        <header class="flex items-center justify-between p-4 shadow-md" style="background-color: var(--cor-primaria);">
             <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
             <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -585,10 +585,10 @@
 
 
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="save-app-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-botoes-inputs);">
+                <button id="save-app-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                     Criar Pasta
                 </button>
-                <button id="cancel-add-app-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">
+                <button id="cancel-add-app-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                     Cancelar
                 </button>
             </div>
@@ -597,39 +597,39 @@
 
     <!-- Novo Modal para Editar Nome de App Fixo -->
     <div id="edit-fixed-app-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 id="edit-fixed-app-title" class="text-2xl font-bold text-center text-theme">Editar Nome</h3>
             <div class="relative">
                 <label for="fixed-app-name-input" class="block text-sm font-medium text-left text-theme">Novo Nome</label>
                 <input type="text" id="fixed-app-name-input" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">Cancelar</button>
-                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 text-black font-semibold rounded-md" style="background-color: var(--cor-botoes-inputs);">Salvar</button>
+                <button id="cancel-edit-fixed-app-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="save-edit-fixed-app-button" class="w-full px-4 py-3 text-black font-semibold rounded-md" style="background-color: var(--cor-destaque);">Salvar</button>
             </div>
         </div>
     </div>
 
     <!-- NOVO: Modal para Adicionar Música à Pasta -->
     <div id="add-to-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[90]">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
             <h3 class="text-2xl font-bold text-center text-theme">Adicionar à Pasta</h3>
             <div class="relative">
                 <label for="modal-folder-select" class="block text-sm font-medium text-left text-theme">Selecione a Pasta</label>
-                <select id="modal-folder-select" class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" style="background-color: var(--cor-listas); border-color: var(--cor-botoes-inputs); color: var(--cor-fontes-icones);">
+                <select id="modal-folder-select" class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
                     <!-- Opções de pasta serão preenchidas aqui -->
                 </select>
             </div>
             <div class="flex justify-between space-x-4 pt-2">
-                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">Cancelar</button>
-                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 text-black font-semibold rounded-md" style="background-color: var(--cor-botoes-inputs);">Adicionar</button>
+                <button id="cancel-add-to-folder-modal-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="confirm-add-to-folder-modal-button" class="w-full px-4 py-3 text-black font-semibold rounded-md" style="background-color: var(--cor-destaque);">Adicionar</button>
             </div>
         </div>
     </div>
 
     <!-- NOVO: Modal do App Explorar (Estrutura Refatorada) -->
-    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-50" style="background-color: var(--cor-listas);">
-        <header class="p-4 shadow-md space-y-4 text-theme" style="background-color: var(--cor-cabecalho-player);">
+    <div id="explore-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-50" style="background-color: var(--cor-secundaria);">
+        <header class="p-4 shadow-md space-y-4 text-theme" style="background-color: var(--cor-primaria);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <!-- Botão de Voltar (inicialmente oculto) -->
@@ -648,15 +648,15 @@
                     </svg>
                 </button>
             </div>
-            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones); --tw-ring-color: var(--cor-botoes-inputs);">
+            <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
         <!-- Rodapé fixo com o botão de música aleatória -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-cabecalho-player);">
-            <button id="play-random-song-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-botoes-inputs);">
+        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-primaria);">
+            <button id="play-random-song-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
                 <i class="fas fa-dice mr-3"></i>
                 Música Aleatória
             </button>
@@ -664,7 +664,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 cursor-pointer text-theme hidden" style="background-color: var(--cor-cabecalho-player);">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 cursor-pointer text-theme hidden" style="background-color: var(--cor-primaria);">
         <div class="flex items-center">
             <img id="player-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -727,7 +727,7 @@
             </div>
             <div class="flex justify-between space-x-4 pt-2">
                 <button id="save-edit-price-button" class="w-full px-4 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Salvar</button>
-                <button id="cancel-edit-price-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-listas); color: var(--cor-fontes-icones);">Cancelar</button>
+                <button id="cancel-edit-price-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
             </div>
         </div>
     </div>
@@ -759,16 +759,16 @@
         // --- DEFINIÇÕES DE TEMA ---
         const themes = {
             'dark': {
-                corFontesIcones: '#f0f0f0',
-                corBotoesInputs: '#ffaa00',
-                corListas: '#2a2a2a',
-                corCabecalhoPlayer: '#1a1a1a'
+                corPrimaria: '#1a1a1a',
+                corSecundaria: '#2a2a2a',
+                corTexto: '#f0f0f0',
+                corDestaque: '#ffaa00'
             },
             'light': {
-                corFontesIcones: '#000000',
-                corBotoesInputs: '#007bff',
-                corListas: '#f0f8ff',
-                corCabecalhoPlayer: '#ffffff'
+                corPrimaria: '#ffffff',
+                corSecundaria: '#f0f8ff',
+                corTexto: '#000000',
+                corDestaque: '#007bff'
             }
         };
 
@@ -889,6 +889,7 @@
         const fullscreenAlbumArt = document.getElementById('fullscreen-album-art');
         const fullscreenSongTitle = document.getElementById('fullscreen-song-title');
         const fullscreenArtistName = document.getElementById('fullscreen-artist-name');
+        const lyricsContainer = document.getElementById('lyrics-container');
         const progressSlider = document.getElementById('progress-slider');
         const currentTimeDisplay = document.getElementById('current-time');
         const durationDisplay = document.getElementById('duration');
@@ -921,6 +922,28 @@
         let isRandomModeActive = false;
         let autoSkipTimeout = null;
 
+        // --- NOVA FUNÇÃO PARA BUSCAR LETRAS ---
+        async function fetchAndDisplayLyrics(artist, title) {
+            if (!artist || !title) {
+                lyricsContainer.textContent = 'Informações da música indisponíveis para buscar a letra.';
+                return;
+            }
+            lyricsContainer.textContent = 'Buscando letra...';
+            try {
+                const response = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
+                if (!response.ok) {
+                    lyricsContainer.textContent = 'Letra não encontrada.';
+                    return;
+                }
+                const data = await response.json();
+                // A API retorna a letra com quebras de linha \n. A classe 'whitespace-pre-wrap' vai formatar isso corretamente.
+                lyricsContainer.textContent = data.lyrics || 'Letra não encontrada.';
+            } catch (error) {
+                console.error('Erro ao buscar a letra:', error);
+                lyricsContainer.textContent = 'Ocorreu um erro ao buscar a letra.';
+            }
+        }
+
         function playSong(songData, fromHistory = false, autoplay = true) {
             if (silentAudio.paused) {
                 silentAudio.play().catch(e => console.error("A reprodução do áudio silencioso falhou:", e));
@@ -948,6 +971,9 @@
             fullscreenSongTitle.textContent = playerSongTitle.textContent;
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
+
+            fetchAndDisplayLyrics(songData.artist, songData.title);
+
             if (autoplay) {
                 playerAudio.play();
             }
@@ -1269,10 +1295,10 @@
             }
 
             const root = document.documentElement;
-            root.style.setProperty('--cor-fontes-icones', themeColors.corFontesIcones);
-            root.style.setProperty('--cor-botoes-inputs', themeColors.corBotoesInputs);
-            root.style.setProperty('--cor-listas', themeColors.corListas);
-            root.style.setProperty('--cor-cabecalho-player', themeColors.corCabecalhoPlayer);
+            root.style.setProperty('--cor-primaria', themeColors.corPrimaria);
+            root.style.setProperty('--cor-secundaria', themeColors.corSecundaria);
+            root.style.setProperty('--cor-texto', themeColors.corTexto);
+            root.style.setProperty('--cor-destaque', themeColors.corDestaque);
         }
 
         // Salva as preferências do usuário no Supabase
@@ -1634,53 +1660,63 @@
             wallpaperUploadMessage.style.display = 'none';
         }
 
-        // --- NOVO: Referências para os seletores de cor personalizados ---
-        const customColorsContainer = document.getElementById('custom-colors-container');
-        const customFontIconColorInput = document.getElementById('custom-font-icon-color');
-        const customButtonsInputsColorInput = document.getElementById('custom-buttons-inputs-color');
-        const customListsColorInput = document.getElementById('custom-lists-color');
-        const customHeaderPlayerColorInput = document.getElementById('custom-header-player-color');
-
         // Opens the modal and prepares the temporary state for editing
         settingsButton.addEventListener('click', async () => {
+            // 1. Show modal with default values immediately
             tempPreferences = { ...currentUserPreferences };
             themeSelect.value = currentUserPreferences.theme || 'dark';
             autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
 
+            // Mostra ou esconde os seletores de cores personalizadas
             if (themeSelect.value === 'custom') {
                 customColorsContainer.classList.remove('hidden');
+                // Preenche os seletores com as cores salvas
                 if (currentUserPreferences.customColors) {
-                    customFontIconColorInput.value = currentUserPreferences.customColors.corFontesIcones;
-                    customButtonsInputsColorInput.value = currentUserPreferences.customColors.corBotoesInputs;
-                    customListsColorInput.value = currentUserPreferences.customColors.corListas;
-                    customHeaderPlayerColorInput.value = currentUserPreferences.customColors.corCabecalhoPlayer;
+                    customPrimaryColorInput.value = currentUserPreferences.customColors.corPrimaria;
+                    customSecondaryColorInput.value = currentUserPreferences.customColors.corSecundaria;
+                    customTextColorInput.value = currentUserPreferences.customColors.corTexto;
+                    customAccentColorInput.value = currentUserPreferences.customColors.corDestaque;
                 }
             } else {
                 customColorsContainer.classList.add('hidden');
             }
 
             profileModal.classList.add('hidden');
+            profileModal.classList.remove('flex');
             settingsModal.classList.remove('hidden');
             settingsModal.classList.add('flex');
+
+            // A inicialização agora usa currentUserPreferences, que é carregado
+            // no login, então não é mais necessário buscar novamente aqui.
         });
 
         // Save the changes made in the modal
         saveSettingsButton.addEventListener('click', async () => {
             await saveUserPreferences(tempPreferences);
+            // Após salvar, atualiza o estado global para corresponder ao estado salvo
             currentUserPreferences = JSON.parse(JSON.stringify(tempPreferences));
             closeSettingsModal();
         });
 
         // Discard changes and revert to how it was before opening the modal
         cancelSettingsButton.addEventListener('click', () => {
+            // Reverte para as preferências salvas globalmente
             applyPreferences(currentUserPreferences);
             closeSettingsModal();
         });
 
         closeSettingsModalButton.addEventListener('click', () => {
+            // Também trata 'X' como uma ação de cancelar
             applyPreferences(currentUserPreferences);
             closeSettingsModal();
         });
+
+        // --- NOVO: Referências para os seletores de cor personalizados ---
+        const customColorsContainer = document.getElementById('custom-colors-container');
+        const customPrimaryColorInput = document.getElementById('custom-primary-color');
+        const customSecondaryColorInput = document.getElementById('custom-secondary-color');
+        const customTextColorInput = document.getElementById('custom-text-color');
+        const customAccentColorInput = document.getElementById('custom-accent-color');
 
         // Live preview for theme selection
         themeSelect.addEventListener('change', (e) => {
@@ -1689,17 +1725,20 @@
 
             if (selectedThemeName === 'custom') {
                 customColorsContainer.classList.remove('hidden');
+                // Inicializa as cores personalizadas se não existirem
                 if (!tempPreferences.customColors) {
                     tempPreferences.customColors = {
-                        corFontesIcones: '#f0f0f0',
-                        corBotoesInputs: '#ffaa00',
-                        corListas: '#2a2a2a',
-                        corCabecalhoPlayer: '#1a1a1a'
+                        corPrimaria: '#FFFFFF',
+                        corSecundaria: '#F3F4F6',
+                        corTexto: '#1f2937',
+                        corDestaque: '#4f46e5'
                     };
                 }
+                 // Aplica as cores personalizadas salvas
                 applyPreferences({ ...currentUserPreferences, theme: 'custom', customColors: tempPreferences.customColors });
             } else {
                 customColorsContainer.classList.add('hidden');
+                 // Aplica o tema pré-definido
                 applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
             }
         });
@@ -1708,7 +1747,7 @@
             tempPreferences.autoSkip = e.target.checked;
         });
 
-        // Live preview listeners for custom colors
+        // --- NOVO: Listeners para a visualização em tempo real das cores personalizadas ---
         function handleCustomColorChange(e, colorKey) {
             if (tempPreferences.theme === 'custom' && tempPreferences.customColors) {
                 tempPreferences.customColors[colorKey] = e.target.value;
@@ -1716,10 +1755,10 @@
             }
         }
 
-        customFontIconColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corFontesIcones'));
-        customButtonsInputsColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corBotoesInputs'));
-        customListsColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corListas'));
-        customHeaderPlayerColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corCabecalhoPlayer'));
+        customPrimaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corPrimaria'));
+        customSecondaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corSecundaria'));
+        customTextColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corTexto'));
+        customAccentColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corDestaque'));
 
         // Resets the temporary preferences for a live preview of removal
         removeWallpaperButton.addEventListener('click', async () => {
@@ -1754,7 +1793,7 @@
                 const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
                 const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
                 const bgStyle = item.isFolder
-                    ? `background-color: var(--cor-botoes-inputs);`
+                    ? `background-color: var(--cor-destaque);`
                     : `background-color: ${item.bg_color || '#333333'};`;
 
                 itemContainer.innerHTML = `
@@ -3009,6 +3048,14 @@
                 fetchAndRenderApps(mockUser.id);
             }
         };
+        window.fetchAndDisplayLyrics = fetchAndDisplayLyrics;
+        // Adiciona uma função de mock para testes
+        window.mockFetchLyrics = (lyrics) => {
+            const lyricsContainer = document.getElementById('lyrics-container');
+            if (lyricsContainer) {
+                lyricsContainer.textContent = lyrics;
+            }
+        };
         window.renderFoldersForAdd = (folders) => {
             modalFolderSelect.innerHTML = '';
             if (folders && folders.length > 0) {
@@ -3028,7 +3075,7 @@
     </script>
 
     <!-- NOVO: Modal para Visualizar Conteúdo da Pasta -->
-    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-40" style="background-color: var(--cor-listas);">
+    <div id="folder-content-modal" class="fixed top-0 left-0 right-0 bottom-24 hidden flex-col z-40" style="background-color: var(--cor-secundaria);">
         <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
             <div class="flex items-center justify-between">
                 <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
@@ -3047,7 +3094,7 @@
 
     <!-- NOVO: Modal de Ações da Pasta -->
     <div id="folder-action-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-cabecalho-player);">
+        <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
                 <button id="close-folder-action-modal" class="text-gray-500 hover:text-white">
@@ -3069,13 +3116,13 @@
     </div>
 
     <!-- NOVO: Player de Música em Tela Cheia -->
-    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center justify-center p-4 z-[80] text-theme" style="background-color: var(--cor-cabecalho-player);">
+    <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center p-4 z-[80] text-theme overflow-y-auto" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
-        <button id="close-fullscreen-player" class="player-button absolute top-4 right-4 w-12 h-12">
+        <button id="close-fullscreen-player" class="player-button absolute top-4 right-4 w-12 h-12 z-10">
             <i class="fas fa-times text-xl"></i>
         </button>
 
-        <div class="w-full max-w-md text-center">
+        <div class="w-full max-w-md text-center pt-12 pb-4">
             <!-- Arte do Álbum -->
             <img id="fullscreen-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-64 h-64 mx-auto rounded-lg shadow-lg mb-6">
 
@@ -3122,6 +3169,11 @@
                         <i class="fas fa-plus text-2xl"></i>
                     </button>
                 </div>
+            </div>
+
+            <!-- Letra da Música -->
+            <div id="lyrics-container" class="mt-8 p-3 border border-gray-700 rounded-md whitespace-pre-wrap text-sm text-left">
+                Buscando letra...
             </div>
         </div>
     </div>
