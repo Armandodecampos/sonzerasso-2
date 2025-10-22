@@ -394,8 +394,8 @@
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-black shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-destaque);">
-                    <i class="fas fa-plus"></i>
+                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: transparent;">
+                    <i class="fas fa-folder-plus text-2xl"></i>
                 </button>
             </div>
         </div>
@@ -1790,7 +1790,7 @@
                 if (item.url) itemContainer.dataset.url = item.url;
 
                 const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
-                const iconColor = item.isFolder ? 'var(--cor-destaque)' : (item.icon_color || '#FFFFFF');
+                const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
                 const bgStyle = item.isFolder
                     ? `background-color: transparent; box-shadow: none;`
                     : `background-color: ${item.bg_color || '#333333'};`;
@@ -3097,7 +3097,7 @@
         <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
-                <button id="close-folder-action-modal" class="text-gray-500 hover:text-white">
+                <button id="close-folder-action-modal" class="text-white hover:text-gray-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
