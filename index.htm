@@ -664,7 +664,7 @@
     </div>
 
     <!-- Player de Música Fixo -->
-    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 cursor-pointer text-theme" style="background-color: var(--cor-primaria);">
+    <div id="music-player" class="fixed bottom-0 left-0 right-0 p-4 shadow-lg z-50 cursor-pointer text-theme hidden" style="background-color: var(--cor-primaria);">
         <div class="flex items-center">
             <img id="player-album-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Capa do Álbum" class="w-16 h-16 rounded-md mr-4">
             <div class="flex-grow">
@@ -929,6 +929,10 @@
             }
             currentSong = songData;
 
+            // Reseta o background antes de tentar carregar a nova imagem
+            playerAlbumArt.style.backgroundColor = 'transparent';
+            fullscreenAlbumArt.style.backgroundColor = 'transparent';
+
             playerAlbumArt.src = songData.albumArt || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
             playerSongTitle.textContent = songData.title || 'Música desconhecida';
             playerArtistName.textContent = songData.artist || 'Artista desconhecido';
@@ -939,6 +943,9 @@
             if (autoplay) {
                 playerAudio.play();
             }
+
+            // Garante que o player esteja visível
+            musicPlayer.classList.remove('hidden');
 
             // --- INTEGRAÇÃO COM MEDIA SESSION API ---
             if ('mediaSession' in navigator) {
@@ -965,19 +972,20 @@
 
             if (currentUserPreferences.autoSkip !== false) {
                 autoSkipTimeout = setTimeout(() => {
+                    const wasPaused = playerAudio.paused;
                     showNotification('A música demorou para carregar e foi pulada.', 'error');
-                    playNextSong();
+                    playNextSong(!wasPaused); // Se estava pausado, não toca a próxima automaticamente
                 }, 20000);
             }
         }
 
-        async function playNextSong() {
+        async function playNextSong(autoplay = true) {
             // Se estiver no modo aleatório global, busca uma música completamente nova
             if (isRandomModeActive) {
                 if (historyFuture.length > 0) {
-                    playSong(historyFuture.pop(), true);
+                    playSong(historyFuture.pop(), true, autoplay);
                 } else {
-                    await playRandomSong(false);
+                    await playRandomSong(false, autoplay);
                 }
                 return;
             }
@@ -1000,7 +1008,7 @@
                 }
             }
             currentQueueIndex = nextIndex;
-            playSong(currentQueue[currentQueueIndex]);
+            playSong(currentQueue[currentQueueIndex], false, autoplay);
         }
 
         function playPreviousSong() {
@@ -1016,8 +1024,21 @@
             }
         }
 
-        nextBtn.addEventListener('click', playNextSong);
+        nextBtn.addEventListener('click', () => playNextSong());
         prevBtn.addEventListener('click', playPreviousSong);
+
+        // --- FUNÇÃO PARA LIDAR COM ERROS DE IMAGEM ---
+        function handleImageError(event) {
+            const image = event.target;
+            // Define o fundo com a cor primária do tema atual
+            image.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--cor-primaria');
+            // Define a imagem para um GIF transparente para evitar o ícone de imagem quebrada
+            image.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+        }
+
+        // Adiciona o listener de erro às imagens do álbum
+        playerAlbumArt.addEventListener('error', handleImageError);
+        fullscreenAlbumArt.addEventListener('error', handleImageError);
 
         // --- LÓGICA DO CONTROLE DE VOLUME ---
 
