@@ -231,11 +231,10 @@
         /* Estilos para o Toggle Switch */
         input:checked ~ .dot {
             transform: translateX(100%);
-            background-color: var(--cor-destaque);
+            background-color: #ffffff;
         }
         input:checked ~ .block {
-             background-color: var(--cor-destaque);
-             opacity: 0.5;
+             background-color: #000000;
         }
         /* Estilos para os novos botões do player */
         .player-button {
@@ -395,8 +394,8 @@
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-black shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: var(--cor-destaque);">
-                    <i class="fas fa-plus"></i>
+                <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: transparent;">
+                    <i class="fas fa-folder-plus text-2xl"></i>
                 </button>
             </div>
         </div>
@@ -419,20 +418,16 @@
             </div>
         </div>
 
-        <!-- Grade de botões arrastáveis (Layout Simplificado) -->
-        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-24 p-4 overflow-y-auto transition-all duration-300"> <!-- Ocupa todo o espaço até o player -->
+        <!-- Grade de botões arrastáveis -->
+        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-44 p-4 overflow-y-auto transition-all duration-300"> <!-- Ajustado para a barra de navegação + player -->
             <!-- Aplicativos serão injetados aqui -->
         </div>
 
-        <!-- A Barra de Navegação Inferior foi removida -->
-
-        <!-- NOVO: Botões Flutuantes de Ação -->
-        <div id="floating-action-buttons" class="fixed bottom-28 right-4 flex flex-col-reverse space-y-4 space-y-reverse z-50">
-            <button id="new-random-song-button" class="w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-black text-2xl transition-transform hover:scale-110" style="background-color: var(--cor-destaque);">
-                <i class="fas fa-random"></i>
-            </button>
-            <button id="new-explore-button" class="w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-black text-2xl transition-transform hover:scale-110" style="background-color: var(--cor-destaque);">
-                <i class="fas fa-search"></i>
+        <!-- Nova Barra de Navegação Inferior -->
+        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-primaria);"> <!-- Posição ajustada para ficar acima do player -->
+            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
+                <i class="fas fa-compass mr-3"></i>
+                Explorar
             </button>
         </div>
     </div>
@@ -555,7 +550,7 @@
                 </label>
             </div>
 
-            <button id="remove-wallpaper-button" class="w-full px-4 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors">
+            <button id="remove-wallpaper-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
                 Restaurar Padrão
             </button>
 
@@ -655,8 +650,15 @@
             <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
-        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto"> <!-- Padding inferior removido -->
+        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
+        </div>
+        <!-- Rodapé fixo com o botão de música aleatória -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-primaria);">
+            <button id="play-random-song-button" class="px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
+                <i class="fas fa-dice mr-3"></i>
+                Música Aleatória
+            </button>
         </div>
     </div>
 
@@ -863,12 +865,8 @@
         const exploreContentContainer = document.getElementById('explore-content-container');
         const exploreTitle = document.getElementById('explore-title');
         const exploreBackButton = document.getElementById('explore-back-button');
+        const exploreNavButton = document.getElementById('explore-nav-button'); // Novo botão na barra de navegação
         const exploreSearchInput = document.getElementById('explore-search-input');
-
-
-        // Referências dos novos botões flutuantes
-        const newRandomSongButton = document.getElementById('new-random-song-button');
-        const newExploreButton = document.getElementById('new-explore-button');
 
 
         // Referências do novo Modal de Conteúdo da Pasta
@@ -1794,7 +1792,7 @@
                 const iconClass = item.isFolder ? 'fas fa-folder' : (item.icon_class || 'fas fa-link');
                 const iconColor = item.isFolder ? '#FFFFFF' : (item.icon_color || '#FFFFFF');
                 const bgStyle = item.isFolder
-                    ? `background-color: var(--cor-destaque);`
+                    ? `background-color: transparent; box-shadow: none;`
                     : `background-color: ${item.bg_color || '#333333'};`;
 
                 itemContainer.innerHTML = `
@@ -1866,7 +1864,8 @@
                 // Botão para adicionar a outra pasta
                 const addButton = `
                     <button
-                        class="add-to-another-folder-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"
+                        class="add-to-another-folder-btn ml-4 px-3 py-1 text-lg transition-colors"
+                        style="color: var(--cor-destaque);"
                         data-src="${musica.musica_url}"
                         data-title="${musica.musica_titulo}"
                         data-artist="${musica.musica_artista}"
@@ -2144,7 +2143,7 @@
                 </div>`;
 
             // Estilo do botão de adicionar padronizado para corresponder ao de excluir
-            const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg text-indigo-500 hover:text-indigo-700 transition-colors"><i class="fas fa-plus"></i></button>`;
+            const addButton = `<button class="add-to-folder-plus-btn ml-4 px-3 py-1 text-lg transition-colors" style="color: var(--cor-destaque);"><i class="fas fa-plus"></i></button>`;
 
             musicItem.innerHTML = musicInfo + addButton;
 
@@ -2623,6 +2622,14 @@
         cancelAddAppButton.addEventListener('click', hideAddAppModal);
         saveAppButton.addEventListener('click', saveDetails);
 
+        // Evento para o novo botão Explorar na barra de navegação
+        exploreNavButton.addEventListener('click', async () => {
+            navigationState = [];
+            exploreModal.classList.remove('hidden');
+            exploreModal.classList.add('flex');
+            await fetchAndDisplayMusic();
+        });
+
         openAppButton.addEventListener('click', async () => {
             const appId = appActionBar.dataset.id;
             const appUrl = appActionBar.dataset.url;
@@ -3003,18 +3010,7 @@
 
         // --- Event Listener para o novo botão ---
         const playRandomSongButton = document.getElementById('play-random-song-button');
-        if(playRandomSongButton) { // Verificação de segurança para o botão removido
-            playRandomSongButton.addEventListener('click', playRandomSong);
-        }
-
-        // --- Event Listeners para os NOVOS botões flutuantes ---
-        newRandomSongButton.addEventListener('click', playRandomSong);
-        newExploreButton.addEventListener('click', async () => {
-            navigationState = [];
-            exploreModal.classList.remove('hidden');
-            exploreModal.classList.add('flex');
-            await fetchAndDisplayMusic();
-        });
+        playRandomSongButton.addEventListener('click', playRandomSong);
 
         addToFolderFullscreenBtn.addEventListener('click', () => {
             if (currentSong) {
@@ -3101,7 +3097,7 @@
         <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
-                <button id="close-folder-action-modal" class="text-gray-500 hover:text-white">
+                <button id="close-folder-action-modal" class="text-white hover:text-gray-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -3169,7 +3165,7 @@
                     <button id="repeat-mode-btn" class="player-button w-16 h-16">
                         <i class="fas fa-random text-2xl"></i>
                     </button>
-                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16">
+                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16" style="color: var(--cor-destaque);">
                         <i class="fas fa-plus text-2xl"></i>
                     </button>
                 </div>
