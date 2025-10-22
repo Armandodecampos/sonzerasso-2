@@ -423,11 +423,8 @@
             <!-- Aplicativos serão injetados aqui -->
         </div>
 
-        <!-- NOVOS BOTÕES FLUTUANTES (FABs) -->
-        <div class="fixed bottom-28 right-6 z-40 flex flex-col items-center space-y-4">
-            <button id="fab-random-song" class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none" style="background-color: var(--cor-destaque);" title="Música Aleatória">
-                <i class="fas fa-random text-2xl text-black"></i>
-            </button>
+        <!-- BOTÃO FLUTUANTE (FAB) DE EXPLORAR -->
+        <div class="fixed bottom-28 right-6 z-40">
             <button id="fab-explore" class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none" style="background-color: var(--cor-destaque);" title="Explorar">
                 <i class="fas fa-search text-2xl text-black"></i>
             </button>
@@ -655,6 +652,11 @@
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
+
+        <!-- BOTÃO FLUTUANTE DE MÚSICA ALEATÓRIA DENTRO DO MODAL -->
+        <button id="fab-random-song-explore" class="absolute bottom-6 right-6 w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none" style="background-color: var(--cor-destaque);" title="Música Aleatória">
+            <i class="fas fa-random text-2xl text-black"></i>
+        </button>
     </div>
 
     <!-- Player de Música Fixo -->
@@ -2996,7 +2998,7 @@
 
         // --- Event Listeners para os novos botões FAB ---
         const fabExploreButton = document.getElementById('fab-explore');
-        const fabRandomSongButton = document.getElementById('fab-random-song');
+        const fabRandomSongExploreButton = document.getElementById('fab-random-song-explore');
 
         fabExploreButton.addEventListener('click', async () => {
             navigationState = [];
@@ -3005,7 +3007,7 @@
             await fetchAndDisplayMusic();
         });
 
-        fabRandomSongButton.addEventListener('click', playRandomSong);
+        fabRandomSongExploreButton.addEventListener('click', playRandomSong);
 
         addToFolderFullscreenBtn.addEventListener('click', () => {
             if (currentSong) {
