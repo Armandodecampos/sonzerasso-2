@@ -198,32 +198,37 @@
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* Estilos para o layout e barra de rolagem das listas de música */
+        /* Estilos unificados para a barra de rolagem personalizada */
+        /* Para Firefox */
+        #button-grid-container,
         #explore-content-container,
         #folder-music-list-container {
-            scrollbar-width: thin; /* Para Firefox (não aceita px, 'thin' é a melhor opção) */
-            scrollbar-color: #6b7280 #374151; /* Para Firefox (thumb track) */
+            scrollbar-width: thin; /* 'thin' é o mais próximo de um valor px específico no Firefox */
+            scrollbar-color: var(--cor-destaque) var(--cor-secundaria); /* thumb track */
         }
 
-        /* Estilos da barra de rolagem para Chrome, Safari e Edge */
+        /* Para Chrome, Safari e Edge (WebKit) */
+        #button-grid-container::-webkit-scrollbar,
         #explore-content-container::-webkit-scrollbar,
         #folder-music-list-container::-webkit-scrollbar {
-            width: 20px !important; /* Força a largura de 20px */
-            height: 20px !important; /* Garante a altura para scrollbars horizontais, se houver */
+            width: 20px;
         }
 
+        #button-grid-container::-webkit-scrollbar-track,
         #explore-content-container::-webkit-scrollbar-track,
         #folder-music-list-container::-webkit-scrollbar-track {
             background-color: var(--cor-secundaria);
         }
 
+        #button-grid-container::-webkit-scrollbar-thumb,
         #explore-content-container::-webkit-scrollbar-thumb,
         #folder-music-list-container::-webkit-scrollbar-thumb {
             background-color: var(--cor-destaque);
-            border-radius: 0;
+            border-radius: 0; /* Garante que o thumb seja retangular */
             border: none;
         }
 
+        #button-grid-container::-webkit-scrollbar-thumb:hover,
         #explore-content-container::-webkit-scrollbar-thumb:hover,
         #folder-music-list-container::-webkit-scrollbar-thumb:hover {
             filter: brightness(1.2);
