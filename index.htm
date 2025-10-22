@@ -419,15 +419,17 @@
         </div>
 
         <!-- Grade de botões arrastáveis -->
-        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-44 p-4 overflow-y-auto transition-all duration-300"> <!-- Ajustado para a barra de navegação + player -->
+        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-24 p-4 overflow-y-auto transition-all duration-300"> <!-- Ajustado para a barra de navegação + player -->
             <!-- Aplicativos serão injetados aqui -->
         </div>
 
-        <!-- Nova Barra de Navegação Inferior -->
-        <div id="bottom-nav-bar" class="fixed bottom-24 left-0 right-0 h-20 shadow-lg flex items-center justify-center p-2 z-40" style="background-color: var(--cor-primaria);"> <!-- Posição ajustada para ficar acima do player -->
-            <button id="explore-nav-button" class="w-full max-w-xs px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
-                <i class="fas fa-compass mr-3"></i>
-                Explorar
+        <!-- NOVOS BOTÕES FLUTUANTES (FABs) -->
+        <div class="fixed bottom-28 right-6 z-40 flex flex-col items-center space-y-4">
+            <button id="fab-random-song" class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none" style="background-color: var(--cor-destaque);" title="Música Aleatória">
+                <i class="fas fa-random text-2xl text-black"></i>
+            </button>
+            <button id="fab-explore" class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none" style="background-color: var(--cor-destaque);" title="Explorar">
+                <i class="fas fa-search text-2xl text-black"></i>
             </button>
         </div>
     </div>
@@ -653,13 +655,6 @@
         <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
-        <!-- Rodapé fixo com o botão de música aleatória -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 shadow-lg" style="background-color: var(--cor-primaria);">
-            <button id="play-random-song-button" class="px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg flex items-center justify-center" style="background-color: var(--cor-destaque);">
-                <i class="fas fa-dice mr-3"></i>
-                Música Aleatória
-            </button>
-        </div>
     </div>
 
     <!-- Player de Música Fixo -->
@@ -865,7 +860,6 @@
         const exploreContentContainer = document.getElementById('explore-content-container');
         const exploreTitle = document.getElementById('explore-title');
         const exploreBackButton = document.getElementById('explore-back-button');
-        const exploreNavButton = document.getElementById('explore-nav-button'); // Novo botão na barra de navegação
         const exploreSearchInput = document.getElementById('explore-search-input');
 
 
@@ -2622,14 +2616,6 @@
         cancelAddAppButton.addEventListener('click', hideAddAppModal);
         saveAppButton.addEventListener('click', saveDetails);
 
-        // Evento para o novo botão Explorar na barra de navegação
-        exploreNavButton.addEventListener('click', async () => {
-            navigationState = [];
-            exploreModal.classList.remove('hidden');
-            exploreModal.classList.add('flex');
-            await fetchAndDisplayMusic();
-        });
-
         openAppButton.addEventListener('click', async () => {
             const appId = appActionBar.dataset.id;
             const appUrl = appActionBar.dataset.url;
@@ -3008,9 +2994,18 @@
             playSong(songData, false, autoplay);
         }
 
-        // --- Event Listener para o novo botão ---
-        const playRandomSongButton = document.getElementById('play-random-song-button');
-        playRandomSongButton.addEventListener('click', playRandomSong);
+        // --- Event Listeners para os novos botões FAB ---
+        const fabExploreButton = document.getElementById('fab-explore');
+        const fabRandomSongButton = document.getElementById('fab-random-song');
+
+        fabExploreButton.addEventListener('click', async () => {
+            navigationState = [];
+            exploreModal.classList.remove('hidden');
+            exploreModal.classList.add('flex');
+            await fetchAndDisplayMusic();
+        });
+
+        fabRandomSongButton.addEventListener('click', playRandomSong);
 
         addToFolderFullscreenBtn.addEventListener('click', () => {
             if (currentSong) {
