@@ -199,10 +199,10 @@
         }
 
         /* Estilos unificados para a barra de rolagem personalizada com base na classe */
-        /* Para Firefox */
         .lista-com-scroll {
-            scrollbar-width: thin;
-            scrollbar-color: #6b7280 #374151; /* thumb(botão) track(fundo) */
+            overflow-y: auto; /* Centraliza o comportamento de scroll */
+            scrollbar-width: thin; /* Para Firefox */
+            scrollbar-color: #6b7280 #374151; /* Para Firefox */
         }
 
         /* Para Chrome, Safari e Edge (WebKit) - Forçando a largura e removendo altura do thumb */
@@ -414,7 +414,7 @@
         </div>
 
         <!-- Grade de botões arrastáveis -->
-        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-24 p-4 overflow-y-auto transition-all duration-300 lista-com-scroll"> <!-- Ajustado para a barra de navegação + player -->
+        <div id="button-grid-container" class="fixed top-24 inset-x-0 bottom-24 p-4 transition-all duration-300 lista-com-scroll"> <!-- Ajustado para a barra de navegação + player -->
             <!-- Aplicativos serão injetados aqui -->
         </div>
 
@@ -644,7 +644,7 @@
             <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
-        <div id="explore-content-container" class="flex-grow p-4 overflow-y-auto pb-20 lista-com-scroll"> <!-- Padding inferior para não sobrepor o botão -->
+        <div id="explore-content-container" class="flex-grow p-4 pb-20 lista-com-scroll"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
 
@@ -3080,7 +3080,7 @@
             </div>
             <input type="search" id="folder-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </header>
-        <div id="folder-music-list-container" class="flex-grow p-4 overflow-y-auto lista-com-scroll">
+        <div id="folder-music-list-container" class="flex-grow p-4 lista-com-scroll">
             <!-- As músicas da pasta serão inseridas aqui -->
         </div>
     </div>
