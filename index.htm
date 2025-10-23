@@ -223,7 +223,10 @@
             filter: brightness(1.2);
         }
 
-        /* Estiliza a barra de rolagem do container do Explorar para 40px com cantos retos */
+        /* Consolida a estilização da barra de rolagem do Explorar */
+        #explore-content-container {
+            overflow-y: auto;
+        }
         #explore-content-container::-webkit-scrollbar {
             width: 40px !important;
         }
@@ -655,7 +658,7 @@
             <input type="search" id="explore-search-input" placeholder="Pesquisar por música ou artista..." class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2" style="background-color: var(--cor-secundaria); color: var(--cor-texto); --tw-ring-color: var(--cor-destaque);">
         </header>
         <!-- Container para as diferentes visualizações -->
-        <div id="explore-content-container" class="flex-grow p-4 pb-20 overflow-y-auto"> <!-- Padding inferior para não sobrepor o botão -->
+        <div id="explore-content-container" class="flex-grow p-4 pb-20"> <!-- Padding inferior para não sobrepor o botão -->
             <!-- As listas de artistas, álbuns e músicas serão renderizadas aqui -->
         </div>
 
