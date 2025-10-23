@@ -200,7 +200,6 @@
 
         /* Estilos unificados para a barra de rolagem personalizada */
         /* Para Firefox */
-        #button-grid-container,
         #explore-content-container,
         #folder-music-list-container {
             scrollbar-width: thin;
@@ -208,31 +207,29 @@
         }
 
         /* Para Chrome, Safari e Edge (WebKit) */
-        #button-grid-container::-webkit-scrollbar,
         #explore-content-container::-webkit-scrollbar,
         #folder-music-list-container::-webkit-scrollbar {
             width: 20px;
         }
 
-        #button-grid-container::-webkit-scrollbar-track,
         #explore-content-container::-webkit-scrollbar-track,
         #folder-music-list-container::-webkit-scrollbar-track {
             background-color: #374151;
         }
 
-        #button-grid-container::-webkit-scrollbar-thumb,
         #explore-content-container::-webkit-scrollbar-thumb,
         #folder-music-list-container::-webkit-scrollbar-thumb {
             background-color: #6b7280;
             border-radius: 0; /* Garante que o thumb seja retangular */
-            border: none;
+            width: 20px;
+            height: 20px;
         }
 
-        #button-grid-container::-webkit-scrollbar-thumb:hover,
         #explore-content-container::-webkit-scrollbar-thumb:hover,
         #folder-music-list-container::-webkit-scrollbar-thumb:hover {
             background-color: #8b92a0; /* Um cinza um pouco mais claro para o hover */
         }
+
         /* Estilos para o Toggle Switch */
         input:checked ~ .dot {
             transform: translateX(100%);
