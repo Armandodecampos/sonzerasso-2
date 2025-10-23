@@ -223,9 +223,15 @@
             filter: brightness(1.2);
         }
 
-        /* Força a barra de rolagem do container do Explorar a ter 20px */
+        /* Estiliza a barra de rolagem do container do Explorar para 40px com cantos retos */
         #explore-content-container::-webkit-scrollbar {
-            width: 20px !important;
+            width: 40px !important;
+        }
+        #explore-content-container::-webkit-scrollbar-track {
+            border-radius: 0;
+        }
+        #explore-content-container::-webkit-scrollbar-thumb {
+            border-radius: 0;
         }
 
         /* Estilos para o Toggle Switch */
