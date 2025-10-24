@@ -200,7 +200,7 @@
 
         /* Estilos GLOBAIS para a barra de rolagem */
         html {
-            scrollbar-width: thin; /* Para Firefox */
+            scrollbar-width: auto; /* Para Firefox */
             scrollbar-color: #6b7280 #374151; /* Para Firefox */
         }
 
@@ -226,6 +226,8 @@
         /* Consolida a estilização da barra de rolagem do Explorar */
         #explore-content-container {
             overflow-y: auto;
+            scrollbar-width: auto; /* Para Firefox */
+            scrollbar-color: var(--cor-destaque) var(--cor-secundaria); /* Para Firefox */
         }
         #explore-content-container::-webkit-scrollbar {
             width: 40px !important;
