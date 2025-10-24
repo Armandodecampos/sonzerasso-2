@@ -239,6 +239,12 @@
             border-radius: 0;
         }
 
+        /* Torna o container de controles do player responsivo */
+        #fullscreen-controls-container {
+            flex-wrap: wrap;
+            gap: 1rem; /* Adiciona um espaçamento consistente */
+        }
+
         /* Estilos para o Toggle Switch */
         input:checked ~ .dot {
             transform: translateX(100%);
@@ -3148,34 +3154,31 @@
             </div>
 
             <!-- Controles -->
-            <div class="flex items-center justify-center space-x-6">
-                <button id="prev-btn" class="player-button w-16 h-16">
-                    <i class="fas fa-step-backward text-2xl"></i>
+            <div id="fullscreen-controls-container" class="flex items-center justify-center">
+                <button id="repeat-mode-btn" class="player-button w-14 h-14">
+                    <i class="fas fa-random text-xl"></i>
+                </button>
+                <button id="prev-btn" class="player-button w-14 h-14">
+                    <i class="fas fa-step-backward text-xl"></i>
                 </button>
                 <button id="play-pause-btn" class="player-button w-20 h-20">
                     <i class="fas fa-play text-3xl"></i>
                 </button>
-                <button id="next-btn" class="player-button w-16 h-16">
-                    <i class="fas fa-step-forward text-2xl"></i>
+                <button id="next-btn" class="player-button w-14 h-14">
+                    <i class="fas fa-step-forward text-xl"></i>
+                </button>
+                <button id="add-to-folder-fullscreen-btn" class="player-button w-14 h-14" style="color: var(--cor-destaque);">
+                    <i class="fas fa-plus text-xl"></i>
                 </button>
             </div>
 
-            <!-- Controles Adicionais (Volume e Ações) -->
+            <!-- Controles Adicionais (Volume) -->
             <div class="w-full max-w-sm mx-auto mt-8 space-y-6">
                 <!-- Volume -->
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-volume-down text-gray-400"></i>
                     <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="custom-slider">
                     <i class="fas fa-volume-up text-gray-400"></i>
-                </div>
-                <!-- Ações (Repetir e Adicionar) -->
-                <div class="flex justify-center items-center space-x-8">
-                    <button id="repeat-mode-btn" class="player-button w-16 h-16">
-                        <i class="fas fa-random text-2xl"></i>
-                    </button>
-                    <button id="add-to-folder-fullscreen-btn" class="player-button w-16 h-16" style="color: var(--cor-destaque);">
-                        <i class="fas fa-plus text-2xl"></i>
-                    </button>
                 </div>
             </div>
 
