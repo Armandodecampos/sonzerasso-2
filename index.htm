@@ -452,7 +452,7 @@
     <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
-                <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+                <button id="close-profile-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -517,7 +517,7 @@
     <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-end">
-                <button id="close-settings-modal" class="text-gray-500 hover:text-gray-700">
+                <button id="close-settings-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -586,8 +586,8 @@
     <div id="add-app-modal" class="fixed inset-0 hidden flex-col z-[60]" style="background-color: var(--cor-secundaria);">
         <header class="flex items-center justify-between p-4 shadow-md" style="background-color: var(--cor-primaria);">
             <h2 id="add-app-title" class="text-2xl font-bold truncate text-theme">Criar Pasta</h2>
-            <button id="close-add-app-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button id="close-add-app-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
@@ -657,8 +657,8 @@
                     <h2 id="explore-title" class="text-2xl font-bold truncate">Explorar</h2>
                 </div>
                 <!-- Botão de Fechar (movido para a direita) -->
-                <button id="close-explore-modal" class="text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button id="close-explore-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -697,8 +697,8 @@
                 <h2 class="text-2xl font-bold text-theme">Comparar Preços</h2>
                 <p id="comparison-item-name" class="text-lg text-theme"></p>
             </div>
-            <button id="close-price-comparison-modal" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button id="close-price-comparison-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
@@ -723,8 +723,8 @@
     <div id="edit-price-modal" class="fixed inset-0 bg-gray-100 hidden flex-col z-[60]">
         <header class="flex items-center justify-between p-4 bg-white shadow-md">
             <h2 class="text-2xl font-bold text-theme">Editar Preço</h2>
-            <button id="close-edit-price-modal-x-button" class="text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button id="close-edit-price-modal-x-button" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
@@ -2694,7 +2694,7 @@
         });
 
         playerAudio.addEventListener('play', () => {
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
         });
 
         playerAudio.addEventListener('pause', () => {
@@ -3093,8 +3093,8 @@
         <header class="p-4 text-white shadow-md space-y-4" style="background-color: #141414;">
             <div class="flex items-center justify-between">
                 <h2 id="folder-content-title" class="text-2xl font-bold truncate">Nome da Pasta</h2>
-                <button id="close-folder-content-modal" class="text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button id="close-folder-content-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -3111,7 +3111,7 @@
         <div class="p-6 rounded-2xl shadow-2xl max-w-xs w-full flex flex-col space-y-4" style="background-color: var(--cor-primaria);">
             <div class="flex justify-between items-center">
                 <h3 id="folder-action-title" class="text-2xl font-bold text-theme truncate">Nome da Pasta</h3>
-                <button id="close-folder-action-modal" class="text-white hover:text-gray-300">
+                <button id="close-folder-action-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -3132,7 +3132,7 @@
     <!-- NOVO: Player de Música em Tela Cheia -->
     <div id="fullscreen-player" class="fixed inset-0 hidden flex-col items-center p-4 z-[80] text-theme overflow-y-auto" style="background-color: var(--cor-primaria);">
         <!-- Botão de Fechar -->
-        <button id="close-fullscreen-player" class="player-button absolute top-4 right-4 w-12 h-12 z-10">
+        <button id="close-fullscreen-player" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center absolute top-4 right-4 z-10">
             <i class="fas fa-times text-xl"></i>
         </button>
 
@@ -3161,8 +3161,8 @@
                 <button id="prev-btn" class="player-button w-14 h-14">
                     <i class="fas fa-step-backward text-xl"></i>
                 </button>
-                <button id="play-pause-btn" class="player-button w-20 h-20">
-                    <i class="fas fa-play text-3xl"></i>
+                <button id="play-pause-btn" class="player-button w-14 h-14">
+                    <i class="fas fa-play text-xl"></i>
                 </button>
                 <button id="next-btn" class="player-button w-14 h-14">
                     <i class="fas fa-step-forward text-xl"></i>
