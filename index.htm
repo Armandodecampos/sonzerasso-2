@@ -1969,11 +1969,16 @@
             const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
             let query = supabase.from('Musicas').select('*');
 
-            // 3. Adiciona uma cláusula 'and' para cada palavra pesquisada
-            searchWords.forEach(word => {
-                const pattern = `%${word}%`;
-                query = query.or(`"Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern}`);
-            });
+            // 3. Adiciona uma cláusula 'and' para cada palavra pesquisada, buscando em múltiplos campos
+            if (searchWords.length > 0) {
+                const andFilters = searchWords.map(word => {
+                    const pattern = `%${word}%`;
+                    // Para cada palavra, cria uma condição OR que busca em qualquer um dos três campos
+                    return `or("Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern})`;
+                }).join(',');
+
+                query = query.and(andFilters);
+            }
 
             // 4. Executa a busca final
             const { data, error } = await query.limit(100);
