@@ -1808,8 +1808,9 @@
                     ? `background-color: transparent; box-shadow: none;`
                     : `background-color: ${item.bg_color || '#333333'};`;
 
+                itemContainer.draggable = true;
                 itemContainer.innerHTML = `
-                    <div class="grid-item" draggable="true" style="${bgStyle}">
+                    <div class="grid-item" style="${bgStyle}">
                         <i class="${iconClass} grid-item-icon" style="color: ${iconColor};"></i>
                     </div>
                     <span class="grid-item-label text-theme noselect">${item.title}</span>
@@ -2201,20 +2202,37 @@
                 return;
             }
 
-            const { data: folders, error } = await supabase
-                .from('pastas')
-                .select('id, title')
-                .eq('user_id', user.id);
+            // Busca as pastas e a sua ordem personalizada em paralelo para otimizar
+            const [foldersResponse, orderResponse] = await Promise.all([
+                supabase.from('pastas').select('id, title').eq('user_id', user.id),
+                supabase.from('user_app_order').select('app_ids').eq('user_id', user.id).single()
+            ]);
 
-            if (error) {
-                console.error('Erro ao buscar pastas:', error);
+            const { data: folders, error: foldersError } = foldersResponse;
+            const { data: orderData, error: orderError } = orderResponse; // O erro na ordem não é crítico
+
+            if (foldersError) {
+                console.error('Erro ao buscar pastas:', foldersError);
                 modalFolderSelect.innerHTML = '<option>Erro ao carregar pastas</option>';
                 return;
             }
 
+            const appOrder = orderError ? [] : (orderData?.app_ids || []);
+
             modalFolderSelect.innerHTML = '';
             if (folders && folders.length > 0) {
-                folders.forEach(folder => {
+                // Ordena as pastas de acordo com a ordem salva pelo usuário
+                const sortedFolders = [...folders].sort((a, b) => {
+                    const indexA = appOrder.indexOf(a.id);
+                    const indexB = appOrder.indexOf(b.id);
+
+                    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                    if (indexA !== -1) return -1;
+                    if (indexB !== -1) return 1;
+                    return a.title.localeCompare(b.title); // Fallback para ordem alfabética
+                });
+
+                sortedFolders.forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.id;
                     option.textContent = folder.title;
@@ -2571,10 +2589,7 @@
         let draggedItem = null;
 
         buttonGridContainer.addEventListener('dragstart', e => {
-            const iconElement = e.target.closest('.grid-item');
-            if (!iconElement) return; // O arrasto não começou no ícone
-
-            const draggable = iconElement.closest('.app-container');
+            const draggable = e.target.closest('.app-container');
             if (draggable) {
                 isDragging = true;
                 draggedItem = draggable;
@@ -2586,10 +2601,7 @@
         });
 
         buttonGridContainer.addEventListener('dragend', async e => {
-            const iconElement = e.target.closest('.grid-item');
-            if (!iconElement) return;
-
-            const draggable = iconElement.closest('.app-container');
+            const draggable = e.target.closest('.app-container');
             if (draggable) {
                 isDragging = false;
                 draggable.classList.remove('dragging');
