@@ -1970,31 +1970,82 @@
             exploreBackButton.classList.add('hidden');
             navigationState = [{ view: 'search' }];
 
-            // 2. Divide o termo de busca em palavras e prepara a consulta
+            // 2. Prepara a consulta para as músicas
             const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
-            let query = supabase.from('Musicas').select('*');
-
-            // 3. Adiciona uma cláusula 'and' para cada palavra pesquisada
+            let songsQuery = supabase.from('Musicas').select('*');
             searchWords.forEach(word => {
                 const pattern = `%${word}%`;
-                query = query.or(`"Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern}`);
+                songsQuery = songsQuery.or(`"Nome - Musica".ilike.${pattern},"Nome - Artista".ilike.${pattern},"Nome - Album".ilike.${pattern}`);
             });
+            songsQuery = songsQuery.limit(50); // Limita os resultados de músicas
 
-            // 4. Executa a busca final
-            const { data, error } = await query.limit(100);
+            // 3. Prepara a consulta para os artistas
+            const artistPattern = `%${searchTerm}%`;
+            let artistsQuery = supabase
+                .from('Musicas')
+                .select('"Nome - Artista"')
+                .ilike('"Nome - Artista"', artistPattern)
+                .limit(10); // Limita os resultados de artistas
 
-            if (error) {
-                console.error('Erro na busca avançada:', error);
+            // 4. Executa as duas buscas em paralelo
+            const [
+                { data: songsData, error: songsError },
+                { data: artistsData, error: artistsError }
+            ] = await Promise.all([
+                songsQuery,
+                artistsQuery
+            ]);
+
+            if (songsError || artistsError) {
+                console.error('Erro na busca por músicas:', songsError);
+                console.error('Erro na busca por artistas:', artistsError);
                 exploreContentContainer.innerHTML = '<p class="text-center text-red-500">Erro ao realizar a busca.</p>';
                 return;
             }
 
-            // 4. Renderiza os resultados
-            if (data && data.length > 0) {
-                exploreContentContainer.innerHTML = '';
-                data.forEach(song => renderSongItem(song));
-            } else {
+            // 5. Processa e renderiza os resultados
+            const uniqueArtists = artistsData ? [...new Set(artistsData.map(a => a['Nome - Artista']))] : [];
+
+            // A função renderSearchResults será criada na próxima etapa
+            renderSearchResults(uniqueArtists, songsData);
+        }
+
+        // --- NOVA FUNÇÃO PARA RENDERIZAR RESULTADOS DA BUSCA ---
+        function renderSearchResults(artists, songs) {
+            exploreContentContainer.innerHTML = '';
+
+            if (artists.length === 0 && (!songs || songs.length === 0)) {
                 exploreContentContainer.innerHTML = '<p class="text-center text-gray-500">Nenhum resultado encontrado.</p>';
+                return;
+            }
+
+            // Renderiza a seção de artistas
+            if (artists.length > 0) {
+                const artistsHeader = document.createElement('h3');
+                artistsHeader.className = 'text-xl font-bold text-theme mb-3';
+                artistsHeader.textContent = 'Artistas';
+                exploreContentContainer.appendChild(artistsHeader);
+
+                artists.forEach(artistName => {
+                    const item = document.createElement('div');
+                    item.className = 'music-item';
+                    item.innerHTML = `<p class="music-artist-display">${artistName}</p>`;
+                    item.addEventListener('click', () => {
+                        navigationState.push({ view: 'songsByArtist', artist: artistName });
+                        updateExploreView();
+                    });
+                    exploreContentContainer.appendChild(item);
+                });
+            }
+
+            // Renderiza a seção de músicas
+            if (songs && songs.length > 0) {
+                const songsHeader = document.createElement('h3');
+                songsHeader.className = 'text-xl font-bold text-theme mb-3 mt-6';
+                songsHeader.textContent = 'Músicas';
+                exploreContentContainer.appendChild(songsHeader);
+
+                songs.forEach(song => renderSongItem(song));
             }
         }
 
