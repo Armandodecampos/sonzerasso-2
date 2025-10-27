@@ -466,9 +466,19 @@
             <button id="change-password-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
                 Trocar Senha
             </button>
-            <button id="settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
-                Configurações
-            </button>
+
+            <!-- Toggle Switch para Pular Música Automaticamente -->
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-sm font-medium text-left text-theme">Pular música se não carregar</span>
+                <label for="auto-skip-toggle" class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="auto-skip-toggle" class="sr-only">
+                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                    </div>
+                </label>
+            </div>
+
             <button id="logout-button" class="w-full px-4 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors">
                 Sair
             </button>
@@ -517,73 +527,6 @@
         </div>
     </div>
 
-    <!-- Modal para Configurações de Papel de Parede -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4" style="background-color: var(--cor-primaria);">
-            <div class="flex justify-end">
-                <button id="close-settings-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <h3 class="text-2xl font-bold text-theme">Personalizar Aparência</h3>
-
-            <div class="relative">
-                <label for="theme-select" class="block text-sm font-medium text-left text-theme">Tema</label>
-                <select id="theme-select" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-800" style="background-color: var(--cor-primaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
-                    <option value="dark">Escuro (padrão)</option>
-                    <option value="light">Claro</option>
-                    <option value="custom">Personalizado</option>
-                </select>
-            </div>
-
-            <!-- Novo container para as cores personalizadas -->
-            <div id="custom-colors-container" class="hidden space-y-2 pt-4 text-left">
-                <div class="flex items-center justify-between">
-                    <label for="custom-primary-color" class="text-sm font-medium text-theme">Cor Primária</label>
-                    <input type="color" id="custom-primary-color" value="#FFFFFF">
-                </div>
-                <div class="flex items-center justify-between">
-                    <label for="custom-secondary-color" class="text-sm font-medium text-theme">Cor Secundária</label>
-                    <input type="color" id="custom-secondary-color" value="#F3F4F6">
-                </div>
-                <div class="flex items-center justify-between">
-                    <label for="custom-text-color" class="text-sm font-medium text-theme">Cor do Texto</label>
-                    <input type="color" id="custom-text-color" value="#1f2937">
-                </div>
-                <div class="flex items-center justify-between">
-                    <label for="custom-accent-color" class="text-sm font-medium text-theme">Cor de Destaque</label>
-                    <input type="color" id="custom-accent-color" value="#4f46e5">
-                </div>
-            </div>
-
-            <!-- Novo Toggle Switch para Pular Música Automaticamente -->
-            <div class="flex items-center justify-between pt-2">
-                <span class="text-sm font-medium text-left text-theme">Pular música se não carregar</span>
-                <label for="auto-skip-toggle" class="flex items-center cursor-pointer">
-                    <div class="relative">
-                        <input type="checkbox" id="auto-skip-toggle" class="sr-only">
-                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
-                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
-                    </div>
-                </label>
-            </div>
-
-            <button id="remove-wallpaper-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
-                Restaurar Padrão
-            </button>
-
-            <div class="flex justify-between space-x-4 pt-4">
-                <button id="cancel-settings-button" class="w-full px-4 py-3 font-semibold rounded-md transition-colors hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
-                    Cancelar
-                </button>
-                <button id="save-settings-button" class="w-full px-4 py-3 text-black font-semibold rounded-md transition-colors" style="background-color: var(--cor-destaque);">
-                    Salvar
-                </button>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Novo Modal para adicionar aplicativos personalizados -->
@@ -773,22 +716,6 @@
         // Configura o cliente do Supabase
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- DEFINIÇÕES DE TEMA ---
-        const themes = {
-            'dark': {
-                corPrimaria: '#1a1a1a',
-                corSecundaria: '#2a2a2a',
-                corTexto: '#f0f0f0',
-                corDestaque: '#ffaa00'
-            },
-            'light': {
-                corPrimaria: '#ffffff',
-                corSecundaria: '#f0f8ff',
-                corTexto: '#000000',
-                corDestaque: '#007bff'
-            }
-        };
-
         // --- REFERÊNCIAS DE ELEMENTOS HTML ---
         const mainContainer = document.getElementById('main-container');
         const app = document.getElementById('app');
@@ -840,21 +767,7 @@
         const confirmMoveButton = document.getElementById('confirm-move-button');
         const cancelMoveButton = document.getElementById('cancel-move-button');
 
-        // Referências do modal de configurações
-        const settingsButton = document.getElementById('settings-button');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsModalButton = document.getElementById('close-settings-modal');
-        const headerColorInput = document.getElementById('header-color-input');
-        const wallpaperColorInput = document.getElementById('wallpaper-color-input');
-        const textColorInput = document.getElementById('text-color-input');
-        const accentColorInput = document.getElementById('accent-color-input');
-        const wallpaperUploadInput = document.getElementById('wallpaper-upload');
-        const wallpaperUploadMessage = document.getElementById('wallpaper-upload-message');
-        const removeWallpaperButton = document.getElementById('remove-wallpaper-button');
-        const saveSettingsButton = document.getElementById('save-settings-button');
-        const cancelSettingsButton = document.getElementById('cancel-settings-button');
         const autoSkipToggle = document.getElementById('auto-skip-toggle');
-        const themeSelect = document.getElementById('theme-select');
         const buttonGridContainer = document.getElementById('button-grid-container');
         const mainHeader = document.getElementById('main-header');
 
@@ -1201,7 +1114,7 @@
             // Esconde todos os modais primeiro
             profileModal.classList.add('hidden');
             waitMessageModal.classList.add('hidden');
-            settingsModal.classList.add('hidden');
+
             deleteConfirmModal.classList.add('hidden');
             addAppModal.classList.add('hidden');
             editFixedAppModal.classList.add('hidden');
@@ -1294,29 +1207,6 @@
 
         // --- FUNÇÕES DE PAPEL DE PAREDE E APARÊNCIA ---
 
-        // Aplica as preferências de tema à UI
-        function applyPreferences(prefs, isInitialLoad = false) {
-            // Se for o carregamento inicial, atualiza o estado global
-            if (isInitialLoad) {
-                currentUserPreferences = JSON.parse(JSON.stringify(prefs || {}));
-            }
-
-            const themeName = prefs?.theme || 'dark';
-            let themeColors;
-
-            if (themeName === 'custom' && prefs.customColors) {
-                themeColors = prefs.customColors;
-            } else {
-                themeColors = themes[themeName] || themes['dark'];
-            }
-
-            const root = document.documentElement;
-            root.style.setProperty('--cor-primaria', themeColors.corPrimaria);
-            root.style.setProperty('--cor-secundaria', themeColors.corSecundaria);
-            root.style.setProperty('--cor-texto', themeColors.corTexto);
-            root.style.setProperty('--cor-destaque', themeColors.corDestaque);
-        }
-
         // Salva as preferências do usuário no Supabase
         async function saveUserPreferences(preferences) {
             const { data: { user } } = await supabase.auth.getUser();
@@ -1345,15 +1235,15 @@
 
             if (error && error.code !== 'PGRST116') {
                 console.error('Erro ao carregar preferências:', error);
-                applyPreferences(null, true);
+                currentUserPreferences = {}; // Define um padrão
             } else if (data && data.preferences) {
-                applyPreferences(data.preferences, true);
-                // Sincroniza o dropdown do tema com as preferências carregadas
-                themeSelect.value = data.preferences.theme || 'dark';
+                currentUserPreferences = data.preferences;
             } else {
-                applyPreferences(null, true);
-                themeSelect.value = 'dark';
+                currentUserPreferences = {}; // Define um padrão
             }
+
+            // Aplica a preferência de autoSkip ao toggle
+            autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
         }
 
 
@@ -1669,118 +1559,9 @@
 
         // --- EVENTOS DO MODAL DE CONFIGURAÇÕES ---
 
-        // Helper to close the settings modal
-        function closeSettingsModal() {
-            settingsModal.classList.add('hidden');
-            settingsModal.classList.remove('flex');
-            wallpaperUploadMessage.style.display = 'none';
-        }
-
-        // Opens the modal and prepares the temporary state for editing
-        settingsButton.addEventListener('click', async () => {
-            // 1. Show modal with default values immediately
-            tempPreferences = { ...currentUserPreferences };
-            themeSelect.value = currentUserPreferences.theme || 'dark';
-            autoSkipToggle.checked = currentUserPreferences.autoSkip !== false;
-
-            // Mostra ou esconde os seletores de cores personalizadas
-            if (themeSelect.value === 'custom') {
-                customColorsContainer.classList.remove('hidden');
-                // Preenche os seletores com as cores salvas
-                if (currentUserPreferences.customColors) {
-                    customPrimaryColorInput.value = currentUserPreferences.customColors.corPrimaria;
-                    customSecondaryColorInput.value = currentUserPreferences.customColors.corSecundaria;
-                    customTextColorInput.value = currentUserPreferences.customColors.corTexto;
-                    customAccentColorInput.value = currentUserPreferences.customColors.corDestaque;
-                }
-            } else {
-                customColorsContainer.classList.add('hidden');
-            }
-
-            profileModal.classList.add('hidden');
-            profileModal.classList.remove('flex');
-            settingsModal.classList.remove('hidden');
-            settingsModal.classList.add('flex');
-
-            // A inicialização agora usa currentUserPreferences, que é carregado
-            // no login, então não é mais necessário buscar novamente aqui.
-        });
-
-        // Save the changes made in the modal
-        saveSettingsButton.addEventListener('click', async () => {
-            await saveUserPreferences(tempPreferences);
-            // Após salvar, atualiza o estado global para corresponder ao estado salvo
-            currentUserPreferences = JSON.parse(JSON.stringify(tempPreferences));
-            closeSettingsModal();
-        });
-
-        // Discard changes and revert to how it was before opening the modal
-        cancelSettingsButton.addEventListener('click', () => {
-            // Reverte para as preferências salvas globalmente
-            applyPreferences(currentUserPreferences);
-            closeSettingsModal();
-        });
-
-        closeSettingsModalButton.addEventListener('click', () => {
-            // Também trata 'X' como uma ação de cancelar
-            applyPreferences(currentUserPreferences);
-            closeSettingsModal();
-        });
-
-        // --- NOVO: Referências para os seletores de cor personalizados ---
-        const customColorsContainer = document.getElementById('custom-colors-container');
-        const customPrimaryColorInput = document.getElementById('custom-primary-color');
-        const customSecondaryColorInput = document.getElementById('custom-secondary-color');
-        const customTextColorInput = document.getElementById('custom-text-color');
-        const customAccentColorInput = document.getElementById('custom-accent-color');
-
-        // Live preview for theme selection
-        themeSelect.addEventListener('change', (e) => {
-            const selectedThemeName = e.target.value;
-            tempPreferences.theme = selectedThemeName;
-
-            if (selectedThemeName === 'custom') {
-                customColorsContainer.classList.remove('hidden');
-                // Inicializa as cores personalizadas se não existirem
-                if (!tempPreferences.customColors) {
-                    tempPreferences.customColors = {
-                        corPrimaria: '#FFFFFF',
-                        corSecundaria: '#F3F4F6',
-                        corTexto: '#1f2937',
-                        corDestaque: '#4f46e5'
-                    };
-                }
-                 // Aplica as cores personalizadas salvas
-                applyPreferences({ ...currentUserPreferences, theme: 'custom', customColors: tempPreferences.customColors });
-            } else {
-                customColorsContainer.classList.add('hidden');
-                 // Aplica o tema pré-definido
-                applyPreferences({ ...currentUserPreferences, theme: selectedThemeName });
-            }
-        });
-
-        autoSkipToggle.addEventListener('change', (e) => {
-            tempPreferences.autoSkip = e.target.checked;
-        });
-
-        // --- NOVO: Listeners para a visualização em tempo real das cores personalizadas ---
-        function handleCustomColorChange(e, colorKey) {
-            if (tempPreferences.theme === 'custom' && tempPreferences.customColors) {
-                tempPreferences.customColors[colorKey] = e.target.value;
-                applyPreferences(tempPreferences);
-            }
-        }
-
-        customPrimaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corPrimaria'));
-        customSecondaryColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corSecundaria'));
-        customTextColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corTexto'));
-        customAccentColorInput.addEventListener('input', (e) => handleCustomColorChange(e, 'corDestaque'));
-
-        // Resets the temporary preferences for a live preview of removal
-        removeWallpaperButton.addEventListener('click', async () => {
-            tempPreferences.theme = 'dark';
-            themeSelect.value = 'dark';
-            applyPreferences({ ...tempPreferences });
+        autoSkipToggle.addEventListener('change', async (e) => {
+            currentUserPreferences.autoSkip = e.target.checked;
+            await saveUserPreferences(currentUserPreferences);
         });
 
         // --- LÓGICA DE APLICATIVOS PERSONALIZADOS E FIXOS ---
