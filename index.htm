@@ -400,9 +400,10 @@
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
-            <button class="transition-all duration-200 focus:outline-none">
+            <div>
                 <h1 class="text-3xl font-black" style="color: var(--cor-destaque);">Sonzerasso</h1>
-            </button>
+                <p id="music-count-display" class="text-xs text-gray-400"></p>
+            </div>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: transparent;">
@@ -1094,6 +1095,28 @@
             // { id: 'explore-app', title: 'Explorar', iconClass: 'fas fa-compass', isFixed: true } // Movido para a barra de navegação inferior
         ];
 
+        // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR CONTAGEM TOTAL DE MÚSICAS ---
+        async function fetchAndDisplayTotalSongs() {
+            const musicCountDisplay = document.getElementById('music-count-display');
+            if (!musicCountDisplay) return;
+
+            // Mostra um estado de carregamento
+            musicCountDisplay.textContent = 'Carregando músicas...';
+
+            const { count, error } = await supabase
+                .from('Musicas')
+                .select('*', { count: 'exact', head: true });
+
+            if (error) {
+                console.error('Erro ao contar as músicas:', error);
+                musicCountDisplay.textContent = 'Erro ao carregar.';
+                return;
+            }
+
+            // Formata o número para o padrão brasileiro (ex: 13.530)
+            const formattedCount = new Intl.NumberFormat('pt-BR').format(count);
+            musicCountDisplay.textContent = `${formattedCount} Músicas`;
+        }
         // --- FUNÇÕES DE INICIALIZAÇÃO E UI ---
 
         // Função para carregar os dados do perfil logado
@@ -2754,7 +2777,8 @@
                     playRandomSong(true, false);
 
                     isAppInitialized = true;
-
+                    // --- Busca a contagem total de musicas ---
+                    fetchAndDisplayTotalSongs();
                     // --- Configura todas as subscrições em tempo real ---
                     if (customAppsSubscription) supabase.removeChannel(customAppsSubscription);
                     customAppsSubscription = supabase.channel('public:custom_apps')
