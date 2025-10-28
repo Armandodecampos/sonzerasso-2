@@ -202,19 +202,20 @@
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* Estilos GLOBAIS para a barra de rolagem */
+        /* Estilos GLOBAIS para a barra de rolagem (Padronizado) */
         html {
             scrollbar-width: auto; /* Para Firefox */
-            scrollbar-color: #6b7280 #374151; /* Para Firefox */
+            scrollbar-color: var(--cor-destaque) var(--cor-secundaria); /* Para Firefox */
         }
 
         /* Para Chrome, Safari e Edge (WebKit) */
         ::-webkit-scrollbar {
-            width: 20px !important;
+            width: 40px !important;
         }
 
         ::-webkit-scrollbar-track {
             background-color: var(--cor-secundaria);
+            border-radius: 0;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -227,20 +228,9 @@
             filter: brightness(1.2);
         }
 
-        /* Consolida a estilização da barra de rolagem do Explorar */
+        /* O container do Explorar agora herda os estilos globais */
         #explore-content-container {
             overflow-y: auto;
-            scrollbar-width: auto; /* Para Firefox */
-            scrollbar-color: var(--cor-destaque) var(--cor-secundaria); /* Para Firefox */
-        }
-        #explore-content-container::-webkit-scrollbar {
-            width: 40px !important;
-        }
-        #explore-content-container::-webkit-scrollbar-track {
-            border-radius: 0;
-        }
-        #explore-content-container::-webkit-scrollbar-thumb {
-            border-radius: 0;
         }
 
         /* Torna o container de controles do player responsivo */
@@ -1489,8 +1479,7 @@
             if (error) {
                 console.error('Erro ao sair:', error);
             } else {
-                toggleUI(false, 'initial');
-                passwordInput.value = '';
+                window.location.reload();
             }
         });
 
