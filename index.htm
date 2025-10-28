@@ -410,13 +410,16 @@
     <div id="logged-in-app" class="hidden h-screen overflow-hidden">
         <!-- Container fixo no canto superior esquerdo -->
         <div id="main-header" class="fixed top-0 left-0 right-0 p-4 shadow-lg z-40 h-24 flex items-center" style="background-color: var(--cor-primaria);">
-            <button id="profile-button" class="transition-all duration-200 focus:outline-none">
+            <button class="transition-all duration-200 focus:outline-none">
                 <h1 class="text-3xl font-black" style="color: var(--cor-destaque);">Sonzerasso</h1>
             </button>
             <!-- Botões de Ação -->
             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <button id="add-app-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: transparent;">
                     <i class="fas fa-folder-plus text-2xl"></i>
+                </button>
+                <button id="new-profile-button" class="w-12 h-12 flex items-center justify-center rounded-full text-white shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 ease-in-out" style="background-color: transparent;">
+                    <i class="fas fa-user text-2xl"></i>
                 </button>
             </div>
         </div>
@@ -745,7 +748,7 @@
         const userInitialsLoggedIn = document.getElementById('user-initials-logged-in');
 
         // Novas referências
-        const profileButton = document.getElementById('profile-button');
+        const profileButton = document.getElementById('new-profile-button');
         const profileModal = document.getElementById('profile-modal');
         const closeProfileModalButton = document.getElementById('close-profile-modal');
         const changePasswordButton = document.getElementById('change-password-button');
@@ -1803,8 +1806,9 @@
             // Renderiza a seção de artistas
             if (artists.length > 0) {
                 const artistsHeader = document.createElement('h3');
-                artistsHeader.className = 'text-xl font-bold text-theme mb-3';
+                artistsHeader.className = 'text-xl font-bold mb-3';
                 artistsHeader.textContent = 'Artistas';
+                artistsHeader.style.color = 'var(--cor-destaque)';
                 exploreContentContainer.appendChild(artistsHeader);
 
                 artists.forEach(artistName => {
@@ -1822,8 +1826,9 @@
             // Renderiza a seção de músicas
             if (songs && songs.length > 0) {
                 const songsHeader = document.createElement('h3');
-                songsHeader.className = 'text-xl font-bold text-theme mb-3 mt-6';
+                songsHeader.className = 'text-xl font-bold mb-3 mt-6';
                 songsHeader.textContent = 'Músicas';
+                songsHeader.style.color = 'var(--cor-destaque)';
                 exploreContentContainer.appendChild(songsHeader);
 
                 songs.forEach(song => renderSongItem(song));
