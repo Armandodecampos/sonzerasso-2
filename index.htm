@@ -369,24 +369,34 @@
                 </div>
             </div>
 
-            <!-- Formulário de Nova Senha (inicialmente escondido) -->
-            <div id="new-password-container" class="hidden space-y-6 p-6 rounded-xl shadow-lg" style="background-color: var(--cor-primaria);">
-                <button id="back-button-new-password" class="w-full flex items-center justify-center px-4 py-2 font-semibold rounded-md shadow-sm focus:outline-none transition-all hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO: Modal para Trocar Senha -->
+    <div id="change-password-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-[100]">
+        <div id="new-password-container" class="p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4" style="background-color: var(--cor-primaria);">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-theme">Trocar Senha</h3>
+                <button id="close-change-password-modal" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Voltar
                 </button>
-                <p class="text-center font-semibold text-theme text-lg">Defina sua nova senha</p>
-                <div class="relative">
-                    <label for="new-password" class="block text-sm font-medium text-theme">Nova Senha</label>
-                    <input type="password" id="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
-                </div>
-                <div class="relative">
-                    <label for="confirm-password" class="block text-sm font-medium text-theme">Confirme a Senha</label>
-                    <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
-                </div>
-                <button id="update-password-button" class="w-full px-4 py-3 text-black font-bold rounded-md shadow-lg hover:shadow-xl focus:outline-none transition-all text-lg hover:brightness-90" style="background-color: var(--cor-destaque);">
+            </div>
+
+            <div class="relative">
+                <label for="new-password" class="block text-sm font-medium text-theme text-left">Nova Senha</label>
+                <input type="password" id="new-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: var(--cor-secundaria); border-color: var(--cor-destaque); color: var(--cor-texto);">
+            </div>
+            <div class="relative">
+                <label for="confirm-password" class="block text-sm font-medium text-theme text-left">Confirmar Senha</label>
+                <input type="password" id="confirm-password" class="mt-1 block w-full px-4 py-3 border rounded-md shadow-sm text-lg" style="background-color: #ffffff; border-color: var(--cor-destaque); color: #000000;">
+            </div>
+
+            <div class="flex justify-between space-x-4 pt-2">
+                <button id="cancel-change-password-button" class="w-full px-4 py-3 font-semibold rounded-md hover:brightness-90" style="background-color: var(--cor-secundaria); color: var(--cor-texto);">Cancelar</button>
+                <button id="update-password-button" class="w-full px-4 py-3 text-black font-bold rounded-md" style="background-color: var(--cor-destaque);">
                     Confirmar
                 </button>
             </div>
@@ -732,8 +742,12 @@
         const newPasswordInput = document.getElementById('new-password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const updatePasswordButton = document.getElementById('update-password-button');
-        const backButtonNewPassword = document.getElementById('back-button-new-password');
         const userInitialsLoggedIn = document.getElementById('user-initials-logged-in');
+
+        // NOVO: Referências do modal de troca de senha
+        const changePasswordModal = document.getElementById('change-password-modal');
+        const closeChangePasswordModalButton = document.getElementById('close-change-password-modal');
+        const cancelChangePasswordButton = document.getElementById('cancel-change-password-button');
 
         // Novas referências
         const profileButton = document.getElementById('new-profile-button');
@@ -1408,21 +1422,6 @@
             }
         });
 
-        backButtonNewPassword.addEventListener('click', () => {
-            // Limpa os campos de senha
-            newPasswordInput.value = '';
-            confirmPasswordInput.value = '';
-
-            if (isAppInitialized) {
-                // Se o utilizador estava logado, volta para a aplicação principal
-                toggleUI(true);
-            } else {
-                // Se não estiver logado (fluxo de recuperação), volta para a tela de login
-                toggleUI(false, 'login');
-            }
-        });
-
-
         updatePasswordButton.addEventListener('click', async () => {
             const newPassword = newPasswordInput.value;
             const confirmPassword = confirmPasswordInput.value;
@@ -1443,19 +1442,10 @@
                 console.error(error);
             } else {
                 showNotification("Senha atualizada com sucesso!", 'success');
-                newPasswordInput.value = '';
-                confirmPasswordInput.value = '';
-
-                // Aguarda um pouco para o utilizador ler a notificação e depois age
+                // Aguarda a notificação ser exibida e depois fecha o modal
                 setTimeout(() => {
-                    if (isAppInitialized) {
-                        // Se o utilizador estava logado, volta para a app
-                        toggleUI(true);
-                    } else {
-                        // Se veio do fluxo de recuperação, volta para o login para entrar com a nova senha
-                        toggleUI(false, 'login');
-                    }
-                }, 2000);
+                    closeChangePasswordModal();
+                }, 1500);
             }
         });
 
@@ -1484,14 +1474,27 @@
             profileModal.classList.remove('flex');
         });
 
-        changePasswordButton.addEventListener('click', async () => {
-            // Esconde o modal de perfil e mostra o container de nova senha
-            profileModal.classList.add('hidden');
+        // --- LÓGICA DO MODAL DE TROCA DE SENHA ---
+        function openChangePasswordModal() {
+            // Limpa os campos antes de abrir
+            newPasswordInput.value = '';
+            confirmPasswordInput.value = '';
+            changePasswordModal.classList.remove('hidden');
+            changePasswordModal.classList.add('flex');
+        }
+
+        function closeChangePasswordModal() {
+            changePasswordModal.classList.add('hidden');
+            changePasswordModal.classList.remove('flex');
+        }
+
+        closeChangePasswordModalButton.addEventListener('click', closeChangePasswordModal);
+        cancelChangePasswordButton.addEventListener('click', closeChangePasswordModal);
+
+        changePasswordButton.addEventListener('click', () => {
+            profileModal.classList.add('hidden'); // Fecha o modal de perfil
             profileModal.classList.remove('flex');
-            newPasswordContainer.classList.remove('hidden');
-            mainContainer.classList.remove('hidden'); // Garante que o container principal seja visível
-            mainContainer.classList.add('flex');
-            loggedInAppContainer.classList.add('hidden'); // Esconde a app logada
+            openChangePasswordModal(); // Abre o novo modal de senha
         });
 
         logoutButtonModal.addEventListener('click', async () => {
@@ -2762,16 +2765,12 @@
 
         // --- VERIFICAÇÃO DE ESTADO DE AUTENTICAÇÃO E URL ---
         supabase.auth.onAuthStateChange((event, session) => {
-            // Prioridade 1: O utilizador clicou no link de recuperação de senha.
-            if (event === 'PASSWORD_RECOVERY') {
-                toggleUI(false, 'new-password');
-                return; // Impede a execução do resto da lógica
-            }
-
-            // Prioridade 2: Existe uma sessão ativa, o utilizador está logado.
             if (session) {
+                // Verifica se o URL contém o hash de recuperação de senha
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const isPasswordRecovery = hashParams.has('type') && hashParams.get('type') === 'recovery';
+
                 // Só inicializa a app por completo se ainda não tiver sido feito para esta sessão.
-                // Isto evita que a UI seja recarregada ao trocar de abas.
                 if (!isAppInitialized) {
                     loadUserProfile(session.user);
                     loadUserPreferences();
@@ -2793,16 +2792,28 @@
 
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
+
+                    // Se for um fluxo de recuperação de senha, abre o modal.
+                    if (isPasswordRecovery) {
+                        openChangePasswordModal();
+                        // Limpa o hash do URL para não reabrir o modal em um refresh
+                        history.replaceState(null, '', ' ');
+                    }
                 }
-            } else { // Sem sessão ou o utilizador saiu
+            } else { // Sem sessão ou o usuário saiu
                 isAppInitialized = false; // Reinicia a flag
 
                 // Limpa todas as subscrições para evitar vazamentos de memória
                 if (customAppsSubscription) supabase.removeChannel(customAppsSubscription);
                 customAppsSubscription = null;
 
-                // Mostra a tela de login por padrão
-                toggleUI(false, 'login');
+                // Determina qual vista mostrar
+                const params = new URLSearchParams(window.location.hash.substring(1));
+                if (params.get('type') === 'recovery') {
+                    toggleUI(false, 'new-password');
+                } else {
+                    toggleUI(false, 'login');
+                }
             }
         });
 
