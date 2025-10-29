@@ -856,24 +856,34 @@
         let isRandomModeActive = false;
         let autoSkipTimeout = null;
 
-        // --- NOVA FUNÇÃO PARA BUSCAR LETRAS ---
-        async function fetchAndDisplayLyrics(artist, title) {
-            if (!artist || !title) {
-                lyricsContainer.textContent = 'Informações da música indisponíveis para buscar a letra.';
+        // --- FUNÇÃO DE BUSCA DE LETRAS ATUALIZADA PARA USAR LRCLIB ---
+        async function fetchAndDisplayLyrics(artist, title, album, duration) {
+            if (!artist || !title || !album || !duration) {
+                lyricsContainer.textContent = 'Informações insuficientes para buscar a letra.';
                 return;
             }
             lyricsContainer.textContent = 'Buscando letra...';
+
             try {
-                const response = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
+                const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}&album_name=${encodeURIComponent(album)}&duration=${duration}`;
+                const response = await fetch(url);
+
                 if (!response.ok) {
+                    // Se a API retornar um erro (ex: 404), exibe "Letra não encontrada".
                     lyricsContainer.textContent = 'Letra não encontrada.';
                     return;
                 }
+
                 const data = await response.json();
-                // A API retorna a letra com quebras de linha \n. A classe 'whitespace-pre-wrap' vai formatar isso corretamente.
-                lyricsContainer.textContent = data.lyrics || 'Letra não encontrada.';
+
+                // Verifica se a propriedade 'plainLyrics' existe e não está vazia
+                if (data && data.plainLyrics) {
+                    lyricsContainer.textContent = data.plainLyrics;
+                } else {
+                    lyricsContainer.textContent = 'Letra não encontrada.';
+                }
             } catch (error) {
-                console.error('Erro ao buscar a letra:', error);
+                console.error('Erro ao buscar a letra na LRCLIB API:', error);
                 lyricsContainer.textContent = 'Ocorreu um erro ao buscar a letra.';
             }
         }
@@ -906,7 +916,7 @@
             fullscreenArtistName.textContent = playerArtistName.textContent;
             playerAudio.src = songData.src;
 
-            fetchAndDisplayLyrics(songData.artist, songData.title);
+            // A busca de letras foi movida para o evento 'loadedmetadata' para garantir que a duração esteja disponível.
 
             if (autoplay) {
                 playerAudio.play();
@@ -2588,6 +2598,12 @@
         playerAudio.addEventListener('loadedmetadata', () => {
             durationDisplay.textContent = formatTime(playerAudio.duration);
             progressSlider.value = 0; // Reseta o slider no início da música
+
+            // Agora que temos a duração, podemos buscar a letra.
+            if (currentSong) {
+                const durationInSeconds = Math.round(playerAudio.duration);
+                fetchAndDisplayLyrics(currentSong.artist, currentSong.title, currentSong.album, durationInSeconds);
+            }
         });
 
         // Lida com o que acontece quando uma música termina
@@ -2922,11 +2938,6 @@
         window.playSong = playSong;
         window.showNotification = showNotification; // Expor para teste
         window.openAddToFolderModal = openAddToFolderModal;
-        window.applyPreferences = applyPreferences; // Expor para teste
-
-        // Funções expostas adicionalmente para verificação
-        window.showFolderContentModal = showFolderContentModal;
-        window.showDeleteConfirmationModal = showDeleteConfirmationModal;
         window.showMainApp = () => {
             if (!isAppInitialized) {
                 const mockUser = { id: 'mock-id', email: 'test@test.com' };
@@ -2938,6 +2949,10 @@
                 fetchAndRenderApps(mockUser.id);
             }
         };
+
+        // Funções expostas adicionalmente para verificação
+        window.showFolderContentModal = showFolderContentModal;
+        window.showDeleteConfirmationModal = showDeleteConfirmationModal;
         window.fetchAndDisplayLyrics = fetchAndDisplayLyrics;
         // Adiciona uma função de mock para testes
         window.mockFetchLyrics = (lyrics) => {
