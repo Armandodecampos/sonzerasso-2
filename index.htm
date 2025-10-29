@@ -1409,9 +1409,17 @@
         });
 
         backButtonNewPassword.addEventListener('click', () => {
-            toggleUI(false, 'login');
+            // Limpa os campos de senha
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
+
+            if (isAppInitialized) {
+                // Se o utilizador estava logado, volta para a aplicação principal
+                toggleUI(true);
+            } else {
+                // Se não estiver logado (fluxo de recuperação), volta para a tela de login
+                toggleUI(false, 'login');
+            }
         });
 
 
@@ -1420,22 +1428,34 @@
             const confirmPassword = confirmPasswordInput.value;
 
             if (newPassword !== confirmPassword) {
+                showNotification("As senhas não coincidem.", 'error');
                 return;
             }
             if (newPassword.length < 6) {
+                showNotification("A senha deve ter pelo menos 6 caracteres.", 'error');
                 return;
             }
 
             const { error } = await supabase.auth.updateUser({ password: newPassword });
 
             if (error) {
+                showNotification(`Erro ao atualizar a senha: ${error.message}`, 'error');
                 console.error(error);
             } else {
+                showNotification("Senha atualizada com sucesso!", 'success');
                 newPasswordInput.value = '';
                 confirmPasswordInput.value = '';
+
+                // Aguarda um pouco para o utilizador ler a notificação e depois age
                 setTimeout(() => {
-                    window.location.href = window.location.origin + window.location.pathname;
-                }, 1000);
+                    if (isAppInitialized) {
+                        // Se o utilizador estava logado, volta para a app
+                        toggleUI(true);
+                    } else {
+                        // Se veio do fluxo de recuperação, volta para o login para entrar com a nova senha
+                        toggleUI(false, 'login');
+                    }
+                }, 2000);
             }
         });
 
@@ -1465,33 +1485,13 @@
         });
 
         changePasswordButton.addEventListener('click', async () => {
+            // Esconde o modal de perfil e mostra o container de nova senha
             profileModal.classList.add('hidden');
             profileModal.classList.remove('flex');
-            const { data: { session } } = await supabase.auth.getSession();
-            const user = session?.user;
-
-            if (user && user.email) {
-                const redirectToUrl = `${window.location.origin}${window.location.pathname}`;
-
-                try {
-                    const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: redirectToUrl });
-
-                    if (error) {
-                         if (error.status === 429) {
-                            const waitTimeMatch = error.message.match(/after (\d+) seconds/);
-                            const waitTime = waitTimeMatch ? parseInt(waitTimeMatch[1]) : 60;
-                            showWaitModal(waitTime);
-                         }
-                         console.error(error);
-                    } else {
-                        resetEmailDisplay.textContent = user.email;
-                        resetPasswordModal.classList.remove('hidden');
-                        resetPasswordModal.classList.add('flex');
-                    }
-                } catch (err) {
-                     console.error(err);
-                }
-            }
+            newPasswordContainer.classList.remove('hidden');
+            mainContainer.classList.remove('hidden'); // Garante que o container principal seja visível
+            mainContainer.classList.add('flex');
+            loggedInAppContainer.classList.add('hidden'); // Esconde a app logada
         });
 
         logoutButtonModal.addEventListener('click', async () => {
@@ -2762,6 +2762,13 @@
 
         // --- VERIFICAÇÃO DE ESTADO DE AUTENTICAÇÃO E URL ---
         supabase.auth.onAuthStateChange((event, session) => {
+            // Prioridade 1: O utilizador clicou no link de recuperação de senha.
+            if (event === 'PASSWORD_RECOVERY') {
+                toggleUI(false, 'new-password');
+                return; // Impede a execução do resto da lógica
+            }
+
+            // Prioridade 2: Existe uma sessão ativa, o utilizador está logado.
             if (session) {
                 // Só inicializa a app por completo se ainda não tiver sido feito para esta sessão.
                 // Isto evita que a UI seja recarregada ao trocar de abas.
@@ -2787,20 +2794,15 @@
                     // --- Busca inicial de dados ---
                     fetchAndRenderApps(session.user.id);
                 }
-            } else { // Sem sessão ou o usuário saiu
+            } else { // Sem sessão ou o utilizador saiu
                 isAppInitialized = false; // Reinicia a flag
 
                 // Limpa todas as subscrições para evitar vazamentos de memória
                 if (customAppsSubscription) supabase.removeChannel(customAppsSubscription);
                 customAppsSubscription = null;
 
-                // Determina qual vista mostrar
-                const params = new URLSearchParams(window.location.hash.substring(1));
-                if (params.get('type') === 'recovery') {
-                    toggleUI(false, 'new-password');
-                } else {
-                    toggleUI(false, 'login');
-                }
+                // Mostra a tela de login por padrão
+                toggleUI(false, 'login');
             }
         });
 
