@@ -858,6 +858,19 @@
 
         // --- NOVA FUNÇÃO PARA BUSCAR LETRAS (COM FALLBACK) ---
 
+        // Função para "limpar" o texto antes de enviar para a API
+        function cleanTextForAPI(text) {
+            if (!text) return '';
+            // Remove (feat...), (with...), [... Remix], (Official Video) etc. e caracteres especiais no final
+            return text
+                .replace(/\s*\(feat\..*?\)\s*/i, '')
+                .replace(/\s*\(with.*?\)\s*/i, '')
+                .replace(/\s*\[.*?Remix\]\s*/i, '')
+                .replace(/\s*\(Official Video\)\s*/i, '')
+                .replace(/\s*-\s*Remastered\s*\d*/i, '')
+                .trim();
+        }
+
         // Provedor 1: Tenta buscar na API lyrics.ovh
         async function lyricsOvhProvider(artist, title) {
             try {
@@ -896,8 +909,12 @@
             }
             lyricsContainer.textContent = 'Buscando letra...';
 
+            // Limpa os nomes do artista e da música para melhorar a busca
+            const cleanedArtist = cleanTextForAPI(artist);
+            const cleanedTitle = cleanTextForAPI(title);
+
             for (const provider of lyricProviders) {
-                const lyrics = await provider(artist, title);
+                const lyrics = await provider(cleanedArtist, cleanedTitle);
                 if (lyrics) {
                     // A classe 'whitespace-pre-wrap' vai formatar as quebras de linha corretamente.
                     lyricsContainer.textContent = lyrics;
