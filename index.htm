@@ -856,26 +856,57 @@
         let isRandomModeActive = false;
         let autoSkipTimeout = null;
 
-        // --- NOVA FUNÇÃO PARA BUSCAR LETRAS ---
+        // --- NOVA FUNÇÃO PARA BUSCAR LETRAS (COM FALLBACK) ---
+
+        // Provedor 1: Tenta buscar na API lyrics.ovh
+        async function lyricsOvhProvider(artist, title) {
+            try {
+                const response = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
+                if (!response.ok) {
+                    return null; // Falhou, mas não foi um erro de rede
+                }
+                const data = await response.json();
+                // Retorna a letra se existir, senão null
+                return data.lyrics || null;
+            } catch (error) {
+                console.error('Erro no provedor lyrics.ovh:', error);
+                return null; // Erro de rede ou outro
+            }
+        }
+
+        // Provedor 2: Exemplo de API de fallback (sempre falha para demonstração)
+        async function exampleFallbackProvider(artist, title) {
+            console.log('Tentando o provedor de fallback de exemplo...');
+            // Simula uma falha
+            await new Promise(resolve => setTimeout(resolve, 500)); // Simula latência
+            return null;
+        }
+
+        // Lista de provedores a serem tentados em ordem
+        const lyricProviders = [
+            lyricsOvhProvider,
+            exampleFallbackProvider
+            // Adicione novas funções de provedor aqui no futuro
+        ];
+
         async function fetchAndDisplayLyrics(artist, title) {
             if (!artist || !title) {
                 lyricsContainer.textContent = 'Informações da música indisponíveis para buscar a letra.';
                 return;
             }
             lyricsContainer.textContent = 'Buscando letra...';
-            try {
-                const response = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
-                if (!response.ok) {
-                    lyricsContainer.textContent = 'Letra não encontrada.';
-                    return;
+
+            for (const provider of lyricProviders) {
+                const lyrics = await provider(artist, title);
+                if (lyrics) {
+                    // A classe 'whitespace-pre-wrap' vai formatar as quebras de linha corretamente.
+                    lyricsContainer.textContent = lyrics;
+                    return; // Sucesso, encerra a função
                 }
-                const data = await response.json();
-                // A API retorna a letra com quebras de linha \n. A classe 'whitespace-pre-wrap' vai formatar isso corretamente.
-                lyricsContainer.textContent = data.lyrics || 'Letra não encontrada.';
-            } catch (error) {
-                console.error('Erro ao buscar a letra:', error);
-                lyricsContainer.textContent = 'Ocorreu um erro ao buscar a letra.';
             }
+
+            // Se o loop terminar sem sucesso
+            lyricsContainer.textContent = 'Letra não encontrada em nenhuma fonte.';
         }
 
         function playSong(songData, fromHistory = false, autoplay = true) {
